@@ -2,12 +2,17 @@ body{
   font-family: Georgia, 'Times New Roman', Times, serif;
   margin: 0;
   padding: 0;
+  text-align: center;
+  color: #333;
 }
 
 .header{
   text-align: center;
-  border-bottom: 5px double black;
+  border-bottom: 1px solid #E2E2E2;
   padding: 20px;
+}
+.header h1{
+  color: black;
 }
 
 .header .links{
@@ -24,12 +29,75 @@ body{
 .content{
   width: 800px;
   margin: auto;
+  text-align: left;
 }
 
-.content h2{
+.content h1 a{
+  color: black;
+}
+
+@media screen and (max-width: 600px){
+  .content{
+    width: calc(100% - 30px);
+  }
+}
+
+a{
+  text-decoration: none;
+}
+
+a:link, a:visited{
+  color: #326891;
+}
+
+a:active{
+  color: #3268EE;
+}
+
+hr{
+  border: 0;
+  height: 1px;
+  background-color: #E2E2E2;
+}
+
+.subhead{
+  font-size: 20px;
+  color: #333;
+}
+
+.body, .body p{
+  color: #333;
+}
+
+.content .info{
+  font-size: 14px;
+  margin-top: -15px;
+}
+
+button{
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #eee;
+  border: none;
+  transition: box-shadow .2s;
   text-align: center;
+  margin: 10px;
 }
 
-.content p{
-  text-align: justify;
+button:hover{
+  box-shadow: 0 2px 4px 1px rgba(0,0,0,.1);
+}
+
+button:focus{
+  outline: none;
+  box-shadow: 0 2px 4px 1px rgba(0,0,0,.1)
+}
+
+button:active{
+  box-shadow: 0 1px 2px 1px rgba(0,0,0,.1)
+}
+
+.pager{
+  display: none;
 }

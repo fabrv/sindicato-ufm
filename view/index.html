@@ -6,13 +6,11 @@
   <title>Sindicato UFM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="main.css">
-  <script src="main.js"></script>
+  <script src="data/opinions.js"></script>
 </head>
 <body>
   <div class="header">
     <h1>SINDICATO UFM</h1>
-    <p>La critica estudiantil</p>
-
     <ul class="links">
       <li>
         <a href="../">OPINIÓN</a>
@@ -22,5 +20,13 @@
       </li>
     </ul>
   </div>
+
+  <div id="wrapper"></div>
+
+  <button class="pager" id="more" onClick="addPage()">Más articulos</button>
+  <button class="pager" id="less" onClick="lessPage()">Menos articulos</button>
+
+
+  <script src="main.js"></script>
 </body>
 </html>
