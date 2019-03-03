@@ -32,8 +32,18 @@ class App{
 
   mountRoutes(){
     const router: any = express.Router()
-    router.get('/', (req: express.Request, res: express.Response) => {
-      res.send('test')
+    router.get('/json/opinion', (req: express.Request, res: express.Response) => {
+      client.lrange('opinions', 0, -1, function(err: any, reply: any) {
+        res.send(parseSection(reply))
+      })
+    })
+
+    router.get('/opinion', (req: express.Request, res: express.Response) => {
+      res.sendFile(path.resolve(__dirname, '../view/index.html'))
+    })
+
+    router.get('/nosotros', (req: express.Request, res: express.Response) => {
+      res.sendFile(path.resolve(__dirname, '../view/nosotros.html'))
     })
 
     router.get('/:article', (req: express.Request, res: express.Response) => {
@@ -55,6 +65,14 @@ class App{
       })
     })
 
+    router.get('/404', (req: express.Request, res: express.Response) => {
+      const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+      res.send(`${indexStart}${wrapper}${indexEnd}`)
+    })
+    router.get('/*', (req: express.Request, res: express.Response) => {
+      res.redirect('/404')
+    })
+
     this.app.use('/', router)
   }
 }
@@ -71,6 +89,23 @@ function parseArticle(headline: string, subhead: string, body: string, date: str
   </div>
   `
   return article
+}
+
+function parseSection(unparsedArticles: Array<string>): Array<{date: string, author: string, headline: string, subhead: string, body: string, visits: number}>{
+  let parsedArticles: Array<{
+    date: string, 
+    author: string, 
+    headline: string, 
+    subhead: string, 
+    body: string, 
+    visits: number
+  }> = []
+  for (let i = 0; i < unparsedArticles.length; i++){
+    const opinion: {date: string, author: string, headline: string, subhead: string, body: string, visits: number} = JSON.parse(unparsedArticles[i])
+    parsedArticles.push(opinion)
+  }
+
+  return parsedArticles
 }
 
 //Export app

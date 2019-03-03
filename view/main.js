@@ -1,42 +1,47 @@
 const path = window.location.pathname.slice(1,window.location.pathname.length)
-let page = 0
-let wrapper = ""
-const maxPage = Math.floor(opinions.length/10)
 
-if(!isNaN(path)){
-  page = parseInt(path)
-}
-if (path === ""){
-  console.log('test')
-  page = 0
+if (path === ''){
+  window.location.replace('/opinion')
 }
 
-if (opinions.length > (page + 1) * 10){
-  document.getElementById('more').style.display = 'inline-block';
-}
-if (page > 0){
-  document.getElementById('less').style.display = 'inline-block';
-}
+const urlParams = new URLSearchParams(window.location.search);
+const pageParam = urlParams.get('page');
 
-if (!isNaN(path)){
-  if (path > maxPage){
-    window.location.replace(`/${maxPage}`)
+const Http = new XMLHttpRequest();
+const req = `/json/${path}`
+Http.open("GET", req)
+Http.send()
+Http.onreadystatechange=(e)=>{
+  const articles = JSON.parse(Http.responseText)  
+
+  let page = 0
+  let wrapper = ""
+  const maxPage = Math.floor(articles.length/10)
+
+  if (!isNaN(page)){
+    page = pageParam
+  }
+  
+  if (articles.length > (page + 1) * 10){
+    document.getElementById('more').style.display = 'inline-block';
+  }
+  if (page > 0){
+    document.getElementById('less').style.display = 'inline-block';
+  }
+
+  if (page > maxPage){
+    window.location.replace(`${path}?page=${maxPage}`)
   }
 
   for (let i = page * 10; i < (page * 10) + 10; i++){
-    if (i >= opinions.length){
+    if (i >= articles.length){
       i = (page * 10) + 11
     } else{
-      wrapper += parseArticle(opinions[i].headline, opinions[i].subhead, opinions[i].body, opinions[i].date, opinions[i].author)
+      wrapper += parseArticle(articles[i].headline, articles[i].subhead, articles[i].body, articles[i].date, articles[i].author)
     }
-  } 
-}else {
-  /*const article = opinions.find(opinion => opinion.headline === decodeURI(path))
-  wrapper += parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
-  document.title = `El Sindicato - ${article.headline}`*/
+  }
+  document.getElementById('wrapper').innerHTML = wrapper
 }
-
-document.getElementById('wrapper').innerHTML = wrapper
 
 function parseArticle(headline, subhead, body, date, author){
   const article = `
@@ -53,9 +58,9 @@ function parseArticle(headline, subhead, body, date, author){
 }
 
 function addPage(){
-  window.location.href = `/${page + 1}`
+  window.location.href = `/${window.location.href}?page=${page + 1}`
 }
 
 function lessPage(){
-  window.location.href = `/${page - 1}`
+  window.location.href = `/${window.location.href}?page=${page - 1}`
 }
