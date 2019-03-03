@@ -6,7 +6,8 @@ import * as path from 'path'
 var redis = require('redis')
 var client = redis.createClient(process.env.REDIS_URL);
 
-const indexStart = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>El Sindicato</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" media="screen" href="main.css"></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
+const indexStart = '<!DOCTYPE html><html><head>name="description" content="'
+const indexContent = '"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>El Sindicato</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" media="screen" href="main.css"></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
 const indexEnd = '</div><button class="pager" id="more" onClick="addPage()">Más articulos</button><button class="pager" id="less" onClick="lessPage()">Menos articulos</button></body></html>'
 
 class App{
@@ -57,16 +58,17 @@ class App{
           console.log(`Articulo visitado: ${decodeURI(req.params.article)}`)
           client.set(decodeURI(req.params.article), JSON.stringify(article), redis.print)
         }else{
+          article.subhead = '404 😥. No encontramos ese articulo'
           wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
         }
 
-        res.send(`${indexStart}${wrapper}${indexEnd}`)
+        res.send(`${indexStart}${article.subhead}${wrapper}${indexEnd}`)
       })
     })
 
     router.get('/404', (req: express.Request, res: express.Response) => {
       const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-      res.send(`${indexStart}${wrapper}${indexEnd}`)
+      res.send(`${indexStart}404 😥. No encontramos ese articulo${wrapper}${indexEnd}`)
     })
     router.get('/*', (req: express.Request, res: express.Response) => {
       res.redirect('/404')
