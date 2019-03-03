@@ -3,7 +3,6 @@ import express from 'express'
 import cors from 'cors'
 import * as path from 'path'
 
-var articles: Array<any> = require('../view/data/opinions.js')
 var redis = require('redis')
 var client = redis.createClient(process.env.REDIS_URL);
 
