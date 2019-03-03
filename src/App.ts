@@ -122,7 +122,8 @@ function parseMetaTags(title: string, description: string): string{
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="sindicato-icon-240x240.png">
     <meta property="og:type" content="article">
-    <meta property="og:locale" content="es_GT">
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURI(title)}">
     `
 }
 
