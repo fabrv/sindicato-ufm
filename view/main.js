@@ -31,9 +31,9 @@ if (!isNaN(path)){
     }
   } 
 }else {
-  const article = opinions.find(opinion => opinion.headline === decodeURI(path))
+  /*const article = opinions.find(opinion => opinion.headline === decodeURI(path))
   wrapper += parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
-  document.title = `El Sindicato - ${article.headline}`
+  document.title = `El Sindicato - ${article.headline}`*/
 }
 
 document.getElementById('wrapper').innerHTML = wrapper

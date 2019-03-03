@@ -3,6 +3,13 @@ import express from 'express'
 import cors from 'cors'
 import * as path from 'path'
 
+var articles: Array<any> = require('../view/data/opinions.js')
+var redis = require('redis')
+var client = redis.createClient(process.env.REDIS_URL);
+
+const indexStart = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>El Sindicato</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" media="screen" href="main.css"></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
+const indexEnd = '</div><button class="pager" id="more" onClick="addPage()">Más articulos</button><button class="pager" id="less" onClick="lessPage()">Menos articulos</button></body></html>'
+
 class App{
   public server: Server
   public app: express.Application
@@ -15,16 +22,55 @@ class App{
     this.mountRoutes()
     // Http Server
     this.server = createServer(this.app)
+
+
+    // Database connection error test
+    client.on('error', (err: any)=>{
+      console.log('Something went wrong on redis ', err)
+    })
   }
 
   mountRoutes(){
     const router: any = express.Router()
-    router.get('/*', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.resolve(__dirname, '../view/index.html'))
+    router.get('/', (req: express.Request, res: express.Response) => {
+      res.send('test')
+    })
+
+    router.get('/:article', (req: express.Request, res: express.Response) => {
+      let article: {date: string, author: string, headline: string, subhead: string, body: string, visits: number}
+      let wrapper: string
+      client.get(decodeURI(req.params.article), (error: any, result: any)=>{
+        if (error) throw error
+        if (result != null){
+          article = JSON.parse(result)
+          wrapper = parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
+          article.visits += 1
+          console.log(`Articulo visitado: ${decodeURI(req.params.article)}`)
+          client.set(decodeURI(req.params.article), JSON.stringify(article), redis.print)
+        }else{
+          wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+        }
+
+        res.send(`${indexStart}${wrapper}${indexEnd}`)
+      })
     })
 
     this.app.use('/', router)
   }
+}
+
+function parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
+  const article = `
+  <div class="content">
+    <h1><a href="${encodeURI(headline)}">${headline}</a></h1>
+    <p class="info"><b>${author}</b>  -  ${date}</p>
+    <p class="subhead">${subhead}</p>
+    <hr>
+    <div class="body">${body}</div>
+    <hr>
+  </div>
+  `
+  return article
 }
 
 //Export app
