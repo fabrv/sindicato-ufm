@@ -117,7 +117,13 @@ function parseMetaTags(title: string, description: string): string{
   return `
     <title>El Sindicato - ${title}</title>
     <meta name="title" content="${title}">
-    <meta name="description" content="${description}">`
+    <meta name="description" content="${description}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="sindicato-icon-240x240.png">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="es_GT">
+    `
 }
 
 //Export app
