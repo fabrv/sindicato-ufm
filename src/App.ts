@@ -68,16 +68,6 @@ class App{
       })
     })
 
-    router.get('/404', (req: express.Request, res: express.Response) => {
-      const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-      const metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo')
-      res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
-    })
-
-    router.get('/*', (req: express.Request, res: express.Response) => {
-      res.redirect('/404')
-    })
-
     this.app.use('/', router)
   }
 }
