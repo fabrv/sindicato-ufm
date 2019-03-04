@@ -75,7 +75,6 @@ class App{
     })
 
     router.post('/upload', (req: express.Request, res: express.Response)=>{
-      console.log(req.query)
       if (req.query.pwd == process.env.WRITE_PWD){
         const newArticle: {
           date: string, 
