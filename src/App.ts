@@ -23,7 +23,6 @@ class App{
     // Http Server
     this.server = createServer(this.app)
 
-
     // Database connection error test
     client.on('error', (err: any)=>{
       console.log('Something went wrong on redis ', err)
@@ -34,12 +33,18 @@ class App{
     const router: express.Router = express.Router()
     router.get('/json/opinion', (req: express.Request, res: express.Response) => {
       client.lrange('opinions', 0, -1, function(err: any, reply: any) {
+        if (err){
+          res.status(500).send(err)
+        }
         res.send(parseSection(reply))
       })
     })
 
     router.get('/json/:article', (req: express.Request, res: express.Response) => {
       client.get(decodeURI(req.params.article), (error: any, result: any)=>{
+        if (error){
+          res.status(500).send(error)
+        }
         res.send(result)
       })
     })
@@ -63,7 +68,9 @@ class App{
       let wrapper: string
       let metaTags: string
       client.get(decodeURI(req.params.article), (error: any, result: any)=>{
-        if (error) throw error
+        if (error){
+          res.status(500).send(error)
+        }
         if (result != null){
           article = JSON.parse(result)
           wrapper = parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
@@ -80,8 +87,17 @@ class App{
       })
     })
 
-    router.delete('/upload', (req: express.Request, res: express.Response)=>{
-      res.send(req.query)
+    router.delete('/delete', (req: express.Request, res: express.Response)=>{
+      if (req.query.pwd == process.env.WRITE_PWD){
+        client.lindex(decodeURI(req.query.category), req.query.index,(error: any, result: any)=>{
+          client.lrem(decodeURI(req.query.category), 1, result, redis.print)
+          client.del(req.query.article)
+          res.send(result)
+        })
+      }else{
+        console.log('wrong pwd:', req.query.pwd)
+        res.status(403).send("You don't have permission to delete articles on this server")
+      }
     })
 
     router.post('/upload', (req: express.Request, res: express.Response)=>{
@@ -105,7 +121,8 @@ class App{
         client.lpush(req.query.category, JSON.stringify(newArticle) , redis.print)
         res.send({'query': req.query})
       }else{
-        console.log('wrong pwd', req.query.pwd, process.env.WRITE_PWD)
+        console.log('wrong pwd:', req.query.pwd)
+        res.status(403).send("You don't have permission to upload articles on this server")
       }
     })
 

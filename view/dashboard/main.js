@@ -1,3 +1,4 @@
+var arts = []
 function uploadArticle() {
   openLoading()
   const category = document.getElementById('category').value  
@@ -54,6 +55,7 @@ if (!localStorage.articles){
   getArticles()
 }else{
   loadArticles(JSON.parse(localStorage.articles))
+  arts = JSON.parse(localStorage.articles)
 }
 
 function getArticles(){
@@ -66,13 +68,28 @@ function getArticles(){
     if (Http.readyState == 4 && Http.status == 200) {
       const articles = JSON.parse(Http.responseText)
       localStorage.articles = Http.responseText
+      arts = Http.responseText
       loadArticles(articles)
     }
   }
 }
 
-function loadArticles(articles){
-  document.getElementById('articles-table').innerHTML = '<tr><td style="cursor:pointer;"><b>Autor</b></td><td style="cursor:pointer;"><b>Título</b></td><td style="cursor:pointer;"><b>Fecha 🔽</b></td><td>👁️</td><td></td></tr>'
+function loadArticles(articles, sort = 'date'){
+  let sortHeadline = ''
+  let sortAuthor = ''
+  let sortDate = ''
+  switch (sort){
+    case 'headline':
+      sortHeadline = '🔽'
+      break
+    case 'author':
+      sortAuthor = '🔽'
+      break
+    case 'date':
+      sortDate = '🔽'
+      break
+  }
+  document.getElementById('articles-table').innerHTML = `<tr><td style="cursor:pointer;" onclick="sortByAuthor()"><b>Autor ${sortAuthor}</b></td><td style="cursor:pointer;" onclick="sortByHeadline()"><b>Título ${sortHeadline}</b></td><td style="cursor:pointer;" onclick="sortByDate()"><b>Fecha ${sortDate}</b></td><td>👁️</td><td></td></tr>`
   for (let i = 0; i < articles.length; i++){
     document.getElementById('articles-table').innerHTML += `
     <tr>
@@ -80,7 +97,7 @@ function loadArticles(articles){
       <td><a href="../${encodeURI(articles[i].headline)}">${articles[i].headline}</a></td>
       <td>${articles[i].date}</td>
       <td onclick="getViews(event.target, '${encodeURI(articles[i].headline)}')" style="cursor:pointer;">👁️</td>
-      <td onclick="deleteArticle(0, '')" style="cursor:pointer;"><abbr title="Borrar articulo">❌</abbr></td>
+      <td onclick="deleteArticle(${i}, '${articles[i].headline}')" style="cursor:pointer;"><abbr title="Borrar articulo">❌</abbr></td>
     </tr>
     `
   }
@@ -103,6 +120,35 @@ function getViews(target, article){
 function deleteArticle(index, article, category = 'opinions'){
   const pPrompt = prompt("Ingresar contraseña para borrar articulo")
   if (pPrompt != null){
-    console.log(pPrompt)
+    dismissForm()
+    openLoading()
+    const Http = new XMLHttpRequest();
+    const req = `/delete?article=${article}&index=${index}&category=${category}&pwd=${pPrompt}`
+    Http.open("DELETE", encodeURI(req))
+
+    Http.send()
+    Http.onreadystatechange=(e)=>{
+      dismissLoadig()
+    }
   }
+}
+
+function sortByAuthor(){
+  loadArticles(sortByKey(arts, 'author'), 'author')
+}
+
+function sortByHeadline(){
+  loadArticles(sortByKey(arts, 'headline'), 'headline')
+}
+
+function sortByDate(){
+  arts = JSON.parse(localStorage.articles)
+  loadArticles(arts)
+}
+
+function sortByKey(array, key) {
+  return array.sort( (a, b) => {
+      var x = a[key]; var y = b[key];
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+  });
 }
