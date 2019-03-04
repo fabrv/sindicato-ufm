@@ -23,7 +23,6 @@ class App{
     // Http Server
     this.server = createServer(this.app)
 
-
     // Database connection error test
     client.on('error', (err: any)=>{
       console.log('Something went wrong on redis ', err)
@@ -31,9 +30,27 @@ class App{
   }
 
   mountRoutes(){
-    const router: any = express.Router()
+    const router: express.Router = express.Router()
     router.get('/json/opinion', (req: express.Request, res: express.Response) => {
       client.lrange('opinions', 0, -1, function(err: any, reply: any) {
+        if (err){
+          res.status(500).send(err)
+        }
+        res.send(parseSection(reply))
+      })
+    })
+
+    router.get('/json/:article', (req: express.Request, res: express.Response) => {
+      client.get(decodeURI(req.params.article), (error: any, result: any)=>{
+        if (error){
+          res.status(500).send(error)
+        }
+        res.send(result)
+      })
+    })
+
+    router.get('/categories', (req: express.Request, res: express.Response) => {
+      client.lrange('categories', 0, -1, function(err: any, reply: any) {
         res.send(parseSection(reply))
       })
     })
@@ -51,7 +68,9 @@ class App{
       let wrapper: string
       let metaTags: string
       client.get(decodeURI(req.params.article), (error: any, result: any)=>{
-        if (error) throw error
+        if (error){
+          res.status(500).send(error)
+        }
         if (result != null){
           article = JSON.parse(result)
           wrapper = parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
@@ -66,6 +85,45 @@ class App{
         
         res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
       })
+    })
+
+    router.delete('/delete', (req: express.Request, res: express.Response)=>{
+      if (req.query.pwd == process.env.WRITE_PWD){
+        client.lindex(decodeURI(req.query.category), req.query.index,(error: any, result: any)=>{
+          client.lrem(decodeURI(req.query.category), 1, result, redis.print)
+          client.del(req.query.article)
+          res.status(303).send(result)
+        })
+      }else{
+        console.log('wrong pwd:', req.query.pwd)
+        res.status(403).send("You don't have permission to delete articles on this server")
+      }
+    })
+
+    router.post('/upload', (req: express.Request, res: express.Response)=>{
+      if (req.query.pwd == process.env.WRITE_PWD){
+        const newArticle: {
+          date: string, 
+          author: string, 
+          headline: string, 
+          subhead: string, 
+          body: string, 
+          visits: number
+        } = {
+          date: req.query.date, 
+          author: req.query.author, 
+          headline: req.query.headline, 
+          subhead: decodeURI(req.query.subhead),
+          body: decodeURI(req.query.body),
+          visits: 0
+        }
+        client.set(decodeURI(req.query.headline), JSON.stringify(newArticle), redis.print)
+        client.lpush(req.query.category, JSON.stringify(newArticle) , redis.print)
+        res.send({'article': newArticle})
+      }else{
+        console.log('wrong pwd:', req.query.pwd)
+        res.status(403).send("You don't have permission to upload articles on this server")
+      }
     })
 
     this.app.use('/', router)

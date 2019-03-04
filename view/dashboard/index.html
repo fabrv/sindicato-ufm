@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>El Sindicato - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" media="screen" href="../main.css">
+</head>
+<body>
+  <div class="header">
+    <h1>DASHBOARD</h1>
+    <ul class="links">
+      <li>
+        <a href="#" onclick="openForm()">NUEVO ARTICULO</a>
+      </li>
+      <li>
+        <a href="../">SALIR DE DASHBOARD</a>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="wrapper" id="wrapper">
+    <div class="content new-article" id="article-form">
+      <select id="category" name="category">
+        <option value="opinions">Opinión</option>
+      </select>
+      <input autocomplete="off" type="text" name="author" id="author" placeholder="Autor del articulo">    
+      <input autocomplete="off" type="text" name="headline" id="headline" placeholder="Título del articulo">
+      <textarea rows="5" cols="100" name="subhead" id="subhead" placeholder="Subtítulo del articulo aquí..."></textarea>
+      <textarea rows="15" cols="100" name="body" id="body" form="addArticle" placeholder="Cuerpo del articulo aquí..."></textarea>
+      <input autocomplete="off" type="password" name="pwd" id="pwd" placeholder="Clave">
+      <button onclick="dismissForm()">Cancelar</button>
+      <button onclick="uploadArticle()">Subir articulo</button>      
+    </div>
+    <div class="content loading" id="upload-loading">Procesando...</div>
+  </div>
+
+  <div class="content" style="padding-top: 20px">
+    <button onclick="getArticles()">Refrescar 🔃</button>
+    <table id="articles-table">
+      <tr>
+        <td style="cursor:pointer;"><b>Autor</b></td>
+        <td style="cursor:pointer;"><b>Título</b></td>
+        <td style="cursor:pointer;"><b>Fecha 🔽</b></td>
+        <td>👁️</td>
+        <td>❌</td>
+      </tr>
+    </table>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
