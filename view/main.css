@@ -85,11 +85,11 @@ button, .new-article input, select{
   margin: 10px;
 }
 
-button:hover, .new-article input[type=submit]:hover{
+button:hover, .new-article input:focus, textarea:focus{
   box-shadow: 0 2px 4px 1px rgba(0,0,0,.1);
 }
 
-button:focus, .new-article input[type=submit]:focus{
+button:focus, .new-article input:focus, textarea:focus{
   outline: none;
   box-shadow: 0 2px 4px 1px rgba(0,0,0,.1)
 }
@@ -109,6 +109,8 @@ button:active, .new-article input[type=submit]:active{
 
 .new-article input[type=text]{
   display: block;
+  border: solid 1px #E2E2E2;
+  background-color: white;
 }
 
 .new-article input[type=text]:focus, .new-article form input[type=password]:focus{
@@ -132,10 +134,6 @@ button:active, .new-article input[type=submit]:active{
   border: solid 1px #E2E2E2;
   width: calc(100% - 40px);
   display: block;
-}
-
-textarea:focus{
-  outline: none;
 }
 
 .new-article #headline{
@@ -173,4 +171,10 @@ textarea:focus{
 
 #articles-table{
   width: 100%;
+  border-collapse: collapse;
+}
+
+td{
+  border-bottom: 1px solid #e2e2e2;
+  padding: 10px;
 }

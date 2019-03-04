@@ -20,12 +20,12 @@
     </ul>
   </div>
   
-  <div class="wrapper" id="wrapper" onclick="dismissForm()">
+  <div class="wrapper" id="wrapper">
     <div class="content new-article" id="article-form">
       <select id="category" name="category">
         <option value="opinions">Opinión</option>
       </select>
-      <input type="text" name="author" id="author" placeholder="Autor del articulo">    
+      <input autocomplete="off" type="text" name="author" id="author" placeholder="Autor del articulo">    
       <input autocomplete="off" type="text" name="headline" id="headline" placeholder="Título del articulo">
       <textarea rows="5" cols="100" name="subhead" id="subhead" placeholder="Subtítulo del articulo aquí..."></textarea>
       <textarea rows="15" cols="100" name="body" id="body" form="addArticle" placeholder="Cuerpo del articulo aquí..."></textarea>
@@ -37,11 +37,15 @@
   </div>
 
   <div class="content" style="padding-top: 20px">
-    <table border="1" id="articles-table">
+    <button onclick="getArticles()">Refrescar 🔃</button>
+    <input type="text" placeholder="Filtrar articulos por titulo">
+    <table id="articles-table">
       <tr>
-        <td><b>Título</b></td>
-        <td><b>Fecha</b></td>
-        <td><b>👁️</b></td>
+        <td style="cursor:pointer;"><b>Autor</b></td>
+        <td style="cursor:pointer;"><b>Título</b></td>
+        <td style="cursor:pointer;"><b>Fecha 🔽</b></td>
+        <td>👁️</td>
+        <td>❌</td>
       </tr>
     </table>
   </div>

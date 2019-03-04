@@ -38,6 +38,12 @@ class App{
       })
     })
 
+    router.get('/json/:article', (req: express.Request, res: express.Response) => {
+      client.get(decodeURI(req.params.article), (error: any, result: any)=>{
+        res.send(result)
+      })
+    })
+
     router.get('/categories', (req: express.Request, res: express.Response) => {
       client.lrange('categories', 0, -1, function(err: any, reply: any) {
         res.send(parseSection(reply))
@@ -72,6 +78,10 @@ class App{
         
         res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
       })
+    })
+
+    router.delete('/upload', (req: express.Request, res: express.Response)=>{
+      res.send(req.query)
     })
 
     router.post('/upload', (req: express.Request, res: express.Response)=>{
