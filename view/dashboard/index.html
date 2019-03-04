@@ -3,12 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Page Title</title>
+  <title>El Sindicato - Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="../main.css">
   <script src="main.js"></script>
 </head>
 <body>
+  <div class="header">
+    <h1>DASHBOARD</h1>
+    <ul class="links">
+      <li>
+        <a href="#">NUEVO ARTICULO</a>
+      </li>
+      <li>
+        <a href="../">SALIR DE DASHBOARD</a>
+      </li>
+    </ul>
+  </div>
   
+  <div class="wrapper">
+    <div class="content new-article">
+      <select id="category" name="category">
+        <option value="opinions">Opinión</option>
+      </select>
+      <input type="text" name="author" id="author" placeholder="Autor del articulo">    
+      <input autocomplete="off" type="text" name="headline" id="headline" placeholder="Título del articulo">
+      <textarea rows="5" cols="100" name="subhead" id="subhead" placeholder="Subtítulo del articulo aquí..."></textarea>
+      <textarea rows="15" cols="100" name="body" id="body" form="addArticle" placeholder="Cuerpo del articulo aquí..."></textarea>
+      <input autocomplete="off" type="password" name="pwd" id="pwd" placeholder="Clave">
+      <button>Cancelar</button>
+      <button onclick="uploadArticle()">Subir articulo</button>      
+    </div>
+  </div>
 </body>
 </html>

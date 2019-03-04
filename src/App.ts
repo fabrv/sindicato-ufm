@@ -31,9 +31,15 @@ class App{
   }
 
   mountRoutes(){
-    const router: any = express.Router()
+    const router: express.Router = express.Router()
     router.get('/json/opinion', (req: express.Request, res: express.Response) => {
       client.lrange('opinions', 0, -1, function(err: any, reply: any) {
+        res.send(parseSection(reply))
+      })
+    })
+
+    router.get('/categories', (req: express.Request, res: express.Response) => {
+      client.lrange('categories', 0, -1, function(err: any, reply: any) {
         res.send(parseSection(reply))
       })
     })
@@ -66,6 +72,32 @@ class App{
         
         res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
       })
+    })
+
+    router.post('/upload', (req: express.Request, res: express.Response)=>{
+      console.log(req.query)
+      if (req.query.pwd == process.env.WRITE_PWD){
+        const newArticle: {
+          date: string, 
+          author: string, 
+          headline: string, 
+          subhead: string, 
+          body: string, 
+          visits: number
+        } = {
+          date: req.query.date, 
+          author: req.query.author, 
+          headline: req.query.headline, 
+          subhead: decodeURI(req.query.subhead),
+          body: decodeURI(req.query.body),
+          visits: 0
+        }
+        client.set(decodeURI(req.query.headline), JSON.stringify(newArticle), redis.print)
+        client.lpush(req.query.category, JSON.stringify(newArticle) , redis.print)
+        res.send({'query': req.query})
+      }else{
+        console.log('wrong pwd', req.query.pwd, process.env.WRITE_PWD)
+      }
     })
 
     this.app.use('/', router)
