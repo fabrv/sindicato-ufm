@@ -21,6 +21,10 @@ function uploadArticle() {
     if (Http.readyState == 4 && Http.status == 200) {
       console.log('RESULT', Http.responseText)
       dismissLoadig()
+      getArticles()
+    } else if (Http.readyState == 4 && Http.status !== 200){
+      dismissLoadig()
+      alert(Http.responseText)
     }
   }
 }
@@ -70,6 +74,10 @@ function getArticles(){
       localStorage.articles = Http.responseText
       arts = Http.responseText
       loadArticles(articles)
+    } else if (Http.readyState == 4 && Http.status !== 200){
+      console.log('error')
+      dismissLoadig()
+      alert(Http.responseText)
     }
   }
 }
@@ -113,6 +121,10 @@ function getViews(target, article){
     if (Http.readyState == 4 && Http.status == 200) {
       const article = JSON.parse(Http.responseText)
       target.innerHTML = `<span onclick="getViews(event.target, '${encodeURI(article.headline)}')">${article.visits}</span>`
+    } else if (Http.readyState == 4 && Http.status !== 200){
+      console.log('error')
+      dismissLoadig()
+      alert(Http.responseText)
     }
   }
 }
@@ -128,7 +140,14 @@ function deleteArticle(index, article, category = 'opinions'){
 
     Http.send()
     Http.onreadystatechange=(e)=>{
-      dismissLoadig()
+      if (Http.readyState == 4 && Http.status == 303) {
+        dismissLoadig()
+        getArticles()
+      } else if (Http.readyState == 4 && Http.status !== 303){
+        console.log('error')
+        dismissLoadig()
+        alert(Http.responseText)
+      }
     }
   }
 }

@@ -92,7 +92,7 @@ class App{
         client.lindex(decodeURI(req.query.category), req.query.index,(error: any, result: any)=>{
           client.lrem(decodeURI(req.query.category), 1, result, redis.print)
           client.del(req.query.article)
-          res.send(result)
+          res.status(303).send(result)
         })
       }else{
         console.log('wrong pwd:', req.query.pwd)
@@ -119,7 +119,7 @@ class App{
         }
         client.set(decodeURI(req.query.headline), JSON.stringify(newArticle), redis.print)
         client.lpush(req.query.category, JSON.stringify(newArticle) , redis.print)
-        res.send({'query': req.query})
+        res.send({'article': newArticle})
       }else{
         console.log('wrong pwd:', req.query.pwd)
         res.status(403).send("You don't have permission to upload articles on this server")
