@@ -72,7 +72,7 @@ function getArticles(){
     if (Http.readyState == 4 && Http.status == 200) {
       const articles = JSON.parse(Http.responseText)
       localStorage.articles = Http.responseText
-      arts = Http.responseText
+      arts = JSON.parse(Http.responseText)
       loadArticles(articles)
     } else if (Http.readyState == 4 && Http.status !== 200){
       console.log('error')

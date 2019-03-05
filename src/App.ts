@@ -102,6 +102,7 @@ class App{
 
     router.post('/upload', (req: express.Request, res: express.Response)=>{
       if (req.query.pwd == process.env.WRITE_PWD){
+        console.log(req.query.body)
         const newArticle: {
           date: string, 
           author: string, 
@@ -113,8 +114,8 @@ class App{
           date: req.query.date, 
           author: req.query.author, 
           headline: req.query.headline, 
-          subhead: decodeURI(req.query.subhead),
-          body: decodeURI(req.query.body),
+          subhead: req.query.subhead,
+          body: req.query.body,
           visits: 0
         }
         client.set(decodeURI(req.query.headline), JSON.stringify(newArticle), redis.print)
