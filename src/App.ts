@@ -118,7 +118,7 @@ class App{
           body: req.query.body,
           visits: 0
         }
-        client.set(decodeURI(req.query.headline), JSON.stringify(newArticle), redis.print)
+        client.set(req.query.headline, JSON.stringify(newArticle), redis.print)
         client.lpush(req.query.category, JSON.stringify(newArticle) , redis.print)
         res.send({'article': newArticle})
       }else{
