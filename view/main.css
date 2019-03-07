@@ -63,11 +63,13 @@ hr{
 
 .subhead{
   font-size: 20px;
-  color: #333;
+  color: black;
 }
 
 .body, .body p{
   color: #333;
+  font-size: 18px;
+  line-height: 1.5em;
 }
 
 .content .info{
