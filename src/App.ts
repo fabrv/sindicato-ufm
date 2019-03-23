@@ -77,7 +77,27 @@ class App{
           article.visits += 1
           console.log(`Articulo visitado: ${decodeURI(req.params.article)}`)
           client.set(decodeURI(req.params.article), JSON.stringify(article), redis.print)
-          metaTags = parseMetaTags(`${article.headline}`, article.subhead)
+          if (article.body.includes('src="')){
+            for (let i = 0; i < article.body.length; i++){
+              if (article.body[i] == '"'){
+                let string = article.body[i-4] + article.body[i-3] + article.body[i-2] + article.body[i-1] + article.body[i]
+                if (string == 'src="'){
+                  let char = ''
+                  let o = 1
+                  while (char != '"'){
+                    char = article.body[i+o]
+                    o++
+                  }
+                  const imgString = article.body.substring(i+1, i+o-1)
+                  console.log(imgString)
+                  metaTags = parseMetaTags(`${article.headline}`, article.subhead, imgString)
+                  i = article.body.length
+                }
+              }
+            }
+          }else{
+            metaTags = parseMetaTags(`${article.headline}`, article.subhead)
+          }
         }else{
           wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
           metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo')
@@ -162,14 +182,14 @@ function parseSection(unparsedArticles: Array<string>): Array<{date: string, aut
   return parsedArticles
 }
 
-function parseMetaTags(title: string, description: string): string{
+function parseMetaTags(title: string, description: string, img: string = 'sindicato-icon-240x240.png'): string{
   return `
     <title>El Sindicato - ${title}</title>
     <meta name="title" content="${title}">
     <meta name="description" content="${description}">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
-    <meta property="og:image" content="sindicato-icon-240x240.png">
+    <meta property="og:image" content="${img}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="es_ES">
     <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURI(title)}">
