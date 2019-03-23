@@ -88,7 +88,7 @@ class App{
                     char = article.body[i+o]
                     o++
                   }
-                  const imgString = article.body.substring(i+1, i+o-1)
+                  const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
                   console.log(imgString)
                   metaTags = parseMetaTags(`${article.headline}`, article.subhead, imgString)
                   i = article.body.length
@@ -189,7 +189,7 @@ function parseMetaTags(title: string, description: string, img: string = 'sindic
     <meta name="description" content="${description}">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${img}">
+    <meta property="og:image" content="http://www.sindicato-ufm.com/${img}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="es_ES">
     <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURI(title)}">
