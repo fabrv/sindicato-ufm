@@ -5,7 +5,7 @@ function uploadArticle() {
   const author = document.getElementById('author').value
   const headline = document.getElementById('headline').value
   const subhead = document.getElementById('subhead').value.replace(/\n/g, "<br />")
-  const body = document.getElementById('body').value.replace(/\n/g, "<br />")
+  const body = document.getElementById('body').value
   const pwd = document.getElementById('pwd').value
   
   const event = new Date()
@@ -170,4 +170,20 @@ function sortByKey(array, key) {
       var x = a[key]; var y = b[key];
       return ((x < y) ? -1 : ((x > y) ? 1 : 0));
   });
+}
+
+function changePreview(){
+  document.getElementById('preview').innerHTML = document.getElementById('body').value
+}
+let previewVisible = false
+function showPreview(){
+  changePreview()
+  if (previewVisible) {
+    document.getElementById('body').style.display = 'initial'
+    document.getElementById('preview').style.display = 'none'
+  } else {
+    document.getElementById('body').style.display = 'none'
+    document.getElementById('preview').style.display = 'block'
+  }
+  previewVisible = !previewVisible
 }

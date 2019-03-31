@@ -28,10 +28,14 @@
       <input autocomplete="off" type="text" name="author" id="author" placeholder="Autor del articulo">    
       <input autocomplete="off" type="text" name="headline" id="headline" placeholder="Título del articulo">
       <textarea rows="5" cols="100" name="subhead" id="subhead" placeholder="Subtítulo del articulo aquí..."></textarea>
-      <textarea rows="15" cols="100" name="body" id="body" form="addArticle" placeholder="Cuerpo del articulo aquí..."></textarea>
+      <div style="height: 17em; overflow-y: auto; overflow-x: hidden">
+        <textarea rows="15" cols="100" name="body" id="body" form="addArticle" placeholder="Cuerpo del articulo aquí (html)..."></textarea>
+        <div style="display: none;" id="preview"></div>
+      </div>
       <input autocomplete="off" type="text" name="pwd" id="pwd" placeholder="Clave">
       <button onclick="dismissForm()">Cancelar</button>
-      <button onclick="uploadArticle()">Subir articulo</button>      
+      <button onclick="showPreview()">Visualizar 👁️</button>
+      <button onclick="uploadArticle()">Subir articulo ⬆️</button>      
     </div>
     <div class="content loading" id="upload-loading">Procesando...</div>
   </div>
