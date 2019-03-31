@@ -152,9 +152,10 @@ class App{
 }
 
 function parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
+  console.log(headline, encodeURIComponent(headline))
   const article = `
   <div class="content">
-    <h1><a href="${encodeURI(headline)}">${headline}</a></h1>
+    <h1><a href="${encodeURIComponent(headline)}">${headline}</a></h1>
     <p class="info"><b>${author}</b>  -  ${date}</p>
     <p class="subhead">${subhead}</p>
     <hr>
@@ -192,7 +193,7 @@ function parseMetaTags(title: string, description: string, img: string = 'sindic
     <meta property="og:image" content="http://www.sindicato-ufm.com/${img}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="es_ES">
-    <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURI(title)}">
+    <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURIComponent(title)}">
     `
 }
 

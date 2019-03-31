@@ -13,8 +13,9 @@ function uploadArticle() {
 
   const date = event.toLocaleDateString('es-ES', options)
   const Http = new XMLHttpRequest();
-  const req = `/upload?category=${category}&author=${author}&headline=${headline}&subhead=${subhead}&body=${body}&date=${date}&pwd=${pwd}`
-  Http.open("POST", encodeURI(req))
+  const req = `/upload?category=${category}&author=${author}&headline=${encodeURIComponent(headline)}&subhead=${encodeURIComponent(subhead)}&body=${encodeURIComponent(body)}&date=${date}&pwd=${pwd}`
+  console.log(req)
+  Http.open("POST", req)
 
   Http.send()
   Http.onreadystatechange=(e)=>{
@@ -102,9 +103,9 @@ function loadArticles(articles, sort = 'date'){
     document.getElementById('articles-table').innerHTML += `
     <tr>
       <td>${articles[i].author}</td>
-      <td><a href="../${encodeURI(articles[i].headline)}">${articles[i].headline}</a></td>
+      <td><a href="../${encodeURIComponent(articles[i].headline)}">${articles[i].headline}</a></td>
       <td>${articles[i].date}</td>
-      <td onclick="getViews(event.target, '${encodeURI(articles[i].headline)}')" style="cursor:pointer;">👁️</td>
+      <td onclick="getViews(event.target, '${encodeURIComponent(articles[i].headline)}')" style="cursor:pointer;">👁️</td>
       <td onclick="deleteArticle(${i}, '${articles[i].headline}')" style="cursor:pointer;"><abbr title="Borrar articulo">❌</abbr></td>
     </tr>
     `

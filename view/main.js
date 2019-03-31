@@ -48,7 +48,7 @@ Http.onreadystatechange=(e)=>{
 function parseArticle(headline, subhead, body, date, author){
   const article = `
   <div class="content">
-    <h1><a href="${encodeURI(headline)}">${headline}</a></h1>
+    <h1><a href="${encodeURIComponent(headline)}">${headline}</a></h1>
     <p class="info"><b>${author}</b>  -  ${date}</p>
     <p class="subhead">${subhead}</p>
     <hr>
