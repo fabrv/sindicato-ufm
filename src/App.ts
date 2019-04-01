@@ -7,8 +7,8 @@ var redis = require('redis')
 var client = redis.createClient(process.env.REDIS_URL);
 
 const indexStart = '<!DOCTYPE html><html><head>'
-const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="main.css"></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
-const indexEnd = '</div><button class="pager" id="more" onClick="addPage()">Más articulos</button><button class="pager" id="less" onClick="lessPage()">Menos articulos</button></body></html>'
+const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="main.css"><script src="main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
+const indexEnd = '</div></body></html>'
 
 class App{
   public server: Server
@@ -56,7 +56,45 @@ class App{
     })
 
     router.get('/opinion', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.resolve(__dirname, '../view/index.html'))
+      const pager: string = '<button class="pager" id="more" onClick="addPage()">Más articulos</button><button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
+      let page: number = 0
+      let articles
+      if (!isNaN(req.query.page)){
+        page = parseInt(req.query.page)
+      }
+
+      client.lrange('opinions', 0, -1, function(err: any, reply: any) {
+        if (err){
+          res.status(500).send(err)
+        }
+        const maxPage = Math.floor(reply.length/10)
+        if (page > maxPage || page < 0){
+          page = 0
+        }
+
+        let end: string = indexEnd
+
+        if (reply.length > (page + 1) * 10){
+          end = spliceSlice(end, 6, 0, '<button class="pager" id="more" onClick="addPage()">Más articulos</button>')
+        }
+        if (page > 0){
+          end = spliceSlice(end, 6, 0, '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>')
+        }
+
+        console.log(end)
+
+        articles = parseSection(reply.slice(0 + (10 * page), 11 + (10 * page)))
+        let wrapper: string = ''
+        for (let i = 0; i < articles.length; i++){
+          wrapper += parseArticle(articles[i].headline, articles[i].subhead, articles[i].body, articles[i].date, articles[i].author);
+        }
+
+        const metaTags = parseMetaTags('Opinión', '')
+        res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${end}`)
+        //const end = spliceSlice(indexEnd, 6, 0, wrapper)
+        //console.log(end)
+        //res.json(articles)
+      })
     })
 
     router.get('/nosotros', (req: express.Request, res: express.Response) => {
@@ -147,12 +185,15 @@ class App{
       }
     })
 
+    router.get('/', (req: express.Request, res: express.Response)=>{
+      res.redirect('/opinion')
+    })
+
     this.app.use('/', router)
   }
 }
 
 function parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
-  console.log(headline, encodeURIComponent(headline))
   const article = `
   <div class="content">
     <h1><a href="${encodeURIComponent(headline)}">${headline}</a></h1>
@@ -195,6 +236,17 @@ function parseMetaTags(title: string, description: string, img: string = 'sindic
     <meta property="og:locale" content="es_ES">
     <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURIComponent(title)}">
     `
+}
+
+function spliceSlice(str: string, index: number, count: number, add: any):string {
+  if (index < 0) {
+    index = str.length + index;
+    if (index < 0) {
+      index = 0;
+    }
+  }
+
+  return str.slice(0, index) + (add || "") + str.slice(index + count);
 }
 
 //Export app
