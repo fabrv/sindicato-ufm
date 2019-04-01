@@ -81,8 +81,6 @@ class App{
           end = spliceSlice(end, 6, 0, '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>')
         }
 
-        console.log(end)
-
         articles = parseSection(reply.slice(0 + (10 * page), 11 + (10 * page)))
         let wrapper: string = ''
         for (let i = 0; i < articles.length; i++){
