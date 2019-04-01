@@ -87,7 +87,7 @@ class App{
           wrapper += parseArticle(articles[i].headline, articles[i].subhead, articles[i].body, articles[i].date, articles[i].author);
         }
 
-        const metaTags = parseMetaTags('Opinión', '')
+        const metaTags = parseMetaTags('', '')
         res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${end}`)
         //const end = spliceSlice(indexEnd, 6, 0, wrapper)
         //console.log(end)
