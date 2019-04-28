@@ -224,7 +224,7 @@ function parseSection(unparsedArticles: Array<string>): Array<{date: string, aut
 
 function parseMetaTags(title: string, description: string, img: string = 'sindicato-icon-240x240.png'): string{
   return `
-    <title>El Sindicato - ${title}</title>
+    <title>| El Sindicato | ${title}</title>
     <meta name="title" content="${title}">
     <meta name="description" content="${description}">
     <meta property="og:title" content="${title}">
