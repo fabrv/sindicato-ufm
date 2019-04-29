@@ -1,10 +1,16 @@
 import { createServer, Server } from 'http'
+import { Client } from 'pg'
 import express from 'express'
 import cors from 'cors'
 import * as path from 'path'
 
-var redis = require('redis')
-var client = redis.createClient(process.env.REDIS_URL);
+import redis from 'redis';
+const client = redis.createClient(process.env.REDIS_URL)
+
+const pgClient = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true,
+})
 
 const indexStart = '<!DOCTYPE html><html><head>'
 const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="main.css"><script src="main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
@@ -23,7 +29,9 @@ class App{
     // Http Server
     this.server = createServer(this.app)
 
-    // Database connection error test
+    // Postgres connection
+    pgClient.connect()
+    // Redis connection error test
     client.on('error', (err: any)=>{
       console.log('Something went wrong on redis ', err)
     })
@@ -32,12 +40,17 @@ class App{
   mountRoutes(){
     const router: express.Router = express.Router()
     router.get('/json/opinion', (req: express.Request, res: express.Response) => {
-      client.lrange('opinions', 0, -1, function(err: any, reply: any) {
-        if (err){
-          res.status(500).send(err)
+      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = 'Opinión' ORDER BY created DESC`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let row of result.rows) {
+            data.push(row)
+          }
+          res.status(200).send(data)
         }
-        res.send(parseSection(reply))
-      })
+      });
     })
 
     router.get('/json/:article', (req: express.Request, res: express.Response) => {
