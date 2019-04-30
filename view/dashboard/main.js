@@ -103,7 +103,7 @@ function loadArticles(articles, sort = 'date'){
     document.getElementById('articles-table').innerHTML += `
     <tr>
       <td>${articles[i].author}</td>
-      <td><a href="../${encodeURIComponent(replaceAll(article, ' ', '_'))}">${articles[i].headline}</a></td>
+      <td><a href="../${encodeURIComponent(replaceAll(articles[i].headline, ' ', '_'))}">${articles[i].headline}</a></td>
       <td>${articles[i].date}</td>
       <td onclick="getViews(event.target, '${encodeURIComponent(articles[i].headline)}')" style="cursor:pointer;">👁️</td>
       <td onclick="deleteArticle(${i}, '${articles[i].headline}')" style="cursor:pointer;"><abbr title="Borrar articulo">❌</abbr></td>
