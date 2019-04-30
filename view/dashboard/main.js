@@ -105,7 +105,7 @@ function loadArticles(articles, sort = 'date'){
       <td>${articles[i].author}</td>
       <td><a href="../${encodeURIComponent(replaceAll(articles[i].headline, ' ', '_'))}">${articles[i].headline}</a></td>
       <td>${articles[i].date}</td>
-      <td onclick="getViews(event.target, '${encodeURIComponent(articles[i].headline)}')" style="cursor:pointer;">👁️</td>
+      <td onclick="getViews(event.target, '${replaceAll(articles[i].headline, ' ', '_')}')" style="cursor:pointer;">👁️</td>
       <td onclick="deleteArticle(${i}, '${articles[i].headline}')" style="cursor:pointer;"><abbr title="Borrar articulo">❌</abbr></td>
     </tr>
     `
@@ -114,8 +114,8 @@ function loadArticles(articles, sort = 'date'){
 
 function getViews(target, article){
   const Http = new XMLHttpRequest();
-  const req = `/json/articulo/${replaceAll(article, ' ', '_')}`
-  Http.open("GET", encodeURI(req))
+  const req = `/json/articulo/${article}`
+  Http.open("GET", req)
 
   Http.send()
   Http.onreadystatechange=(e)=>{
