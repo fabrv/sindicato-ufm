@@ -103,7 +103,7 @@ function loadArticles(articles, sort = 'date'){
     document.getElementById('articles-table').innerHTML += `
     <tr>
       <td>${articles[i].author}</td>
-      <td><a href="../${encodeURIComponent(articles[i].headline)}">${articles[i].headline}</a></td>
+      <td><a href="../${encodeURIComponent(replaceAll(article, ' ', '_'))}">${articles[i].headline}</a></td>
       <td>${articles[i].date}</td>
       <td onclick="getViews(event.target, '${encodeURIComponent(articles[i].headline)}')" style="cursor:pointer;">👁️</td>
       <td onclick="deleteArticle(${i}, '${articles[i].headline}')" style="cursor:pointer;"><abbr title="Borrar articulo">❌</abbr></td>
@@ -114,7 +114,7 @@ function loadArticles(articles, sort = 'date'){
 
 function getViews(target, article){
   const Http = new XMLHttpRequest();
-  const req = `/json/${article}`
+  const req = `/json/articulo/${replaceAll(article, ' ', '_')}`
   Http.open("GET", encodeURI(req))
 
   Http.send()
@@ -187,4 +187,8 @@ function showPreview(){
     document.getElementById('preview').style.display = 'block'
   }
   previewVisible = !previewVisible
+}
+
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
 }
