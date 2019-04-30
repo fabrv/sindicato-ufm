@@ -268,7 +268,7 @@ function parseMetaTags(title: string, description: string, img: string = 'sindic
     <meta property="og:image" content="http://www.sindicato-ufm.com/${img}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="es_ES">    
-    <meta property="og:url" content="http://www.sindicato-ufm.com/">
+    <meta property="og:url" content="http://www.sindicato-ufm.com/${replaceAll(title, ' ', '_')}">
     <meta name="google-site-verification" content="jMeI7ML27XYuoifj0zX0IOkJDRe5qnu0Mv1SI2kUOLI" />
     `
 }
