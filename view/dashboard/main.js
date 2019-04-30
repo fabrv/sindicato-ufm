@@ -121,7 +121,7 @@ function getViews(target, article){
   Http.onreadystatechange=(e)=>{
     if (Http.readyState == 4 && Http.status == 200) {
       const article = JSON.parse(Http.responseText)
-      target.innerHTML = `<span onclick="getViews(event.target, '${encodeURI(article.headline)}')">${article.visits}</span>`
+      target.innerHTML = `<span onclick="getViews(event.target, '${encodeURI(article.headline)}')">${article.views}</span>`
     } else if (Http.readyState == 4 && Http.status !== 200){
       console.log('error')
       dismissLoadig()
