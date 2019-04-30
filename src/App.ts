@@ -1,14 +1,20 @@
 import { createServer, Server } from 'http'
+import { Client } from 'pg'
 import express from 'express'
 import cors from 'cors'
 import * as path from 'path'
 
-var redis = require('redis')
-var client = redis.createClient(process.env.REDIS_URL);
+import redis from 'redis'
+const client = redis.createClient(process.env.REDIS_URL)
+
+const pgClient = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true,
+})
 
 const indexStart = '<!DOCTYPE html><html><head>'
-const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="main.css"><script src="main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../">OPINIÓN</a></li><li><a href="nosotros.html">NOSOTROS</a></li></ul></div><div id="wrapper">'
-const indexEnd = '</div></body></html>'
+const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="../main.css"><script src="../main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../musica">MÚSICA</a><li><a href="../">OPINIÓN</a></li><li><a href="../nosotros">NOSOTROS</a></li></ul></div><div id="wrapper">'
+const indexEnd = '</div><footer class="header"> <h1>🏛️</h1> <h3>La crítica estudiantil</h3><ul class="links"> <li><a href="../musica">MÚSICA</a><li> <li> <a href="../">OPINIÓN</a> </li> <li> <a href="../nosotros">NOSOTROS</a> </li> </ul> </footer></body></html>'
 
 class App{
   public server: Server
@@ -23,7 +29,9 @@ class App{
     // Http Server
     this.server = createServer(this.app)
 
-    // Database connection error test
+    // Postgres connection
+    pgClient.connect()
+    // Redis connection error test
     client.on('error', (err: any)=>{
       console.log('Something went wrong on redis ', err)
     })
@@ -31,67 +39,43 @@ class App{
 
   mountRoutes(){
     const router: express.Router = express.Router()
-    router.get('/json/opinion', (req: express.Request, res: express.Response) => {
-      client.lrange('opinions', 0, -1, function(err: any, reply: any) {
-        if (err){
-          res.status(500).send(err)
-        }
-        res.send(parseSection(reply))
-      })
-    })
 
-    router.get('/json/:article', (req: express.Request, res: express.Response) => {
-      client.get(decodeURI(req.params.article), (error: any, result: any)=>{
-        if (error){
+    router.get('/json/articulo/:article', (req: express.Request, res: express.Response) => {
+      const article = replaceAll(req.params.article, '_', ' ')
+      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE "headline" = '${article}'`, (error, result) => {
+        if (error) {
           res.status(500).send(error)
+        } else {
+          res.status(200).send(result.rows[0])
         }
-        res.send(result)
       })
     })
 
-    router.get('/categories', (req: express.Request, res: express.Response) => {
-      client.lrange('categories', 0, -1, function(err: any, reply: any) {
-        res.send(parseSection(reply))
+    router.get('/json/categories', (req: express.Request, res: express.Response) => {
+      pgClient.query(`SELECT "CATEGORY", "LABEL" FROM public."CATEGORY"`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let row of result.rows) {
+            data.push(row)
+          }
+          res.status(200).send(data)
+        }
       })
     })
-
-    router.get('/opinion', (req: express.Request, res: express.Response) => {
-      const pager: string = '<button class="pager" id="more" onClick="addPage()">Más articulos</button><button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
-      let page: number = 0
-      let articles
-      if (!isNaN(req.query.page)){
-        page = parseInt(req.query.page)
-      }
-
-      client.lrange('opinions', 0, -1, function(err: any, reply: any) {
-        if (err){
-          res.status(500).send(err)
+    
+    router.get('/json/:category', (req: express.Request, res: express.Response) => {
+      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let row of result.rows) {
+            data.push(row)
+          }
+          res.status(200).send(data)
         }
-        const maxPage = Math.floor(reply.length/10)
-        if (page > maxPage || page < 0){
-          page = 0
-        }
-
-        let end: string = indexEnd
-
-        if (reply.length > (page + 1) * 10){
-          end = spliceSlice(end, 6, 0, '<button class="pager" id="more" onClick="addPage()">Más articulos</button>')
-        }
-        if (page > 0){
-          end = spliceSlice(end, 6, 0, '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>')
-        }
-
-        articles = parseSection(reply.slice(0 + (10 * page), 11 + (10 * page)))
-        let wrapper: string = ''
-        for (let i = 0; i < articles.length; i++){
-          wrapper += parseArticle(articles[i].headline, articles[i].subhead, articles[i].body, articles[i].date, articles[i].author);
-        }
-
-        const metaTags = parseMetaTags('', '')
-        res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${end}`)
-        //const end = spliceSlice(indexEnd, 6, 0, wrapper)
-        //console.log(end)
-        //res.json(articles)
       })
     })
 
@@ -99,47 +83,86 @@ class App{
       res.sendFile(path.resolve(__dirname, '../view/nosotros.html'))
     })
 
-    router.get('/:article', (req: express.Request, res: express.Response) => {
-      let article: {date: string, author: string, headline: string, subhead: string, body: string, visits: number}
+    router.get('/:category', (req: express.Request, res: express.Response) => {
+      let page: number = 0
+      const pageBoundary: number = 10
+      if (!isNaN(req.query.page)){
+        page = parseInt(req.query.page)
+      }
+
+      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC OFFSET ${page * (pageBoundary)} FETCH NEXT ${pageBoundary + 1} ROWS ONLY;`, (error, result) => {
+        let end: string = indexEnd
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let i = 0; i < result.rowCount && i < pageBoundary; i++) {
+            data.push(result.rows[i])
+          }
+
+          if (result.rowCount === 0){
+            res.redirect(`${req.params.category}`)
+          } else {
+            if (result.rowCount === pageBoundary + 1) {
+              end = spliceSlice(end, 6, 0, '<button class="pager" id="more" onClick="addPage()">Más articulos</button>')
+            }
+            if (page > 0){
+              end = spliceSlice(end, 6, 0, '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>')
+            }
+
+            let wrapper: string = ''
+            for (let i = 0; i < data.length; i++){
+              wrapper += parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+            }
+            const metaTags = parseMetaTags('', '')
+            res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${end}`)
+          }
+        }
+      })
+    })
+
+    router.get('/articulo/:article', (req: express.Request, res: express.Response) => {
       let wrapper: string
       let metaTags: string
-      client.get(decodeURI(req.params.article), (error: any, result: any)=>{
-        if (error){
+      const pArticle = replaceAll(req.params.article, '_', ' ')
+
+      pgClient.query(`UPDATE public."ARTICLE" SET "views" = "views" + 1 WHERE "headline" = '${pArticle}'; SELECT * FROM public."ARTICLE" WHERE "headline" = '${pArticle}';`, (error, result: any) => {
+        if (error) {
           res.status(500).send(error)
-        }
-        if (result != null){
-          article = JSON.parse(result)
-          wrapper = parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
-          article.visits += 1
-          console.log(`Articulo visitado: ${decodeURI(req.params.article)}`)
-          client.set(decodeURI(req.params.article), JSON.stringify(article), redis.print)
-          if (article.body.includes('src="')){
-            for (let i = 0; i < article.body.length; i++){
-              if (article.body[i] == '"'){
-                let string = article.body[i-4] + article.body[i-3] + article.body[i-2] + article.body[i-1] + article.body[i]
-                if (string == 'src="'){
-                  let char = ''
-                  let o = 1
-                  while (char != '"'){
-                    char = article.body[i+o]
-                    o++
+        } else {
+          if (result[1].rowCount > 0) {
+            console.log(`Articulo visitado: ${pArticle}`)
+            
+            const article = result[1].rows[0]
+            wrapper = parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
+            if (article.body.includes('src="')){
+              for (let i = 0; i < article.body.length; i++){
+                if (article.body[i] == '"'){
+                  let string = article.body[i-4] + article.body[i-3] + article.body[i-2] + article.body[i-1] + article.body[i]
+                  if (string == 'src="'){
+                    let char = ''
+                    let o = 1
+                    while (char != '"'){
+                      char = article.body[i+o]
+                      o++
+                    }
+                    const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
+                    metaTags = parseMetaTags(`${article.headline}`, article.subhead, imgString)
+                    i = article.body.length
                   }
-                  const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
-                  console.log(imgString)
-                  metaTags = parseMetaTags(`${article.headline}`, article.subhead, imgString)
-                  i = article.body.length
                 }
               }
+            }else{
+              metaTags = parseMetaTags(`${article.headline}`, article.subhead)
             }
-          }else{
-            metaTags = parseMetaTags(`${article.headline}`, article.subhead)
+          } else {
+            wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+            metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo')
           }
-        }else{
-          wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-          metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo')
+
+
+          res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
         }
-        
-        res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
       })
     })
 
@@ -194,11 +217,24 @@ class App{
 function parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
   const article = `
   <div class="content">
-    <h1><a href="${encodeURIComponent(headline)}">${headline}</a></h1>
+    <h1><a href="articulo/${encodeURIComponent(replaceAll(headline, ' ', '_'))}">${headline}</a></h1>
     <p class="info"><b>${author}</b>  -  ${date}</p>
     <p class="subhead">${subhead}</p>
     <hr>
     <div class="body">${body}</div>
+    <hr>
+    ¿Te gustó el artículo?
+    <a href="https://www.facebook.com/sharer/sharer.php?u=http://www.sindicato-ufm.com/articulo/${headline}" target="_blank">
+      Comparte en Facebook
+    </a>,
+    <a class="twitter-share-button"
+      href="https://twitter.com/intent/tweet?text=${headline}, http://www.sindicato-ufm.com/articulo/${encodeURIComponent(replaceAll(headline, ' ', '_'))}"
+      data-size="large"
+      target="_blank">
+    Twitter</a>
+    o síguenos en las
+    <a href="https://www.facebook.com/sindicatoUFM" target="_blank">redes</a>
+    <hr>
     <hr>
   </div>
   `
@@ -232,20 +268,24 @@ function parseMetaTags(title: string, description: string, img: string = 'sindic
     <meta property="og:image" content="http://www.sindicato-ufm.com/${img}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="es_ES">    
-    <meta property="og:url" content="http://www.sindicato-ufm.com/${encodeURIComponent(title)}">
+    <meta property="og:url" content="http://www.sindicato-ufm.com/">
     <meta name="google-site-verification" content="jMeI7ML27XYuoifj0zX0IOkJDRe5qnu0Mv1SI2kUOLI" />
     `
 }
 
 function spliceSlice(str: string, index: number, count: number, add: any):string {
   if (index < 0) {
-    index = str.length + index;
+    index = str.length + index
     if (index < 0) {
-      index = 0;
+      index = 0
     }
   }
 
-  return str.slice(0, index) + (add || "") + str.slice(index + count);
+  return str.slice(0, index) + (add || "") + str.slice(index + count)
+}
+
+function replaceAll(str: string, find: string, replace: string) {
+  return str.replace(new RegExp(find, 'g'), replace);
 }
 
 //Export app

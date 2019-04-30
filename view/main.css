@@ -45,6 +45,8 @@ body{
 
 a{
   text-decoration: none;
+  border: solid 2px rgba(255, 165, 0, 0);
+  transition: border-bottom .15s;
 }
 
 a:link, a:visited{
@@ -53,6 +55,10 @@ a:link, a:visited{
 
 a:active{
   color: #3268EE;
+}
+
+a:hover {
+  border-bottom: solid 4px orange;
 }
 
 hr{
@@ -180,4 +186,13 @@ td{
 
 #preview{
   width: 100%;
+}
+
+footer {
+  border-top: 2px solid #E2E2E2;
+  background-color: #eee;
+}
+
+footer h1 {
+  margin: 0;
 }
