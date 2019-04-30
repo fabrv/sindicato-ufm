@@ -228,7 +228,7 @@ function parseArticle(headline: string, subhead: string, body: string, date: str
       Comparte en Facebook
     </a>,
     <a class="twitter-share-button"
-      href="https://twitter.com/intent/tweet?text=${headline}, http://www.sindicato-ufm.com/articulo/${encodeURIComponent(replaceAll(headline, ' ', '_'))}"
+      href="https://twitter.com/intent/tweet?text=${replaceAll(headline, ' ', '_')}, http://www.sindicato-ufm.com/articulo/${encodeURIComponent(replaceAll(headline, ' ', '_'))}"
       data-size="large"
       target="_blank">
     Twitter</a>
