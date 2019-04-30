@@ -114,7 +114,7 @@ class App{
             for (let i = 0; i < data.length; i++){
               wrapper += parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
-            const metaTags = parseMetaTags('', '')
+            const metaTags = parseMetaTags('', '', '')
             res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${end}`)
           }
         }
@@ -147,17 +147,17 @@ class App{
                       o++
                     }
                     const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
-                    metaTags = parseMetaTags(`${article.headline}`, article.subhead, imgString)
+                    metaTags = parseMetaTags(`${article.headline}`, article.subhead, 'articulo/', imgString)
                     i = article.body.length
                   }
                 }
               }
             }else{
-              metaTags = parseMetaTags(`${article.headline}`, article.subhead)
+              metaTags = parseMetaTags(`${article.headline}`, article.subhead, 'articulo/')
             }
           } else {
             wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo')
+            metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
           }
 
 
@@ -258,7 +258,7 @@ function parseSection(unparsedArticles: Array<string>): Array<{date: string, aut
   return parsedArticles
 }
 
-function parseMetaTags(title: string, description: string, img: string = 'sindicato-icon-240x240.png'): string{
+function parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string{
   return `
     <title>| El Sindicato | ${title}</title>
     <meta name="title" content="${title}">
@@ -268,7 +268,7 @@ function parseMetaTags(title: string, description: string, img: string = 'sindic
     <meta property="og:image" content="http://www.sindicato-ufm.com/${img}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="es_ES">    
-    <meta property="og:url" content="http://www.sindicato-ufm.com/articulo/${replaceAll(title, ' ', '_')}">
+    <meta property="og:url" content="http://www.sindicato-ufm.com/${location}${replaceAll(title, ' ', '_')}">
     <meta name="google-site-verification" content="jMeI7ML27XYuoifj0zX0IOkJDRe5qnu0Mv1SI2kUOLI" />
     `
 }
