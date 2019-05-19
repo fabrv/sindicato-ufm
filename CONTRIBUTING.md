@@ -12,4 +12,4 @@ Otras recomendaciones (no obligatorias):
 * ➡ Usar Arrow Functions sobre callbacks or function expressions.
 * 🔡 Intentar usar tipos en cada variable.
 
-Todas las contribuciones se tiene que adherir a [nuestro codigo de conducta.]('blob/master/CODE_OF_CONDUCT.md')
+Todas las contribuciones se tiene que adherir a [nuestro codigo de conducta.](https://github.com/nevicad/sindicato-ufm/blob/master/CODE_OF_CONDUCT.md)

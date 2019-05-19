@@ -19,4 +19,4 @@ npm run build:live
 ```
 
 ## ¿Como puedo contribuir al proyecto?
-Te recomendamos ir a las [reglas de contribución para informarte más](../blob/master/CONTRIBUTING.md) o a la pestaña de "Issues" para ver que tenemos por hacer.
+Te recomendamos ir a las [reglas de contribución para informarte más](https://github.com/nevicad/sindicato-ufm/blob/master/CONTRIBUTING.md) o a la pestaña de "Issues" para ver que tenemos por hacer.
