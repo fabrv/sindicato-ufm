@@ -12,7 +12,7 @@ const pgClient = new Client({
   ssl: true,
 })
 
-const indexStart = '<!DOCTYPE html><html><head>'
+const indexStart = `<!DOCTYPE html><html><head><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-140472386-2"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-140472386-2');</script>`
 const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="../main.css"><script src="../main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../musica">MÚSICA</a><li><a href="../">OPINIÓN</a></li><li><a href="../nosotros">NOSOTROS</a></li></ul></div><div id="wrapper">'
 const indexEnd = '</div><footer class="header"> <h1>🏛️</h1> <h3>La crítica estudiantil</h3><ul class="links"> <li><a href="../musica">MÚSICA</a><li> <li> <a href="../">OPINIÓN</a> </li> <li> <a href="../nosotros">NOSOTROS</a> </li> </ul> </footer></body></html>'
 
