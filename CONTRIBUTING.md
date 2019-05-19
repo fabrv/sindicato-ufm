@@ -1,5 +1,5 @@
-# How to contribute
-¡Hola 🙌! Gracias por estar interesado en apoyar a nuestro proyecto y tomarte el tiempo de leer este documento
+# Como contribuir
+¡Hola 🙌! Gracias por estar interesado en apoyar a nuestro proyecto y tomarte el tiempo de leer este documento.  
 Estas son las tres maneras principales de apoyarnos en este repo:
 1. 🐜 Reportando errores o problemas.
 2. 💡 Recomendando nuevos funciones o secciones.
