@@ -39,7 +39,11 @@ body{
 
 @media screen and (max-width: 600px){
   .content{
-    width: calc(100% - 30px);
+    width: calc(100% - 30px) !important;
+  }
+
+  .card {
+    width: calc(100% - 80px) !important;
   }
 }
 
@@ -195,4 +199,27 @@ footer {
 
 footer h1 {
   margin: 0;
+}
+
+.card {
+  box-shadow: 0 0 2px 1px rgba(0,0,0,.07);
+  border-radius: 4px;
+  width: 800px;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.card .title {
+  font-size: 20px;
+}
+
+.card .ratings {
+  list-style: none;
+  text-align: center;
+}
+
+.checked {
+  color: orange;
 }
