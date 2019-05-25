@@ -65,6 +65,16 @@ class App{
       })
     })
 
+    router.get('/json/califica/universidades', (req: express.Request, res: express.Response) => {
+      pgClient.query(`SELECT imagelink, university , ROUND(AVG(reputation),2) AS "Reputación", ROUND(AVG(location),2) AS "Ubiación", ROUND(AVG(events),2) AS "Eventos", ROUND(AVG(security),2) AS "Seguridad", ROUND(AVG(cleanliness),2) AS "Limpieza", ROUND(AVG(happiness),2) AS "Felicidad" FROM uni_reviews, universities WHERE uni_reviews.university = universities.name GROUP BY university, imagelink`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          res.status(200).send(result.rows)
+        }
+      })
+    })
+
     router.get('/json/califica', (req: express.Request, res: express.Response) => {
       pgClient.query(`SELECT * FROM uni_reviews`, (error, result) => {
         if (error) {
@@ -73,7 +83,7 @@ class App{
           res.status(200).send(result.rows)
         }
       })
-    })
+    })    
     
     router.get('/json/:category', (req: express.Request, res: express.Response) => {
       pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC`, (error, result) => {
@@ -111,7 +121,10 @@ class App{
           }
 
           if (result.rowCount === 0){
-            res.redirect(`${req.params.category}`)
+            const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+            const metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
+            res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
+
           } else {
             if (result.rowCount === pageBoundary + 1) {
               end = spliceSlice(end, 6, 0, '<button class="pager" id="more" onClick="addPage()">Más articulos</button>')
