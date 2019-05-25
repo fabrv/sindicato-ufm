@@ -1,5 +1,5 @@
 @font-face {
-  font-family: 'Segoe MDL2', sans-serif;
+  font-family: 'Segoe-MDL2';
   src: url('SegMDL2.ttf');
 }
 body{
@@ -183,7 +183,7 @@ button:active, .new-article input[type=submit]:active{
   display: none;
 }
 
-#articles-table{
+table{
   width: 100%;
   border-collapse: collapse;
 }
@@ -244,6 +244,45 @@ footer h1 {
   background-size: 100%;
   display: inline-block;
 }
-.card .rating {
+.rating {
   font-size: 30px;
+}
+
+.icon {
+  font-family: 'Segoe-MDL2';
+}
+
+input[type=text] {
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid #e2e2e2;
+  font-size: 15px;
+  transition: all .2s;
+  width: 100%;
+}
+
+input[type=text]:hover {
+  border-bottom: 1px solid #326891;
+}
+
+input[type=text]:focus {
+  border-bottom: 3px solid #326891;
+  outline: none;
+}
+
+.search {
+  position: relative;
+  padding-right: 30px;
+}
+
+.search::after {
+  content: '\E721';
+  font-family: 'Segoe-MDL2';
+  background-color: 'red';
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: calc(100% - 3px);
+  padding: 0 20px;
+  background-color: white;
 }
