@@ -1,7 +1,6 @@
 import { createServer, Server } from 'http'
 import { Client } from 'pg'
 import express from 'express'
-import cors from 'cors'
 import * as path from 'path'
 
 import redis from 'redis'
@@ -13,7 +12,7 @@ const pgClient = new Client({
 })
 
 const indexStart = `<!DOCTYPE html><html><head><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-140472386-2"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-140472386-2');</script>`
-const indexContent = '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="../main.css"><script src="../main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../musica">MÚSICA</a><li><a href="../">OPINIÓN</a></li><li><a href="../nosotros">NOSOTROS</a></li></ul></div><div id="wrapper">'
+const indexContent = '<meta charset="utf-8"><base href="../../"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="../main.css"><script src="../main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../musica">MÚSICA</a><li><a href="../">OPINIÓN</a></li><li><a href="../nosotros">NOSOTROS</a></li></ul></div><div id="wrapper">'
 const indexEnd = '</div><footer class="header"> <h1>🏛️</h1> <h3>La crítica estudiantil</h3><ul class="links"> <li><a href="../musica">MÚSICA</a><li> <li> <a href="../">OPINIÓN</a> </li> <li> <a href="../nosotros">NOSOTROS</a> </li> </ul> </footer></body></html>'
 
 class App{
@@ -69,7 +68,7 @@ class App{
     })
 
     router.get('/json/califica/universidades', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT imagelink, university , ROUND(AVG(reputation),2) AS "Reputación", ROUND(AVG(location),2) AS "Ubicación", ROUND(AVG(events),2) AS "Eventos", ROUND(AVG(security),2) AS "Seguridad", ROUND(AVG(cleanliness),2) AS "Limpieza", ROUND(AVG(happiness),2) AS "Felicidad" FROM uni_reviews, universities WHERE uni_reviews.university = universities.name GROUP BY university, imagelink`, (error, result) => {
+      pgClient.query(`SELECT imagelink, university , ROUND(AVG(reputation),2) AS "Reputación", ROUND(AVG(location),2) AS "Ubicación", ROUND(AVG(events),2) AS "Eventos", ROUND(AVG(security),2) AS "Seguridad", ROUND(AVG(cleanliness),2) AS "Limpieza", ROUND(AVG(happiness),2) AS "Felicidad" FROM uni_reviews, universities WHERE uni_reviews.university = universities.name AND uni_reviews.verified = true GROUP BY university, imagelink`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {
@@ -79,7 +78,7 @@ class App{
     })
 
     router.get('/json/califica', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT * FROM uni_reviews`, (error, result) => {
+      pgClient.query(`SELECT * FROM uni_reviews WHERE verified = true ORDER BY votes DESC`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {
@@ -111,7 +110,6 @@ class App{
     })
 
     router.get('/califica', (req: express.Request, res: express.Response) => {
-      console.log('test')
       res.redirect('/califica/universidades')
     })
 
@@ -252,7 +250,8 @@ class App{
     const router: express.Router = express.Router()
 
     router.get('/califica/universidades/:university', (req: express.Request, res: express.Response) => {
-      res.status(200).send(req.params.university)
+      //res.status(200).send(req.params.university)
+      res.sendFile(path.resolve(__dirname, '../view/universidad.html'))
     })
 
     this.app.use('/', router)
