@@ -1,3 +1,7 @@
+@font-face {
+  font-family: 'Segoe MDL2', sans-serif;
+  src: url('SegMDL2.ttf');
+}
 body{
   font-family: Georgia, 'Times New Roman', Times, serif;
   margin: 0;
@@ -44,6 +48,7 @@ body{
 
   .card {
     width: calc(100% - 80px) !important;
+    margin: none;
   }
 }
 
@@ -202,16 +207,13 @@ footer h1 {
 }
 
 .card {
-  box-shadow: 0 0 2px 1px rgba(0,0,0,.07);
-  border-radius: 4px;
+  box-shadow: 0 0 1px 1px rgba(0,0,0,.07);
   width: 600px;
   margin: auto;
   margin-top: 20px;
   margin-bottom: 20px;
-  padding: 20px;
   cursor: pointer;
   transition: all .2s;
-  background-color: #fcfcfc;
 }
 
 .card:hover {
@@ -227,6 +229,7 @@ footer h1 {
 .card .ratings {
   list-style: none;
   text-align: center;
+  font-family: 'Segoe MDL2';
 }
 
 .checked {
@@ -234,12 +237,11 @@ footer h1 {
 }
 
 .card .image {
-  border-radius: 50%;
-  width: 200px;
+  width: 100%;
   height: 200px;
   background-position: center center;
   background-repeat: no-repeat;
-  background-size: 400px;
+  background-size: 100%;
   display: inline-block;
 }
 .card .rating {

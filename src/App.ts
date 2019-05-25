@@ -66,7 +66,7 @@ class App{
     })
 
     router.get('/json/califica/universidades', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT imagelink, university , ROUND(AVG(reputation),2) AS "Reputación", ROUND(AVG(location),2) AS "Ubiación", ROUND(AVG(events),2) AS "Eventos", ROUND(AVG(security),2) AS "Seguridad", ROUND(AVG(cleanliness),2) AS "Limpieza", ROUND(AVG(happiness),2) AS "Felicidad" FROM uni_reviews, universities WHERE uni_reviews.university = universities.name GROUP BY university, imagelink`, (error, result) => {
+      pgClient.query(`SELECT imagelink, university , ROUND(AVG(reputation),2) AS "Reputación", ROUND(AVG(location),2) AS "Ubicación", ROUND(AVG(events),2) AS "Eventos", ROUND(AVG(security),2) AS "Seguridad", ROUND(AVG(cleanliness),2) AS "Limpieza", ROUND(AVG(happiness),2) AS "Felicidad" FROM uni_reviews, universities WHERE uni_reviews.university = universities.name GROUP BY university, imagelink`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {

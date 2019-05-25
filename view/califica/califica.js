@@ -16,7 +16,6 @@ Http.onreadystatechange=(e)=>{
 function uniParser(uniJSON){
   let card = '<div class="card university">'
 
-  let ratings = ''
   let general = 0
   let categories = 0
 
@@ -26,17 +25,12 @@ function uniParser(uniJSON){
     } else if (item === 'university') {
       card += `<label class="title">${uniJSON[item]}</label>`
     } else {
-      ratings += `
-      <br>
-      <span>${item}:</span>
-      ${starRatingParser(uniJSON[item], 5)}`
       general += parseFloat(uniJSON[item])
       categories += 1
     }
   }
   card += `
-  <div class="rating">${starRatingParser(general/categories, 5)}</div><br>${ratings}
-  <br>
+  <div class="rating">${starRatingParser(general/categories, 5)}</div>  
   <button>Ver cursos y catedraticos</button>`
   return card
 }
@@ -46,10 +40,10 @@ function starRatingParser(value, max){
   let stars = Math.round((value / max) * 5)
   let html = ''
   for (let i = 0; i < stars; i++){
-    html += '<span class="fa fa-star checked"></span>'
+    html += '<span class="checked">&#x2605;</span>'
   }
   for (let i = 0; i < (max - stars); i++){
-    html += '<span class="fa fa-star"></span>'
+    html += '<span>&#x2605;</span>'
   }
   return html
 }
