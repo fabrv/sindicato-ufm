@@ -27,9 +27,8 @@ function initUniReviews() {
   }
 }
 
-
 function uniParser(uniJSON) {
-  let card = '<div class="card university">'
+  let card = `<div class="card university" onclick="cardNavigate(this, '${uniJSON.acronym}')">`
 
   let general = 0
   let categories = 0
@@ -39,7 +38,8 @@ function uniParser(uniJSON) {
       card += `<div class="image" style="background-image: url('${uniJSON[item]}')"></div><br>`
     } else if (item === 'university') {
       card += `<label class="title">${uniJSON[item]}</label>`
-    } else {
+    } else if (item === 'acronym') { }
+    else {
       general += parseFloat(uniJSON[item])
       categories += 1
     }

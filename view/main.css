@@ -214,6 +214,7 @@ footer h1 {
   margin-bottom: 20px;
   cursor: pointer;
   transition: all .2s;
+  background-color: white;
 }
 
 .card:hover {
@@ -244,6 +245,12 @@ footer h1 {
   background-size: 100%;
   display: inline-block;
 }
+
+.card-grow {
+  transition: transform .2s;
+  transform: scale(1.2) !important;
+}
+
 .rating {
   font-size: 30px;
 }
