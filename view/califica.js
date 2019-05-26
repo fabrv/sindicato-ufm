@@ -1,22 +1,26 @@
 const Http = new XMLHttpRequest();
-let params =  `../json/califica/universidades`
+let params = ''
 
-Http.open("GET", params);
-Http.send();
-Http.onreadystatechange=(e)=> {
-  if (Http.readyState == 4 && Http.status == 200) {
-    const unis = JSON.parse(Http.response)
-    for (let uni in unis){
-      document.getElementById('wrapper').innerHTML += uniParser(unis[uni])
-    }
-    params = '../json/universidades'
-    Http.open("GET", params);
-    Http.send();
-    Http.onreadystatechange=(e)=> {
-      if (Http.readyState == 4 && Http.status == 200) {
-        const unis = JSON.parse(Http.response)
-        for (let uni in unis){
-          document.getElementById('uni-select').innerHTML += `<option value="${unis[uni].name}">${unis[uni].name}</option>`
+
+function initUniReviews() {
+  params =  '../json/califica/universidades'
+  Http.open("GET", params);
+  Http.send();
+  Http.onreadystatechange=(e)=> {
+    if (Http.readyState == 4 && Http.status == 200) {
+      const unis = JSON.parse(Http.response)
+      for (let uni in unis){
+        document.getElementById('wrapper').innerHTML += uniParser(unis[uni])
+      }
+      params = '../json/universidades'
+      Http.open("GET", params);
+      Http.send();
+      Http.onreadystatechange=(e)=> {
+        if (Http.readyState == 4 && Http.status == 200) {
+          const unis = JSON.parse(Http.response)
+          for (let uni in unis){
+            document.getElementById('uni-select').innerHTML += `<option value="${unis[uni].name}">${unis[uni].name}</option>`
+          }
         }
       }
     }
@@ -59,7 +63,6 @@ function starRatingParser(value, max) {
   return html
 }
 
-
 function createStars(id, description, label) {
   return `
   <h4>2) ${description}</h4>
@@ -78,7 +81,7 @@ function createStars(id, description, label) {
   </div>`
 }
 
-function clearForm() {
+function clearUniForm() {
   const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
   for (let category in categories){
     document.getElementById(`${categories[category]}1`).checked = true
@@ -107,7 +110,14 @@ document.getElementById('submit-review').addEventListener('click', ()=> {
     Http.send(JSON.stringify(uniReview));
     Http.onreadystatechange=(e)=>{
       if (Http.readyState == 4 && Http.status == 200) {
-        console.log(JSON.parse(Http.response))
+        const post = JSON.parse(Http.response)
+        if (post.success === true) {
+          clearUniForm()
+          interactModal('calificar-modal')
+          interactModal('uploaded-modal')
+        } else {
+          interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
+        }
       }
     }
   } else {
@@ -123,5 +133,5 @@ document.getElementById('submit-review').addEventListener('click', ()=> {
       document.getElementById('captcha-empty').style.display = 'initial';
     }
   }
-  clearForm();
+  clearUniForm();
 });

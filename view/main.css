@@ -217,7 +217,7 @@ footer h1 {
 }
 
 .card:hover {
-  box-shadow: 0 5px 10px 3px rgba(0,0,0,.05);
+  box-shadow: 0 5px 10px 3px rgba(0,0,0,.05), 0 0 1px 1px rgba(0,0,0,.05);;
   transform: scale(1.02);
 }
 
@@ -298,11 +298,6 @@ input[type=text]:focus {
   z-index: 2;
   overflow: auto;
   transition: all .3s;
-}
-
-.hidden {
-  opacity: 0;
-  top: 100vh;
 }
 
 .modal .content {
@@ -445,4 +440,25 @@ input[type=text]:focus {
 
 #uni-select {
   margin-bottom: -30px;
+}
+
+.toast {
+  position: fixed;
+  top: calc(100vh - 100px);
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px 4px rgba(0, 0, 0, .25);
+  width: 80%;
+  background-color: #2F3136;
+  color: white;
+  z-index: 5;
+  transition: all .3s;
+  opacity: .9;
+}
+
+.hidden {
+  opacity: 0;
+  top: 100vh;
 }

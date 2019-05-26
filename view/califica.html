@@ -22,10 +22,11 @@
 
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
+  <div class="toast hidden" id="error-toast"></div>
   <body style="max-width: 100%;">
     <div id="calificar-modal" class="modal hidden">
       <div class="content">
-        <span class="icon close-btn" onclick="interactModal('calificar-modal'); clearForm();"></span>
+        <span class="icon close-btn" onclick="interactModal('calificar-modal'); clearUniForm();"></span>
         <h1>Calificar</h1>
         <hr>
 
@@ -176,6 +177,21 @@
       </div>
     </div>
 
+    <div id="uploaded-modal" class="modal hidden">
+      <div class="content">
+        <span class="icon close-btn" onclick="interactModal('uploaded-modal');"></span>
+        <h1><span class="icon" style="font-weight: 100;">&#xE8F3;</span> Califación subida</h1>
+        <hr>
+
+        <p><b>Califación exitosamente subida</b>, para mantener la comunidad limpia nosotros validamos manualmente cada calificación. 
+          Ten paciencia si todavía no ves tu calificación en la plataforma, en menos de un día la aprobaremos.
+          <br/><br/>
+          Para poder aprobar tu calificación recordá seguír nuestra guía de conducta.
+        </p>
+        <button onclick="interactModal('uploaded-modal')">Okay</button>
+      </div>
+    </div>
+
     <div class="header">
       <h1>EL SINDICATO</h1>
       <ul class="links">
@@ -203,6 +219,8 @@
     </footer>
 
     <script src="../califica.js"></script>
+    <script>initUniReviews();</script>
     <script src="../components/modal.js"></script>
+    <script src="../components/toast.js"></script>
   </body>
 </html>

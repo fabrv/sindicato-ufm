@@ -134,8 +134,7 @@ class App{
         let result: Array<any>
 
         if (success === true) {
-          const query = `CALL public.insert_university_review('${data.university}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})` 
-          console.log(query)
+          const query = `CALL public.insert_university_review('${data.university}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               res.json({
@@ -154,9 +153,12 @@ class App{
             'success': success,
             'data': result
           })
-        }        
+        }
       }).catch((error: AxiosError) => {
-        res.json({requestBody: req.body})
+        res.json({
+          'success': false,
+          'data': error
+        })
       })
     })
 
