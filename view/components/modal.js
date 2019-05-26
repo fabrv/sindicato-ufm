@@ -8,5 +8,7 @@ function interactModal(modalID) {
     }
   }
   document.getElementById(modalID).classList.add('hidden')
-  document.body.style.overflow = 'auto'
+  setTimeout(() => {
+    document.body.style.overflow = 'auto'
+  }, 200);
 }

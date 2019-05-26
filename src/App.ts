@@ -2,8 +2,10 @@ import { createServer, Server } from 'http'
 import { Client } from 'pg'
 import express from 'express'
 import * as path from 'path'
-
+import bodyParser from 'body-parser'
+import axios, { AxiosResponse, AxiosError } from 'axios'
 import redis from 'redis'
+
 const client = redis.createClient(process.env.REDIS_URL)
 
 const pgClient = new Client({
@@ -21,6 +23,10 @@ class App{
   constructor () {
     // App Express
     this.app = express()
+    // Use bodyparser
+    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.urlencoded({ extended: true }));
+
     // Load static files
     this.app.use(express.static(path.resolve(__dirname, '../view')))
     //Review routes
@@ -68,7 +74,7 @@ class App{
     })
 
     router.get('/json/califica/universidades', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT imagelink, university , ROUND(AVG(reputation),2) AS "Reputación", ROUND(AVG(location),2) AS "Ubicación", ROUND(AVG(events),2) AS "Eventos", ROUND(AVG(security),2) AS "Seguridad", ROUND(AVG(cleanliness),2) AS "Limpieza", ROUND(AVG(happiness),2) AS "Felicidad" FROM uni_reviews, universities WHERE uni_reviews.university = universities.name AND uni_reviews.verified = true GROUP BY university, imagelink`, (error, result) => {
+      pgClient.query(`SELECT * FROM public.universities_review_summary`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {
@@ -78,7 +84,7 @@ class App{
     })
 
     router.get('/json/califica', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT * FROM uni_reviews WHERE verified = true ORDER BY votes DESC`, (error, result) => {
+      pgClient.query(`SELECT * FROM public.universities_review_verified`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {
@@ -117,6 +123,41 @@ class App{
 
     router.get('/califica/universidades', (req: express.Request, res: express.Response) => {
       res.sendFile(path.resolve(__dirname, '../view/califica.html'))
+    })
+
+    router.post('/califica/universidades', (req: express.Request, res: express.Response) => {
+      const captchaSK = process.env.CAPTCHA
+      axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
+      .then((axres: AxiosResponse) => {
+        const success: boolean = axres.data.success
+        const data: any = req.body
+        let result: Array<any>
+
+        if (success === true) {
+          const query = `CALL public.insert_university_review('${data.university}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})` 
+          console.log(query)
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              res.json({
+                'success': false,
+                'data': pgerror
+              })
+            } else {
+              res.json({
+                'success': success,
+                'data': pgresult
+              })
+            }
+          })
+        } else {
+          res.json({
+            'success': success,
+            'data': result
+          })
+        }        
+      }).catch((error: AxiosError) => {
+        res.json({requestBody: req.body})
+      })
     })
 
     router.get('/califica', (req: express.Request, res: express.Response) => {

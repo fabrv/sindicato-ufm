@@ -3,7 +3,7 @@ let params =  `../json/califica/universidades`
 
 Http.open("GET", params);
 Http.send();
-Http.onreadystatechange=(e)=>{
+Http.onreadystatechange=(e)=> {
   if (Http.readyState == 4 && Http.status == 200) {
     const unis = JSON.parse(Http.response)
     for (let uni in unis){
@@ -12,11 +12,11 @@ Http.onreadystatechange=(e)=>{
     params = '../json/universidades'
     Http.open("GET", params);
     Http.send();
-    Http.onreadystatechange=(e)=>{
+    Http.onreadystatechange=(e)=> {
       if (Http.readyState == 4 && Http.status == 200) {
         const unis = JSON.parse(Http.response)
         for (let uni in unis){
-          document.getElementById('uni-select').innerHTML += `<option>${unis[uni].name}</option>`
+          document.getElementById('uni-select').innerHTML += `<option value="${unis[uni].name}">${unis[uni].name}</option>`
         }
       }
     }
@@ -24,14 +24,14 @@ Http.onreadystatechange=(e)=>{
 }
 
 
-function uniParser(uniJSON){
+function uniParser(uniJSON) {
   let card = '<div class="card university">'
 
   let general = 0
   let categories = 0
 
-  for (let item in uniJSON){
-    if (item === 'imagelink'){
+  for (let item in uniJSON) {
+    if (item === 'imagelink') {
       card += `<div class="image" style="background-image: url('${uniJSON[item]}')"></div><br>`
     } else if (item === 'university') {
       card += `<label class="title">${uniJSON[item]}</label>`
@@ -46,7 +46,7 @@ function uniParser(uniJSON){
   return card
 }
 
-function starRatingParser(value, max){
+function starRatingParser(value, max) {
   if (value > max) value = max
   let stars = Math.round((value / max) * 5)
   let html = ''
@@ -77,3 +77,51 @@ function createStars(id, description, label) {
     <label for="${id}1" title="1">1 star</label>
   </div>`
 }
+
+function clearForm() {
+  const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
+  for (let category in categories){
+    document.getElementById(`${categories[category]}1`).checked = true
+  }
+  document.getElementById('summary').value = ''
+  document.getElementById('summary-empty').style.display = 'none';
+  document.getElementById('captcha-empty').style.display = 'none';
+  grecaptcha.reset();
+}
+
+document.getElementById('submit-review').addEventListener('click', ()=> {
+  const captcha = grecaptcha.getResponse()
+  if (document.getElementById('summary').value.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '') != '' && captcha != ''){
+    const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
+    const uniReview = {
+      'university': document.getElementById('uni-select').value,
+      'captcha': captcha,
+      'summary': document.getElementById('summary').value.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '')
+    }
+    for (let category in categories){
+      uniReview[categories[category]] = parseInt(document.querySelector(`input[name="${categories[category]}"]:checked`).value);
+    }  
+    params = '../califica/universidades'
+    Http.open("POST", params);
+    Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    Http.send(JSON.stringify(uniReview));
+    Http.onreadystatechange=(e)=>{
+      if (Http.readyState == 4 && Http.status == 200) {
+        console.log(JSON.parse(Http.response))
+      }
+    }
+  } else {
+    if (document.getElementById('summary').value.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '') != '') {
+      document.getElementById('summary-empty').style.display = 'none';
+    } else {
+      document.getElementById('summary-empty').style.display = 'initial';
+    }
+
+    if (captcha != '') {
+      document.getElementById('captcha-empty').style.display = 'none';
+    } else {
+      document.getElementById('captcha-empty').style.display = 'initial';
+    }
+  }
+  clearForm();
+});

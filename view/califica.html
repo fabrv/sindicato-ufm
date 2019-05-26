@@ -19,29 +19,31 @@
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script>
     <link rel="stylesheet" type="text/css" media="screen" href="../main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body style="max-width: 100%;">
     <div id="calificar-modal" class="modal hidden">
       <div class="content">
-        <span class="icon close-btn" onclick="interactModal('calificar-modal')"></span>
+        <span class="icon close-btn" onclick="interactModal('calificar-modal'); clearForm();"></span>
         <h1>Calificar</h1>
         <hr>
 
         <select id="uni-select"></select>
 
-        <h4>1) ¿Como ve el resto a tu universidad?</h4>
+        <h4>1) ¿Cómo ve el resto a tu universidad?</h4>
         <label for="reputation">Reputación:</label>
         <div class="rate">
-          <input type="radio" id="star5" name="reputation" value="5" />
-          <label for="star5" title="5">5 stars</label>
-          <input type="radio" id="star4" name="reputation" value="4" />
-          <label for="star4" title="4">4 stars</label>
-          <input type="radio" id="star3" name="reputation" value="3" />
-          <label for="star3" title="3">3 stars</label>
-          <input type="radio" id="star2" name="reputation" value="2" />
-          <label for="star2" title="2">2 stars</label>
-          <input type="radio" id="star1" name="reputation" value="1" />
-          <label for="star1" title="1">1 star</label>
+          <input type="radio" id="reputation5" name="reputation" value="5" />
+          <label for="reputation5" title="5">5 stars</label>
+          <input type="radio" id="reputation4" name="reputation" value="4" />
+          <label for="reputation4" title="4">4 stars</label>
+          <input type="radio" id="reputation3" name="reputation" value="3" />
+          <label for="reputation3" title="3">3 stars</label>
+          <input type="radio" id="reputation2" name="reputation" value="2" />
+          <label for="reputation2" title="2">2 stars</label>
+          <input type="radio" checked id="reputation1" name="reputation" value="1" />
+          <label for="reputation1" title="1">1 star</label>
         </div>        
         <h4>2) ¿Qué tan fácil es llegar a tu universidad?</h4>
         <label for="location">Ubicación:</label>
@@ -54,11 +56,11 @@
           <label for="location3" title="3">3 stars</label>
           <input type="radio" id="location2" name="location" value="2" />
           <label for="location2" title="2">2 stars</label>
-          <input type="radio" id="location1" name="location" value="1" />
+          <input type="radio" checked id="location1" name="location" value="1" />
           <label for="location1" title="1">1 star</label>
         </div>
 
-        <h4>3) ¿Cuántos y que tan buenos eventos realiza tu universidad?</h4>
+        <h4>3) ¿Cuántos y que tan buenos eventos realiza tu universidad? Ejemplo: conferencias, charlas, conciertos, etc.</h4>
         <label for="events">Eventos:</label>
         <div class="rate">
           <input type="radio" id="events5" name="events" value="5" />
@@ -69,7 +71,7 @@
           <label for="events3" title="3">3 stars</label>
           <input type="radio" id="events2" name="events" value="2" />
           <label for="events2" title="2">2 stars</label>
-          <input type="radio" id="events1" name="events" value="1" />
+          <input type="radio" checked id="events1" name="events" value="1" />
           <label for="events1" title="1">1 star</label>
         </div>
 
@@ -84,7 +86,7 @@
           <label for="security3" title="3">3 stars</label>
           <input type="radio" id="security2" name="security" value="2" />
           <label for="security2" title="2">2 stars</label>
-          <input type="radio" id="security1" name="security" value="1" />
+          <input type="radio" checked id="security1" name="security" value="1" />
           <label for="security1" title="1">1 star</label>
         </div>
 
@@ -99,7 +101,7 @@
           <label for="services3" title="3">3 stars</label>
           <input type="radio" id="services2" name="services" value="2" />
           <label for="services2" title="2">2 stars</label>
-          <input type="radio" id="services1" name="services" value="1" />
+          <input type="radio" checked id="services1" name="services" value="1" />
           <label for="services1" title="1">1 star</label>
         </div>
 
@@ -114,11 +116,41 @@
           <label for="cleanliness3" title="3">3 stars</label>
           <input type="radio" id="cleanliness2" name="cleanliness" value="2" />
           <label for="cleanliness2" title="2">2 stars</label>
-          <input type="radio" id="cleanliness1" name="cleanliness" value="1" />
+          <input type="radio" checked id="cleanliness1" name="cleanliness" value="1" />
           <label for="cleanliness1" title="1">1 star</label>
         </div>
 
-        <h4>7) ¿Qué tan feliz te sentís con tu universidad?</h4>
+        <h4>7) ¿Cómo es la vida social en tu universidad? Ejemplo: fiestas, asociaciones estudiantiles, eventos deportivos, etc.</h4>
+        <label for="location">Vida social:</label>
+        <div class="rate">
+          <input type="radio" id="social5" name="social" value="5" />
+          <label for="social5" title="5">5 stars</label>
+          <input type="radio" id="social4" name="social" value="4" />
+          <label for="social4" title="4">4 stars</label>
+          <input type="radio" id="social3" name="social" value="3" />
+          <label for="social3" title="3">3 stars</label>
+          <input type="radio" id="social2" name="social" value="2" />
+          <label for="social2" title="2">2 stars</label>
+          <input type="radio" checked id="social1" name="social" value="1" />
+          <label for="social1" title="1">1 star</label>
+        </div>
+
+        <h4>8) ¿Cuántas y que tan buenas son las actividades extracurriculares en tu universidad? Ejemplo: Equipos de debates, deportes u otro torneo, grupos de música, teatro u otro arte, etc.</h4>
+        <label for="location">Actividades extracurriculares:</label>
+        <div class="rate">
+          <input type="radio" id="extracurricular5" name="extracurricular" value="5" />
+          <label for="extracurricular5" title="5">5 stars</label>
+          <input type="radio" id="extracurricular4" name="extracurricular" value="4" />
+          <label for="extracurricular4" title="4">4 stars</label>
+          <input type="radio" id="extracurricular3" name="extracurricular" value="3" />
+          <label for="extracurricular3" title="3">3 stars</label>
+          <input type="radio" id="extracurricular2" name="extracurricular" value="2" />
+          <label for="extracurricular2" title="2">2 stars</label>
+          <input type="radio" checked id="extracurricular1" name="extracurricular" value="1" />
+          <label for="extracurricular1" title="1">1 star</label>
+        </div>
+        
+        <h4>9) ¿Qué tan feliz te sentís con tu universidad?</h4>
         <label for="happiness">Felicidad:</label>
         <div class="rate">
           <input type="radio" id="happiness5" name="happiness" value="5" />
@@ -129,15 +161,18 @@
           <label for="happiness3" title="3">3 stars</label>
           <input type="radio" id="happiness2" name="happiness" value="2" />
           <label for="happiness2" title="2">2 stars</label>
-          <input type="radio" id="happiness1" name="happiness" value="1" />
+          <input type="radio" checked id="happiness1" name="happiness" value="1" />
           <label for="happiness1" title="1">1 star</label>
         </div>
 
         <h4>Desarrollá un poquito (200 caracteres máximo)</h4>
-        <textarea width="100%" rows="5" style="width: 100%;" maxlength="200"></textarea>
+        <textarea id="summary" width="100%" rows="5" style="width: 100%;" maxlength="200"></textarea>
+        <span id="summary-empty" style="color: red; display: none;">*Llenar campo</span>
 
-        <br>
-        <button>Subir calificación</button>
+        <div class="g-recaptcha" id="captcha" data-sitekey="6LdCgKUUAAAAAPnYNgXocbacBFIwL19Nh-rNzPaO"></div>
+        <span id="captcha-empty" style="color: red; display: none;">*Llenar campo</span>
+        <br/>
+        <button id="submit-review">Subir calificación</button>
       </div>
     </div>
 
