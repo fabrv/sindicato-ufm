@@ -85,7 +85,17 @@ class App{
           res.status(200).send(result.rows)
         }
       })
-    })    
+    })
+
+    router.get('/json/universidades', (req: express.Request, res: express.Response) => {
+      pgClient.query('SELECT * FROM universities', (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          res.status(200).send(result.rows)
+        }
+      })
+    })
     
     router.get('/json/:category', (req: express.Request, res: express.Response) => {
       pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC`, (error, result) => {
