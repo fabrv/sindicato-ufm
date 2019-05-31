@@ -36,12 +36,10 @@
             <td><b>Calificación</b></td>
           </tr>
           <tr>
-            <td>Reputación</td>
-            <td>4.5</td>
-          </tr>
-          <tr>
-            <td>Limpieza</td>
-            <td>3.2</td>
+            {{#ratings}}
+            <td>{{description}}</td>
+            <td>{{value}}</td>
+            {{/ratings}}
           </tr>
         </table>
 

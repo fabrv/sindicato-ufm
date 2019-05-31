@@ -3,5 +3,5 @@ function cardNavigate(element, link) {
   document.body.style.overflow = 'hidden'
   setTimeout(() => {
     window.location.href = `${window.location.href}/${link}`
-  }, 100);
+  }, 200);
 }

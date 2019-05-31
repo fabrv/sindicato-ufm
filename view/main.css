@@ -248,7 +248,7 @@ footer h1 {
 
 .card-grow {
   transition: transform .2s;
-  transform: scale(1.2) !important;
+  transform: scale(1.15) !important;
 }
 
 .rating {

@@ -5,8 +5,11 @@ import * as path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
 import redis from 'redis'
+import fs from 'fs'
 
-const client = redis.createClient(process.env.REDIS_URL)
+import mustache from 'mustache'
+
+//const client = redis.createClient(process.env.REDIS_URL)
 
 const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -40,9 +43,9 @@ class App{
     // Postgres connection
     pgClient.connect()
     // Redis connection error test
-    client.on('error', (err: any)=>{
+    /*client.on('error', (err: any)=>{
       console.log('Something went wrong on redis ', err)
-    })
+    })*/
   }
 
   basicRoutes() {
@@ -121,51 +124,6 @@ class App{
       res.sendFile(path.resolve(__dirname, '../view/nosotros.html'))
     })
 
-    router.get('/califica/universidades', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.resolve(__dirname, '../view/califica.html'))
-    })
-
-    router.post('/califica/universidades', (req: express.Request, res: express.Response) => {
-      const captchaSK = process.env.CAPTCHA
-      axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
-      .then((axres: AxiosResponse) => {
-        const success: boolean = axres.data.success
-        const data: any = req.body
-        let result: Array<any>
-
-        if (success === true) {
-          const query = `CALL public.insert_university_review('${data.university}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
-          pgClient.query(query, (pgerror, pgresult) => {
-            if (pgerror) {
-              res.json({
-                'success': false,
-                'data': pgerror
-              })
-            } else {
-              res.json({
-                'success': success,
-                'data': pgresult
-              })
-            }
-          })
-        } else {
-          res.json({
-            'success': success,
-            'data': result
-          })
-        }
-      }).catch((error: AxiosError) => {
-        res.json({
-          'success': false,
-          'data': error
-        })
-      })
-    })
-
-    router.get('/califica', (req: express.Request, res: express.Response) => {
-      res.redirect('/califica/universidades')
-    })
-
     router.get('/articulo/:article', (req: express.Request, res: express.Response) => {
       let wrapper: string
       let metaTags: string
@@ -218,7 +176,7 @@ class App{
         page = parseInt(req.query.page)
       }
 
-      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC OFFSET ${page * (pageBoundary)} FETCH NEXT ${pageBoundary + 1} ROWS ONLY;`, (error, result) => {
+      pgClient.query(`SELECT * FROM category_articles_paging('${req.params.category}', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
         let end: string = indexEnd
         if (error) {
           res.status(500).send(error)
@@ -250,48 +208,7 @@ class App{
           }
         }
       })
-    })
-
-    router.delete('/delete', (req: express.Request, res: express.Response)=>{
-      if (req.query.pwd == process.env.WRITE_PWD){
-        client.lindex(decodeURI(req.query.category), req.query.index,(error: any, result: any)=>{
-          client.lrem(decodeURI(req.query.category), 1, result, redis.print)
-          client.del(req.query.article)
-          res.status(303).send(result)
-        })
-      }else{
-        console.log('wrong pwd:', req.query.pwd)
-        res.status(403).send("You don't have permission to delete articles on this server")
-      }
-    })
-
-    router.post('/upload', (req: express.Request, res: express.Response)=>{
-      if (req.query.pwd == process.env.WRITE_PWD){
-        console.log(req.query.body)
-        const newArticle: {
-          date: string, 
-          author: string, 
-          headline: string, 
-          subhead: string, 
-          body: string, 
-          visits: number
-        } = {
-          date: req.query.date, 
-          author: req.query.author, 
-          headline: req.query.headline, 
-          subhead: req.query.subhead,
-          body: req.query.body,
-          visits: 0
-        }
-        client.set(req.query.headline, JSON.stringify(newArticle), redis.print)
-        client.lpush(req.query.category, JSON.stringify(newArticle) , redis.print)
-        res.send({'article': newArticle})
-      }else{
-        console.log('wrong pwd:', req.query.pwd)
-        res.status(403).send("You don't have permission to upload articles on this server")
-      }
-    })
-
+    })    
     router.get('/', (req: express.Request, res: express.Response)=>{
       res.redirect('/opinion')
     })
@@ -304,7 +221,71 @@ class App{
 
     router.get('/califica/universidades/:university', (req: express.Request, res: express.Response) => {
       //res.status(200).send(req.params.university)
-      res.sendFile(path.resolve(__dirname, '../view/universidad.html'))
+      pgClient.query(`SELECT * FROM university_summary('${req.params.university}')`, (error, result) => {
+        if (error) {
+          res.status(200).send(error)
+        } 
+        if (result.rows.length > -1) {
+          const metaTags = parseMetaTags(req.params.university, `${result.rows[0].university} | ${result.rows[0].summary}`, 'califica/universidades/')
+          const wrapper = parseUniversity(result.rows[0])
+          res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
+        }
+      })
+    })
+
+    router.get('/json/califica/universidades/:university', (req: express.Request, res: express.Response) => {
+      pgClient.query(`SELECT * FROM university_summary('${req.params.university}')`, (error, result) => {
+        if (error) {
+          res.status(200).send(error)
+        } 
+        parseUniversity(result.rows[0])
+        res.send(result.rows)
+      })
+    })
+
+    router.get('/califica/universidades', (req: express.Request, res: express.Response) => {
+      res.sendFile(path.resolve(__dirname, '../view/califica.html'))
+    })
+
+    router.post('/califica/universidades', (req: express.Request, res: express.Response) => {
+      const captchaSK = process.env.CAPTCHA
+      axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
+      .then((axres: AxiosResponse) => {
+        const success: boolean = axres.data.success
+        const data: any = req.body
+        let result: Array<any>
+
+        if (success === true) {
+          const query = `CALL public.insert_university_review('${data.university}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              res.json({
+                'success': false,
+                'data': pgerror
+              })
+            } else {
+              res.json({
+                'success': success,
+                'data': pgresult
+              })
+            }
+          })
+        } else {
+          res.json({
+            'success': success,
+            'data': result
+          })
+        }
+      }).catch((error: AxiosError) => {
+        res.json({
+          'success': false,
+          'data': error
+        })
+      })
+    })
+
+    router.get('/califica', (req: express.Request, res: express.Response) => {
+      res.redirect('/califica/universidades')
     })
 
     this.app.use('/', router)
@@ -337,6 +318,27 @@ function parseArticle(headline: string, subhead: string, body: string, date: str
   </div>
   `
   return article
+}
+
+function parseUniversity(uniSummary: any) {
+  let template = fs.readFileSync(path.resolve(__dirname, 'templates/university.html'), 'utf8')
+  let ratings: Array<{description: string, value: string}> = []
+  for (let item in uniSummary) {
+    if (item !== 'university' && item !== 'summary' && item !== 'imagelink' && item !== 'reviews' && item !== 'rating') {
+      ratings.push({description: item, value: uniSummary[item]})
+    }
+  }
+  const view = {
+    'university': uniSummary.university,
+    'summary': uniSummary.summary,
+    'imagelink': uniSummary.imagelink,
+    'reviews': uniSummary.reviews,
+    'stars': starRatingParser(uniSummary.rating, 5),
+    'rating': uniSummary.rating,
+    'ratings': ratings
+  }
+  const rendered = mustache.render(template, view)
+  return rendered
 }
 
 function parseSection(unparsedArticles: Array<string>): Array<{date: string, author: string, headline: string, subhead: string, body: string, visits: number}>{
@@ -384,6 +386,19 @@ function spliceSlice(str: string, index: number, count: number, add: any):string
 
 function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
+}
+
+function starRatingParser(value: number, max: number) {
+  if (value > max) value = max
+  let stars = Math.round((value / max) * 5)
+  let html = ''
+  for (let i = 0; i < stars; i++){
+    html += '<span class="checked">&#x2605;</span>'
+  }
+  for (let i = 0; i < (max - stars); i++){
+    html += '<span>&#x2605;</span>'
+  }
+  return html
 }
 
 //Export app
