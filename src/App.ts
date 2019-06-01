@@ -225,9 +225,13 @@ class App{
         if (error) {
           res.status(200).send(error)
         } 
-        if (result.rows.length > -1) {
+        if (result.rows.length > 0) {
           const metaTags = parseMetaTags(req.params.university, `${result.rows[0].university} | ${result.rows[0].summary}`, 'califica/universidades/')
           const wrapper = parseUniversity(result.rows[0])
+          res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
+        } else {
+          const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+          const metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
           res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
         }
       })

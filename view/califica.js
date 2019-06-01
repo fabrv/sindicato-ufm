@@ -3,6 +3,8 @@ let params = ''
 
 
 function initUniReviews() {
+  document.getElementById('wrapper').innerHTML = ''
+  document.getElementById('uni-select').innerHTML = ''
   params =  '../json/califica/universidades'
   Http.open("GET", params);
   Http.send();
@@ -115,6 +117,7 @@ document.getElementById('submit-review').addEventListener('click', ()=> {
           clearUniForm()
           interactModal('calificar-modal')
           interactModal('uploaded-modal')
+          initUniReviews()
         } else {
           interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
         }
@@ -133,5 +136,4 @@ document.getElementById('submit-review').addEventListener('click', ()=> {
       document.getElementById('captcha-empty').style.display = 'initial';
     }
   }
-  clearUniForm();
 });
