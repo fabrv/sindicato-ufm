@@ -19,6 +19,8 @@ const pgClient = new Client({
 const indexStart = `<!DOCTYPE html><html><head><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-140472386-2"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-140472386-2');</script>`
 const indexContent = '<meta charset="utf-8"><base href="../../"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-1298512778914438",enable_page_level_ads: true});</script><link rel="stylesheet" type="text/css" media="screen" href="../main.css"><script src="../main.js"></script></head><body><div class="header"><h1>EL SINDICATO</h1><ul class="links"><li><a href="../musica">MÚSICA</a><li><a href="../">OPINIÓN</a></li><li><a href="../nosotros">NOSOTROS</a></li></ul></div><div id="wrapper">'
 const indexEnd = '</div><footer class="header"> <h1>🏛️</h1> <h3>La crítica estudiantil</h3><ul class="links"> <li><a href="../musica">MÚSICA</a><li> <li> <a href="../">OPINIÓN</a> </li> <li> <a href="../nosotros">NOSOTROS</a> </li> </ul> </footer></body></html>'
+const MasterTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/Master.html'), 'utf8')
+
 
 class App{
   public server: Server
@@ -163,8 +165,9 @@ class App{
             metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
           }
 
-
-          res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
+          const view = {'metaTags': metaTags, 'wrapper': wrapper}
+          const site = mustache.render(MasterTemplate, view)
+          res.send(site)
         }
       })
     })
@@ -189,7 +192,9 @@ class App{
           if (result.rowCount === 0){
             const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
             const metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-            res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
+            const view = {'metaTags': metaTags, 'wrapper': wrapper}
+            const site = mustache.render(MasterTemplate, view)
+            res.send(site)
 
           } else {
             if (result.rowCount === pageBoundary + 1) {
@@ -204,7 +209,9 @@ class App{
               wrapper += parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
             const metaTags = parseMetaTags('', '', '')
-            res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${end}`)
+            const view = {'metaTags': metaTags, 'wrapper': wrapper}
+            const site = mustache.render(MasterTemplate, view)
+            res.send(site)
           }
         }
       })
@@ -232,7 +239,9 @@ class App{
         } else {
           const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
           const metaTags = parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-          res.send(`${indexStart}${metaTags}${indexContent}${wrapper}${indexEnd}`)
+          const view = {'metaTags': metaTags, 'wrapper': wrapper}
+          const site = mustache.render(MasterTemplate, view)
+          res.send(site)
         }
       })
     })
@@ -298,29 +307,16 @@ class App{
 }
 
 function parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
-  const article = `
-  <div class="content">
-    <h1><a href="articulo/${encodeURIComponent(replaceAll(headline, ' ', '_'))}">${headline}</a></h1>
-    <p class="info"><b>${author}</b>  -  ${date}</p>
-    <p class="subhead">${subhead}</p>
-    <hr>
-    <div class="body">${body}</div>
-    <hr>
-    ¿Te gustó el artículo?
-    <a href="https://www.facebook.com/sharer/sharer.php?u=http://www.sindicato-ufm.com/articulo/${headline}" target="_blank">
-      Comparte en Facebook
-    </a>,
-    <a class="twitter-share-button"
-      href="https://twitter.com/intent/tweet?text=${replaceAll(headline, ' ', '_')}, http://www.sindicato-ufm.com/articulo/${encodeURIComponent(replaceAll(headline, ' ', '_'))}"
-      data-size="large"
-      target="_blank">
-    Twitter</a>
-    o síguenos en las
-    <a href="https://www.facebook.com/sindicatoUFM" target="_blank">redes</a>
-    <hr>
-    <hr>
-  </div>
-  `
+  const template = fs.readFileSync(path.resolve(__dirname, 'templates/article.html'), 'utf8')
+  const view = {
+    'headlineLink': encodeURIComponent(replaceAll(headline, ' ', '_')),
+    'headline': headline,
+    'subhead': subhead,
+    'body': body,
+    'date': date,
+    'author': author
+  }
+  const article = mustache.render(template, view)
   return article
 }
 
@@ -363,18 +359,16 @@ function parseSection(unparsedArticles: Array<string>): Array<{date: string, aut
 }
 
 function parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string{
-  return `
-    <title>| El Sindicato | ${title}</title>
-    <meta name="title" content="${title}">
-    <meta name="description" content="${description}">
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="http://www.sindicato-ufm.com/${img}">
-    <meta property="og:type" content="article">
-    <meta property="og:locale" content="es_ES">    
-    <meta property="og:url" content="http://www.sindicato-ufm.com/${location}${replaceAll(title, ' ', '_')}">
-    <meta name="google-site-verification" content="jMeI7ML27XYuoifj0zX0IOkJDRe5qnu0Mv1SI2kUOLI" />
-    `
+  const template = fs.readFileSync(path.resolve(__dirname, 'templates/metaTags.html'), 'utf8')
+  const view = {
+    'titleLink': replaceAll(title, ' ', '_'),
+    'title': title,
+    'description': description,
+    'img': img,
+    'location': location    
+  }
+  const metaTags = mustache.render(template, view)
+  return metaTags
 }
 
 function spliceSlice(str: string, index: number, count: number, add: any):string {

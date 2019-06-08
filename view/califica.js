@@ -96,12 +96,12 @@ function clearUniForm() {
 
 document.getElementById('submit-review').addEventListener('click', ()=> {
   const captcha = grecaptcha.getResponse()
-  if (document.getElementById('summary').value.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '') != '' && captcha != ''){
+  if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') != '' && captcha != ''){
     const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
     const uniReview = {
       'university': document.getElementById('uni-select').value,
       'captcha': captcha,
-      'summary': document.getElementById('summary').value.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '')
+      'summary': document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '')
     }
     for (let category in categories){
       uniReview[categories[category]] = parseInt(document.querySelector(`input[name="${categories[category]}"]:checked`).value);
@@ -124,7 +124,7 @@ document.getElementById('submit-review').addEventListener('click', ()=> {
       }
     }
   } else {
-    if (document.getElementById('summary').value.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '') != '') {
+    if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') != '') {
       document.getElementById('summary-empty').style.display = 'none';
     } else {
       document.getElementById('summary-empty').style.display = 'initial';
