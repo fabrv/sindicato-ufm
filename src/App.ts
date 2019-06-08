@@ -4,7 +4,7 @@ import express from 'express'
 import * as path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
-import redis from 'redis'
+//import redis from 'redis'
 import fs from 'fs'
 
 import mustache from 'mustache'
@@ -180,7 +180,7 @@ class App{
       }
 
       pgClient.query(`SELECT * FROM category_articles_paging('${req.params.category}', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
-        let end: string = indexEnd
+        
         if (error) {
           res.status(500).send(error)
         } else {
@@ -197,19 +197,25 @@ class App{
             res.send(site)
 
           } else {
-            if (result.rowCount === pageBoundary + 1) {
-              end = spliceSlice(end, 6, 0, '<button class="pager" id="more" onClick="addPage()">Más articulos</button>')
-            }
+            let paging: string = ''
             if (page > 0){
-              end = spliceSlice(end, 6, 0, '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>')
+              paging += '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
             }
+            if (result.rowCount === pageBoundary + 1) {
+              paging += '<button class="pager" id="more" onClick="addPage()">Más articulos</button>'
+            }            
 
             let wrapper: string = ''
             for (let i = 0; i < data.length; i++){
               wrapper += parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
             const metaTags = parseMetaTags('', '', '')
-            const view = {'metaTags': metaTags, 'wrapper': wrapper}
+            const view = {
+              'metaTags': metaTags, 
+              'wrapper': wrapper, 
+              'paging': paging
+            }
+            console.log(paging)
             const site = mustache.render(MasterTemplate, view)
             res.send(site)
           }

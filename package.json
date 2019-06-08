@@ -39,7 +39,6 @@
     "pg": "^7.10.0",
     "redis": "^2.8.0",
     "ts-node": "^7.0.1",
-    "typescript": "^3.1.6",
-    "uninstall": "0.0.0"
+    "typescript": "^3.1.6"
   }
 }
