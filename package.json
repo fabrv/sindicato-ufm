@@ -30,7 +30,7 @@
     "@types/node": "^10.12.3",
     "@types/pg": "^7.4.14",
     "@types/redis": "^2.8.12",
-    "axios": "^0.18.0",
+    "axios": ">=0.18.1",
     "body-parser": "^1.19.0",
     "express": "^4.16.4",
     "mustache": "^3.0.1",

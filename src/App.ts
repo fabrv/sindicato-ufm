@@ -39,7 +39,7 @@ class App{
     // Article routes
     this.articleRoutes()
     // General routes. THIS SHOULD ALWAYS BE THE LAST ROUTES MOUNTED
-    this.generalRoutes()
+    this.generalRoutes()    
 
     // Http Server
     this.server = createServer(this.app)
@@ -52,6 +52,10 @@ class App{
     })*/
   }
 
+  /**
+   * All routes related to articles are defined here.
+   * @param {express.Router} router - Router, new instance of expres.Router() by default.
+   */
   articleRoutes(router: express.Router = express.Router()) {
     router.get('/json/articulo/:article', (req: express.Request, res: express.Response) => {
       const article = replaceAll(req.params.article, '_', ' ')
@@ -113,96 +117,10 @@ class App{
     this.app.use('/', router)
   }
 
-  generalRoutes(router: express.Router = express.Router()) {
-    router.get('/json/categories', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT "CATEGORY", "LABEL" FROM public."CATEGORY"`, (error, result) => {
-        if (error) {
-          res.status(500).send(error)
-        } else {
-          let data = []
-          for (let row of result.rows) {
-            data.push(row)
-          }
-          res.status(200).send(data)
-        }
-      })
-    })
-
-    router.get('/json/:category', (req: express.Request, res: express.Response) => {
-      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC`, (error, result) => {
-        if (error) {
-          res.status(500).send(error)
-        } else {
-          let data = []
-          for (let row of result.rows) {
-            data.push(row)
-          }
-          res.status(200).send(data)
-        }
-      })
-    })
-
-    router.get('/nosotros', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.resolve(__dirname, '../view/nosotros.html'))
-    })
-
-    router.get('/:category', (req: express.Request, res: express.Response) => {
-      let page: number = 0
-      const pageBoundary: number = 10
-      if (!isNaN(req.query.page)){
-        page = parseInt(req.query.page)
-      }
-
-      pgClient.query(`SELECT * FROM category_articles_paging('${req.params.category}', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
-        
-        if (error) {
-          res.status(500).send(error)
-        } else {
-          let data = []
-          for (let i = 0; i < result.rowCount && i < pageBoundary; i++) {
-            data.push(result.rows[i])
-          }
-
-          if (result.rowCount === 0){
-            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-            const view = {'metaTags': metaTags, 'wrapper': wrapper}
-            const site: string = mustache.render(MasterTemplate, view)
-            res.send(site)
-
-          } else {
-            let paging: string = ''
-            if (page > 0){
-              paging += '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
-            }
-            if (result.rowCount === pageBoundary + 1) {
-              paging += '<button class="pager" id="more" onClick="addPage()">Más articulos</button>'
-            }            
-
-            let wrapper: string = ''
-            for (let i = 0; i < data.length; i++){
-              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
-            }
-            const metaTags: string = this.parsing.parseMetaTags('', '', '')
-            const view = {
-              'metaTags': metaTags, 
-              'wrapper': wrapper, 
-              'paging': paging
-            }
-            const site: string = mustache.render(MasterTemplate, view)
-            res.send(site)
-          }
-        }
-      })
-    })
-
-    router.get('/', (req: express.Request, res: express.Response)=>{
-      res.redirect('/opinion')
-    })
-
-    this.app.use('/', router)
-  }
-
+  /**
+   * All routes related to reviews are defined here.
+   * @param {express.Router} router - Router, new instance of expres.Router() by default.
+   */
   reviewRoutes(router: express.Router = express.Router()) {
     router.get('/json/califica/universidades', (req: express.Request, res: express.Response) => {
       pgClient.query(`SELECT * FROM public.universities_review_summary`, (error, result) => {
@@ -314,34 +232,101 @@ class App{
     this.app.use('/', router)
   }
 
-}
+  /**
+   * All global and general routes are defined here,
+   * routes that are on the root directory or used by all sections.
+   * @param {express.Router} router - Router, new instance of expres.Router() by default.
+   */
+  generalRoutes(router: express.Router = express.Router()) {
+    router.get('/json/categories', (req: express.Request, res: express.Response) => {
+      pgClient.query(`SELECT "CATEGORY", "LABEL" FROM public."CATEGORY"`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let row of result.rows) {
+            data.push(row)
+          }
+          res.status(200).send(data)
+        }
+      })
+    })
 
-function parseSection(unparsedArticles: Array<string>): Array<{date: string, author: string, headline: string, subhead: string, body: string, visits: number}>{
-  let parsedArticles: Array<{
-    date: string, 
-    author: string, 
-    headline: string, 
-    subhead: string, 
-    body: string, 
-    visits: number
-  }> = []
-  for (let i = 0; i < unparsedArticles.length; i++){
-    const opinion: {date: string, author: string, headline: string, subhead: string, body: string, visits: number} = JSON.parse(unparsedArticles[i])
-    parsedArticles.push(opinion)
+    router.get('/json/:category', (req: express.Request, res: express.Response) => {
+      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE category = '${req.params.category}' ORDER BY created DESC`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let row of result.rows) {
+            data.push(row)
+          }
+          res.status(200).send(data)
+        }
+      })
+    })
+
+    router.get('/nosotros', (req: express.Request, res: express.Response) => {
+      res.sendFile(path.resolve(__dirname, '../view/nosotros.html'))
+    })
+
+    router.get('/:category', (req: express.Request, res: express.Response) => {
+      let page: number = 0
+      const pageBoundary: number = 10
+      if (!isNaN(req.query.page)){
+        page = parseInt(req.query.page)
+      }
+
+      pgClient.query(`SELECT * FROM category_articles_paging('${req.params.category}', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
+        
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let i = 0; i < result.rowCount && i < pageBoundary; i++) {
+            data.push(result.rows[i])
+          }
+
+          if (result.rowCount === 0){
+            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
+            const view = {'metaTags': metaTags, 'wrapper': wrapper}
+            const site: string = mustache.render(MasterTemplate, view)
+            res.send(site)
+
+          } else {
+            let paging: string = ''
+            if (page > 0){
+              paging += '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
+            }
+            if (result.rowCount === pageBoundary + 1) {
+              paging += '<button class="pager" id="more" onClick="addPage()">Más articulos</button>'
+            }            
+
+            let wrapper: string = ''
+            for (let i = 0; i < data.length; i++){
+              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+            }
+            const metaTags: string = this.parsing.parseMetaTags('', '', '')
+            const view = {
+              'metaTags': metaTags, 
+              'wrapper': wrapper, 
+              'paging': paging
+            }
+            const site: string = mustache.render(MasterTemplate, view)
+            res.send(site)
+          }
+        }
+      })
+    })
+
+    router.get('/', (req: express.Request, res: express.Response)=>{
+      res.redirect('/opinion')
+    })
+
+    this.app.use('/', router)
   }
 
-  return parsedArticles
-}
-
-function spliceSlice(str: string, index: number, count: number, add: any):string {
-  if (index < 0) {
-    index = str.length + index
-    if (index < 0) {
-      index = 0
-    }
-  }
-
-  return str.slice(0, index) + (add || "") + str.slice(index + count)
 }
 
 function replaceAll(str: string, find: string, replace: string) {
