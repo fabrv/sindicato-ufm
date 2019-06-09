@@ -331,24 +331,46 @@ class App{
 
   dashboardRoutes(router: express.Router = express.Router()) {
     router.get('/dashboard/login', (req: express.Request, res: express.Response)=>{
-      console.log(getClientIp(req))
       if (req.query.username && req.query.password) {        
-        const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
+        const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}', '${getClientIp(req)}')`
         pgClient.query(query, (pgerror, pgresult) => {
           if (pgerror) {
             console.error(pgerror.message)
             res.status(500).send({error: pgerror.message})
           } else {
             if (pgresult.rowCount == 0) {
-              res.status(200).send(false)  
+              res.status(200).send(false)
             } else {
-              res.status(200).send(pgresult.rows[0].password)
+              
+              pgClient.query(`INSERT INTO sessions VALUES ('${req.query.username}', '${pgresult.rows[0].sessionid}')`, (err, rst) => {
+                if (err) {
+                  console.error(err.message)
+                  res.status(500).send({error: err.message})
+                } else {
+                  res.status(200).send(pgresult.rows[0].password)
+                }
+              })
             }
           }
         })
       } else {
         res.status(400).send({error: 'Invalid request, missing query parameters'})
       }
+    })
+
+    router.get('/dashboard/validate-session/:username', (req: express.Request, res: express.Response)=>{
+      pgClient.query(`SELECT * FROM validate_session('${req.params.username}', '${getClientIp(req)}')`, (pgerror, pgresult) => {
+        if (pgerror) {
+          console.error(pgerror.message)
+          res.status(500).send({error: pgerror.message})
+        } else {
+          if (pgresult.rowCount === 0) {
+            res.status(200).send(false)
+          } else {
+            res.status(200).send(pgresult.rows[0].valid)
+          }
+        }
+      })
     })
     this.app.use('/', router)
   }
