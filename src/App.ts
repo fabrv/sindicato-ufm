@@ -1,6 +1,7 @@
 import { createServer, Server } from 'http'
 import { Client } from 'pg'
 import express from 'express'
+import session from 'express-session'
 import * as path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
@@ -32,6 +33,9 @@ class App{
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
 
+    // Use express session
+    this.app.use(session({secret: process.env.SECRET, resave: false, saveUninitialized: true}))
+
     // Load static files
     this.app.use(express.static(path.resolve(__dirname, '../view')))
     // Review routes
@@ -41,7 +45,7 @@ class App{
     // Dashboard routes
     this.dashboardRoutes()
     // General routes. THIS SHOULD ALWAYS BE THE LAST ROUTES MOUNTED
-    this.generalRoutes()    
+    this.generalRoutes()
 
     // Http Server
     this.server = createServer(this.app)
@@ -332,45 +336,31 @@ class App{
   dashboardRoutes(router: express.Router = express.Router()) {
     router.get('/dashboard/login', (req: express.Request, res: express.Response)=>{
       if (req.query.username && req.query.password) {        
-        const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}', '${getClientIp(req)}')`
+        const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
         pgClient.query(query, (pgerror, pgresult) => {
           if (pgerror) {
             console.error(pgerror.message)
-            res.status(500).send({error: pgerror.message})
+            return res.status(500).send({error: pgerror.message})
           } else {
             if (pgresult.rowCount == 0) {
-              res.status(200).send(false)
+              return res.status(200).send(false)
             } else {
-              
-              pgClient.query(`INSERT INTO sessions VALUES ('${req.query.username}', '${pgresult.rows[0].sessionid}')`, (err, rst) => {
-                if (err) {
-                  console.error(err.message)
-                  res.status(500).send({error: err.message})
-                } else {
-                  res.status(200).send(pgresult.rows[0].password)
-                }
-              })
+              req.session.name = req.query.username
+              return res.status(200).send(pgresult.rows[0].password)
             }
           }
         })
       } else {
-        res.status(400).send({error: 'Invalid request, missing query parameters'})
+        return res.status(400).send({error: 'Invalid request, missing query parameters'})
       }
     })
 
-    router.get('/dashboard/validate-session/:username', (req: express.Request, res: express.Response)=>{
-      pgClient.query(`SELECT * FROM validate_session('${req.params.username}', '${getClientIp(req)}')`, (pgerror, pgresult) => {
-        if (pgerror) {
-          console.error(pgerror.message)
-          res.status(500).send({error: pgerror.message})
-        } else {
-          if (pgresult.rowCount === 0) {
-            res.status(200).send(false)
-          } else {
-            res.status(200).send(pgresult.rows[0].valid)
-          }
-        }
-      })
+    router.get('/dashboard/validate-session', (req: express.Request, res: express.Response)=>{
+      if (!req.session.name) {
+        return res.status(200).send(false)
+      } else {
+        return res.status(200).send(true)
+      }
     })
     this.app.use('/', router)
   }
@@ -384,25 +374,6 @@ class App{
  */
 function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
-}
-
-function getClientIp(req: express.Request) {
-  var ipAddress;
-  // Amazon EC2 / Heroku workaround to get real client IP
-  var forwardedIpsStr = req.header('x-forwarded-for')
-  if (forwardedIpsStr) {
-    // 'x-forwarded-for' header may return multiple IP addresses in
-    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the
-    // the first one
-    var forwardedIps = forwardedIpsStr.split(',')
-    ipAddress = forwardedIps[0]
-  }
-  if (!ipAddress) {
-    // Ensure getting client IP address still works in
-    // development environment
-    ipAddress = req.connection.remoteAddress
-  }
-  return ipAddress
 }
 
 //Export app

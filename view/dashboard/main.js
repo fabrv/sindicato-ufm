@@ -1,24 +1,19 @@
 const Http = new XMLHttpRequest();
 let params = ''
 
-if (sessionStorage.getItem('session')) {
-  params = `/dashboard/validate-session/${sessionStorage.getItem('session')}`
-  Http.open("GET", params)
-  Http.send()
-  Http.onreadystatechange = (e) => {
-    if (Http.readyState == 4 && Http.status == 200) {
-      const response = JSON.parse(Http.response)
-      if (response === false) {
-        interactModal('login-modal')
-      } else {
-        interactToast('login-toast', `Bienvenido ${sessionStorage.getItem('session')}`, 3000)  
-      }
-    } else if (Http.readyState == 4 && !Http.status == 200) {
-      interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
+params = `/dashboard/validate-session`
+Http.open("GET", params)
+Http.send()
+Http.onreadystatechange = (e) => {
+  if (Http.readyState == 4 && Http.status == 200) {
+    const response = JSON.parse(Http.response)
+    if (!response) {
+      interactModal('login-modal')
     }
+  } else if (Http.readyState == 4 && !Http.status == 200) {
+    interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
+    interactModal('login-modal')
   }
-} else {
-  interactModal('login-modal')
 }
 
 function verifyCredentials(username, password) {
