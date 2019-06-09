@@ -5,7 +5,6 @@ function interactToast(toastID, text, timeOut) {
     if (classes[i] === 'hidden') {
       document.getElementById(toastID).classList.remove('hidden')
       setTimeout(() => {
-        console.log('test')
         document.getElementById(toastID).classList.add('hidden')
       }, timeOut);
       return

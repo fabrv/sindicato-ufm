@@ -38,6 +38,8 @@ class App{
     this.reviewRoutes()
     // Article routes
     this.articleRoutes()
+    // Dashboard routes
+    this.dashboardRoutes()
     // General routes. THIS SHOULD ALWAYS BE THE LAST ROUTES MOUNTED
     this.generalRoutes()    
 
@@ -197,7 +199,7 @@ class App{
         let result: Array<any>
 
         if (success === true) {
-          const query = `CALL public.insert_university_review('${data.university}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
+          const query = `CALL public.insert_university_review('${data.university.replace(/[&()'"*]/g, '')}', ${data.reputation.replace(/[&()'"*]/g, '')}, ${data.location.replace(/[&()'"*]/g, '')}, ${data.events.replace(/[&()'"*]/g, '')}, ${data.security.replace(/[&()'"*]/g, '')}, ${data.services.replace(/[&()'"*]/g, '')}, ${data.cleanliness.replace(/[&()'"*]/g, '')}, ${data.happiness.replace(/[&()'"*]/g, '')}, '${data.summary.replace(/[&()'"*]/g, '')}', ${data.social.replace(/[&()'"*]/g, '')}, ${data.extracurricular.replace(/[&()'"*]/g, '')})`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               res.json({
@@ -327,8 +329,37 @@ class App{
     this.app.use('/', router)
   }
 
+  dashboardRoutes(router: express.Router = express.Router()) {
+    router.get('/dashboard/login', (req: express.Request, res: express.Response)=>{
+      console.log(req.connection.remoteAddress)
+      if (req.query.username && req.query.password) {        
+        const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
+        pgClient.query(query, (pgerror, pgresult) => {
+          if (pgerror) {
+            console.error(pgerror.message)
+            res.status(500).send({error: pgerror.message})
+          } else {
+            if (pgresult.rowCount == 0) {
+              res.status(200).send(false)  
+            } else {
+              res.status(200).send(pgresult.rows[0].password)
+            }
+          }
+        })
+      } else {
+        res.status(400).send({error: 'Invalid request, missing query parameters'})
+      }
+    })
+    this.app.use('/', router)
+  }
 }
 
+/**
+ * Replaces all instances of a substring with another string.
+ * @param {string} str - Initial complete string
+ * @param {sting} find - Substring to find all instances of
+ * @param {string} replace - Substring to replace with
+ */
 function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
 }

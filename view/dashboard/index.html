@@ -6,52 +6,44 @@
   <title>El Sindicato - Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="../main.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="dashboard.css">
 </head>
 <body>
   <div class="header">
     <h1>DASHBOARD</h1>
+    <p>|</p>
     <ul class="links">
       <li>
-        <a href="#" onclick="openForm()">NUEVO ARTICULO</a>
+        <a href="#">MIS ARTICULOS</a>
+      </li>
+      <li>
+        <a href="#">MODERACIÓN</a>
       </li>
       <li>
         <a href="../">SALIR DE DASHBOARD</a>
       </li>
     </ul>
   </div>
-  
-  <div class="wrapper" id="wrapper">
-    <div class="content new-article" id="article-form">
-      <select id="category" name="category">
-        <option value="opinions">Opinión</option>
-      </select>
-      <input autocomplete="off" type="text" name="author" id="author" placeholder="Autor del articulo">    
-      <input autocomplete="off" type="text" name="headline" id="headline" placeholder="Título del articulo">
-      <textarea rows="5" cols="100" name="subhead" id="subhead" placeholder="Subtítulo del articulo aquí..."></textarea>
-      <div style="height: 17em; overflow-y: auto; overflow-x: hidden">
-        <textarea rows="15" cols="100" name="body" id="body" form="addArticle" placeholder="Cuerpo del articulo aquí (html)..."></textarea>
-        <div style="display: none;" id="preview"></div>
-      </div>
-      <input autocomplete="off" type="text" name="pwd" id="pwd" placeholder="Clave">
-      <button onclick="dismissForm()">Cancelar</button>
-      <button onclick="showPreview()">Visualizar 👁️</button>
-      <button onclick="uploadArticle()">Subir articulo ⬆️</button>      
+  <div class="toast hidden" id="login-toast"></div>
+  <div id="login-modal" class="modal hidden">
+    <div class="content">
+      <h1>Login</h1>
+      <hr>
+      Ingresar credenciales de redactor <br><br>
+      <input type="text" placeholder="Nombre de usuario" id="usr-txt">
+      <br>
+      <input type="password" placeholder="Contraseña" id="pwd-txt">
+      <button id="login-btn">Iniciar sesión</button>
+      <a href="../">Regresar a El Sindicato</a>
     </div>
-    <div class="content loading" id="upload-loading">Procesando...</div>
   </div>
-
-  <div class="content" style="padding-top: 20px">
-    <button onclick="getArticles()">Refrescar 🔃</button>
-    <table id="articles-table">
-      <tr>
-        <td style="cursor:pointer;"><b>Autor</b></td>
-        <td style="cursor:pointer;"><b>Título</b></td>
-        <td style="cursor:pointer;"><b>Fecha 🔽</b></td>
-        <td>👁️</td>
-        <td>❌</td>
-      </tr>
-    </table>
+  <div class="wrapper" id="wrapper">
+    
   </div>
+  
+  <script src="../components/modal.js"></script>
+  <script src="../components/toast.js"></script>
+  <script>interactModal('login-modal')</script>
   <script src="main.js"></script>
 </body>
 </html>

@@ -4,6 +4,14 @@ import * as path from 'path'
 export class Parsing {
   constructor (){}
 
+  /**
+   * Parses articles
+   * @param headline 
+   * @param subhead 
+   * @param body 
+   * @param date 
+   * @param author 
+   */
   parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
     const template = fs.readFileSync(path.resolve(__dirname, 'templates/article.html'), 'utf8')
     const view = {
@@ -18,6 +26,10 @@ export class Parsing {
     return article
   }
   
+  /**
+   * Parses university pages
+   * @param {object} uniSummary - Postgres return from a unisummary request
+   */
   parseUniversity(uniSummary: any) {
     let template = fs.readFileSync(path.resolve(__dirname, 'templates/university.html'), 'utf8')
     let ratings: Array<{description: string, value: string}> = []
@@ -39,7 +51,11 @@ export class Parsing {
     return rendered
   }
 
-
+  /**
+   * Returns an HTML star for different ratios.
+   * @param value dividend for star percentage.
+   * @param max divisor for star percentage.
+   */
   starRatingParser(value: number, max: number) {
     if (value > max) value = max
     let stars = Math.round((value / max) * 5)
@@ -52,6 +68,14 @@ export class Parsing {
     }
     return html
   }
+
+  /**
+   * Parses ogp meta tags for social media sharing
+   * @param title 
+   * @param description 
+   * @param location 
+   * @param img 
+   */
   parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string{
     const template = fs.readFileSync(path.resolve(__dirname, 'templates/metaTags.html'), 'utf8')
     const view = {
