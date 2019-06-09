@@ -331,7 +331,7 @@ class App{
 
   dashboardRoutes(router: express.Router = express.Router()) {
     router.get('/dashboard/login', (req: express.Request, res: express.Response)=>{
-      console.log(req.connection.remoteAddress)
+      console.log(getClientIp(req))
       if (req.query.username && req.query.password) {        
         const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
         pgClient.query(query, (pgerror, pgresult) => {
@@ -362,6 +362,25 @@ class App{
  */
 function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
+}
+
+function getClientIp(req: express.Request) {
+  var ipAddress;
+  // Amazon EC2 / Heroku workaround to get real client IP
+  var forwardedIpsStr = req.header('x-forwarded-for')
+  if (forwardedIpsStr) {
+    // 'x-forwarded-for' header may return multiple IP addresses in
+    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the
+    // the first one
+    var forwardedIps = forwardedIpsStr.split(',')
+    ipAddress = forwardedIps[0]
+  }
+  if (!ipAddress) {
+    // Ensure getting client IP address still works in
+    // development environment
+    ipAddress = req.connection.remoteAddress
+  }
+  return ipAddress
 }
 
 //Export app
