@@ -1,5 +1,5 @@
 const urlParams = new URLSearchParams(window.location.search);
-const pageParam = urlParams.get('page');
+let pageParam = urlParams.get('page');
 
 let page = 0
 

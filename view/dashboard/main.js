@@ -9,6 +9,8 @@ Http.onreadystatechange = (e) => {
     const response = JSON.parse(Http.response)
     if (!response) {
       interactModal('login-modal')
+    } else {
+      document.getElementById('username').innerHTML = sessionStorage.getItem('session')
     }
   } else if (Http.readyState == 4 && !Http.status == 200) {
     interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
@@ -36,6 +38,7 @@ async function login() {
     interactModal('login-modal')
     interactToast('login-toast', 'Sesión iniciada exitosamente', 5000)
     sessionStorage.setItem('session', document.getElementById('usr-txt').value)
+    document.getElementById('username').innerHTML = sessionStorage.getItem('session')
   } else {
     interactToast('login-toast', 'Usuario o contraseña incorrecta', 5000)
   }

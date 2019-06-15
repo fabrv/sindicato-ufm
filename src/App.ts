@@ -1,11 +1,14 @@
 import { createServer, Server } from 'http'
 import { Client } from 'pg'
+
 import express from 'express'
 import session from 'express-session'
+import connectReddis from 'connect-redis'
+
 import * as path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
-//import redis from 'redis'
+import redis from 'redis'
 import fs from 'fs'
 
 import mustache from 'mustache'
@@ -13,7 +16,10 @@ import mustache from 'mustache'
 // All main parsing imports
 import { Parsing } from './Parsing'
 
-//const client = redis.createClient(process.env.REDIS_URL)
+const client = redis.createClient(process.env.REDIS_URL)
+const RedisStore = connectReddis(session)
+
+
 
 const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -34,7 +40,12 @@ class App{
     this.app.use(bodyParser.urlencoded({ extended: true }));
 
     // Use express session
-    this.app.use(session({secret: process.env.SECRET, resave: false, saveUninitialized: true}))
+    this.app.use(session({
+      store: new RedisStore({client: client}),
+      secret: process.env.SECRET, 
+      resave: false, 
+      saveUninitialized: true
+    }))
 
     // Load static files
     this.app.use(express.static(path.resolve(__dirname, '../view')))
