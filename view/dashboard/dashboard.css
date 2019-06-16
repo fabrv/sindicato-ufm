@@ -1,0 +1,8 @@
+.content {
+  text-align: center;
+}
+.card {
+  padding: 20px;
+  text-align: left;
+  cursor: default;
+}

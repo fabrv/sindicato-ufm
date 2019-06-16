@@ -1,0 +1,21 @@
+<div class="content">
+  <select id="category">
+    {{#categories}}
+    <option value="{{name}}">
+      {{name}}
+    </option>
+    {{/categories}}
+  </select>
+  {{#reviews}}
+  <div class="card">
+    <label class="title">{{university}}</label>
+    <p>{{date}}</p>
+    <hr>
+    <p>{{{summary}}}</p>
+    <p style="margin-bottom: -10px;">
+      <button><span class="icon">&#xE73E; </span> Aprovar</button>
+      <button><span class="icon">&#xE711; </span> Rechazar</button>
+    </p>
+  </div>
+  {{/reviews}}
+  </div>

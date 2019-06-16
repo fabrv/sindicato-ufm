@@ -1,9 +1,15 @@
-<button><span class="icon">&#xE713;</span>Configuración</button>
-{{#articles}}
-<div class="card">
-  <label class="title">{{heading}}</label>
-  <p>{{subhead}}</p>
-  <hr>
-  <p>{{views}}</p>
+<div class="content">
+  <button><span class="icon">&#xED63; </span> Nuevo articulo</button>
+  <button><span class="icon">&#xE713; </span> Configuración</button>
+  {{#articles}}
+  <div class="card">
+    <label class="title">{{{headline}}}</label>
+    <p><b>{{author}}</b>, {{date}}</p>
+    <hr>
+    <p>{{{subhead}}}</p>
+    <p style="margin-bottom: -10px;">
+      <span class="icon">&#xE8EC;</span> {{category}} | <span class="icon">👁️</span> {{views}} | <button><span class="icon">&#xED63; </span> Editar</button>
+    </p>
+  </div>
+  {{/articles}}
 </div>
-{{/articles}}

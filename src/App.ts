@@ -366,12 +366,55 @@ class App{
       }
     })
 
-    router.get('/dashboard/validate-session', (req: express.Request, res: express.Response)=>{
+    router.get('/dashboard/session', (req: express.Request, res: express.Response)=>{
       if (!req.session.name) {
         return res.status(200).send(false)
       } else {
         return res.status(200).send(true)
       }
+    })
+
+    router.delete('/dashboard/session', (req: express.Request, res: express.Response)=>{
+      req.session.destroy((err)=> {
+        if (err) {
+          return res.json({
+            'success': false,
+            'status': 'Unable to destroy session'
+          })
+        }
+        return res.json({
+          'success': true,
+          'status': 'Session succesfully destroyed'
+        })
+      })
+    })
+
+    router.get('/dashboard/articles',(req: express.Request, res: express.Response)=>{
+      if (req.session.name) {
+        pgClient.query(`SELECT views, subhead, headline, author, category, date FROM "ARTICLE" WHERE created_by = '${req.session.name}' ORDER BY created DESC`, (pgerror, pgresult) => {
+          if (pgerror) {
+            return res.status(500).send({error:pgerror})
+          }
+          const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/profile.html'), 'utf8')
+          const view = {'articles': pgresult.rows}
+          const site = mustache.render(template, view)
+          return res.send(site)
+        })
+      } else {
+        res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
+    })
+
+    router.get('/dashboard/moderation', (req: express.Request, res: express.Response)=>{
+      pgClient.query('SELECT * FROM university_unverified_reviews()', (pgerror, pgresult) => {
+        if (pgerror) {
+          return res.status(500).send({error:pgerror})
+        }
+        const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/moderation.html'), 'utf8')
+        const view = {'categories': [{name: 'calificacion'}], 'reviews': pgresult.rows}
+        const site = mustache.render(template, view)
+        return res.send(site)
+      })
     })
     this.app.use('/', router)
   }
