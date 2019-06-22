@@ -109,3 +109,22 @@ document.getElementById('logout').addEventListener('click', ()=> {
     }
   }
 })
+
+function approveUniReview(university, date){
+  params = `/califica/universidades?university=${university}&date=${date}`
+  Http.open("PATCH", params)
+  Http.send()
+  Http.onreadystatechange = (e) => {
+    if (Http.readyState == 4 && Http.status == 200) {
+      const response = JSON.parse(Http.response)
+      if (response.success) {
+        console.log(response)
+      } else {
+        interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
+      }
+    } else if (Http.readyState == 4 && !Http.status == 200) {
+      interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
+      interactModal('login-modal')
+    }
+  }
+}

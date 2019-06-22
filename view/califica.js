@@ -120,6 +120,8 @@ document.getElementById('submit-review').addEventListener('click', ()=> {
           initUniReviews()
         } else {
           interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
+          grecaptcha.reset();
+          console.error(post)
         }
       }
     }

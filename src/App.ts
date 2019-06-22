@@ -214,7 +214,7 @@ class App{
         let result: Array<any>
 
         if (success === true) {
-          const query = `CALL public.insert_university_review('${data.university.replace(/[&()'"*]/g, '')}', ${data.reputation.replace(/[&()'"*]/g, '')}, ${data.location.replace(/[&()'"*]/g, '')}, ${data.events.replace(/[&()'"*]/g, '')}, ${data.security.replace(/[&()'"*]/g, '')}, ${data.services.replace(/[&()'"*]/g, '')}, ${data.cleanliness.replace(/[&()'"*]/g, '')}, ${data.happiness.replace(/[&()'"*]/g, '')}, '${data.summary.replace(/[&()'"*]/g, '')}', ${data.social.replace(/[&()'"*]/g, '')}, ${data.extracurricular.replace(/[&()'"*]/g, '')})`
+          const query = `CALL public.insert_university_review('${data.university.replace(/[&()'"*]/g, '')}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               res.json({
@@ -240,6 +240,33 @@ class App{
           'data': error
         })
       })
+    })
+
+    router.patch('/califica/universidades', (req: express.Request, res: express.Response) => {
+      if (req.session.name) {
+        if (req.query.university && req.query.date) {
+          const query = `CALL validate_review('${req.query.university}', '${req.query.date}')`          
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              return res.status(500).send({'success': false, 'error': pgerror})
+            } else {
+              return res.status(200).send({'success': true, 'data': pgresult})
+            }
+          })
+        } else {
+          return res.status(400).send('Insufficient parameters sent.')
+        }
+      } else {
+        return res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
+    })
+
+    router.delete('/califica/universidades', (req: express.Request, res: express.Response) => {
+      if (req.session.name){
+        
+      } else {
+        return res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
     })
 
     router.get('/califica', (req: express.Request, res: express.Response) => {
@@ -350,7 +377,6 @@ class App{
         const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
         pgClient.query(query, (pgerror, pgresult) => {
           if (pgerror) {
-            console.error(pgerror.message)
             return res.status(500).send({error: pgerror.message})
           } else {
             if (pgresult.rowCount == 0) {
@@ -406,15 +432,25 @@ class App{
     })
 
     router.get('/dashboard/moderation', (req: express.Request, res: express.Response)=>{
-      pgClient.query('SELECT * FROM university_unverified_reviews()', (pgerror, pgresult) => {
-        if (pgerror) {
-          return res.status(500).send({error:pgerror})
-        }
-        const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/moderation.html'), 'utf8')
-        const view = {'categories': [{name: 'calificacion'}], 'reviews': pgresult.rows}
-        const site = mustache.render(template, view)
-        return res.send(site)
-      })
+      if (req.session.name) {
+        pgClient.query('SELECT * FROM university_unverified_reviews()', (pgerror, pgresult) => {
+          if (pgerror) {
+            return res.status(500).send({error:pgerror})
+          }
+          const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/moderation.html'), 'utf8')
+          for (let i = 0; i < pgresult.rowCount; i ++) {
+            const jsDate = new Date(pgresult.rows[i].date)
+            //const sqlDate = `${jsDate.getUTCFullYear()}-${jsDate.getUTCMonth()}-${jsDate.getUTCDate()} ${jsDate.getUTCHours()}:${jsDate.getUTCMinutes()}:${jsDate.getUTCSeconds()}.${jsDate.getUTCMilliseconds()}+00`
+            const sqlDate = jsDate.toISOString().replace('T', ' ').replace('Z', '');
+            pgresult.rows[i].date = sqlDate
+          }
+          const view = {'categories': [{name: 'calificacion'}], 'reviews': pgresult.rows}
+          const site = mustache.render(template, view)
+          return res.send(site)
+        })
+      } else {
+        res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
     })
     this.app.use('/', router)
   }
