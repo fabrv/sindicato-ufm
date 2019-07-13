@@ -147,3 +147,11 @@ function rejectUniReview(university, date){
     }
   }
 }
+
+function approveReject(university, date, approve) {
+  if (approve === true){
+    document.getElementById('reject-accept-btn').addEventListener('click', approveUniReview(university, date));
+  } else {
+    document.getElementById('reject-accept-btn').addEventListener('click', rejectUniReview(university, date));
+  }
+}
