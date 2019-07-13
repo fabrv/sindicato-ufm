@@ -14,7 +14,7 @@
     <p>{{{summary}}}</p>
     <p style="margin-bottom: -10px;">
       <button onclick="approveUniReview('{{university}}', '{{date}}')"><span class="icon">&#xE73E; </span> Aprovar</button>
-      <button id="reject-btn"><span class="icon">&#xE711; </span> Rechazar</button>
+      <button onclick="rejectUniReview('{{university}}', '{{date}}')" id="reject-btn"><span class="icon">&#xE711; </span> Rechazar</button>
     </p>
   </div>
   {{/reviews}}

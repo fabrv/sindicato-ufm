@@ -245,7 +245,7 @@ class App{
     router.patch('/califica/universidades', (req: express.Request, res: express.Response) => {
       if (req.session.name) {
         if (req.query.university && req.query.date) {
-          const query = `CALL validate_review('${req.query.university}', '${req.query.date}')`          
+          const query = `CALL validate_review('${req.query.university}', '${req.query.date}')`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               return res.status(500).send({'success': false, 'error': pgerror})
@@ -263,7 +263,18 @@ class App{
 
     router.delete('/califica/universidades', (req: express.Request, res: express.Response) => {
       if (req.session.name){
-        
+        if (req.query.university && req.query.date) {
+          const query = `CALL delete_university_review('${req.query.university}', '${req.query.date}')`
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              return res.status(500).send({'success': false, 'error': pgerror})
+            } else {
+              return res.status(200).send({'success': true, 'data': pgresult})
+            }
+          })
+        } else {
+          return res.status(400).send('Insufficient parameters sent.')
+        }
       } else {
         return res.status(401).send('Unathorized access, credentials expired or invalid.')
       }
