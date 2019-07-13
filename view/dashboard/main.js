@@ -110,15 +110,20 @@ document.getElementById('logout').addEventListener('click', ()=> {
   }
 })
 
-function approveUniReview(university, date){
+function approveUniReview(university, date, card){
   params = `/califica/universidades?university=${university}&date=${date}`
   Http.open("PATCH", params)
   Http.send()
   Http.onreadystatechange = (e) => {
     if (Http.readyState == 4 && Http.status == 200) {
+      interactPrompt('wrapper-mod')
       const response = JSON.parse(Http.response)
       if (response.success) {
-        console.log(response)
+        interactToast('login-toast', 'Calificación exitosamente aceptada', 3000)
+        card.style.opacity = '0'
+        setTimeout(() => {
+          card.parentNode.removeChild(card);
+        }, 300);
       } else {
         interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
       }
@@ -129,15 +134,20 @@ function approveUniReview(university, date){
   }
 }
 
-function rejectUniReview(university, date){
+function rejectUniReview(university, date, card){
   params = `/califica/universidades?university=${university}&date=${date}`
   Http.open("DELETE", params)
   Http.send()
   Http.onreadystatechange = (e) => {
     if (Http.readyState == 4 && Http.status == 200) {
+      interactPrompt('wrapper-mod')
       const response = JSON.parse(Http.response)
       if (response.success) {
-        console.log(response)
+        interactToast('login-toast', 'Calificación exitosamente aceptada', 3000)
+        card.style.opacity = '0'
+        setTimeout(() => {
+          card.parentNode.removeChild(card);
+        }, 300);
       } else {
         interactToast('login-toast', 'Problema conectandose con el servidor', 3000)
       }
@@ -148,10 +158,16 @@ function rejectUniReview(university, date){
   }
 }
 
-function approveReject(university, date, approve) {
+function approveReject(university, date, approve, element) {
   if (approve === true){
-    document.getElementById('reject-accept-btn').addEventListener('click', approveUniReview(university, date));
+    let f = () => approveUniReview(university, date, element.parentElement.parentElement)
+    document.getElementById('reject-accept-btn').addEventListener('click', f);
   } else {
-    document.getElementById('reject-accept-btn').addEventListener('click', rejectUniReview(university, date));
+    let f = () => rejectUniReview(university, date, element.parentElement.parentElement)
+    document.getElementById('reject-accept-btn').addEventListener('click', f);
   }
+}
+
+function openEditor(headline, subhead, category) {
+  
 }

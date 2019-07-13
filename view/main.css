@@ -311,7 +311,7 @@ input[type=text]:focus, [type=password]:focus {
   position: relative;
 }
 
-.modal .close-btn {
+.modal .close-btn, .modal .save-btn {
   position: absolute;
   right: 20px;
   top: 0;
@@ -326,11 +326,19 @@ input[type=text]:focus, [type=password]:focus {
   content: '\E8BB'
 }
 
-.modal .close-btn:hover {
+.modal .save-btn {
+  right: 65px;
+}
+
+.modal .save-btn::after {
+  content: '\E74E'
+}
+
+.modal .close-btn:hover, .modal .save-btn:hover{
   background-color: rgba(226, 226, 226, 0.7);
 }
 
-.modal .close-btn:active {
+.modal .close-btn:active, .modal .save-btn:active {
   background-color: #e2e2e2;
   box-shadow: 0 1px 2px 1px rgba(0,0,0,.1)
 }

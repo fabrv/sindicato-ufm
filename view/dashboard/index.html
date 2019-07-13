@@ -7,6 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="../main.css">
   <link rel="stylesheet" type="text/css" media="screen" href="dashboard.css">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 </head>
 <body>
   <div class="header">
@@ -37,6 +40,25 @@
       <a href="../">Regresar a El Sindicato</a>
     </div>
   </div>
+
+  <div id="editor-modal" class="modal hidden">
+    <div class="content" style="text-align: left; overflow-x: hidden">
+      <span class="icon close-btn" onclick="interactModal('editor-modal');"></span>
+      <span class="icon save-btn"></span>
+      <h1>Editor</h1>
+      <hr>
+      <input placeholder="Titular" type="text" id="headline"><br>
+      <input placeholder="Subtitulo" type="text" id="subhead"><br>
+      <input placeholder="Categoría" type="text" id="category"><br><br>
+      <textarea id="editor-textarea"></textarea>
+    </div>
+  </div>
+
+  <script>
+    var simplemde = new SimpleMDE({ element: document.getElementById('editor-textarea'), spellChecker: false })
+    simplemde.value("# This text will appear in the editor");
+  </script>
+
   <div id="wrapper">
     
   </div>

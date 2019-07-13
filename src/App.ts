@@ -463,6 +463,7 @@ class App{
         res.status(401).send('Unathorized access, credentials expired or invalid.')
       }
     })
+    
     this.app.use('/', router)
   }
 }

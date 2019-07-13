@@ -1,6 +1,9 @@
 import fs from 'fs'
 import mustache from 'mustache'
 import * as path from 'path'
+
+import showdown from 'showdown'
+
 export class Parsing {
   constructor (){}
 
@@ -14,11 +17,13 @@ export class Parsing {
    */
   parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
     const template = fs.readFileSync(path.resolve(__dirname, 'templates/article.html'), 'utf8')
+    const converter = new showdown.Converter()
+    const parsedBody = converter.makeHtml(body)
     const view = {
       'headlineLink': encodeURIComponent(replaceAll(headline, ' ', '_')),
       'headline': headline,
       'subhead': subhead,
-      'body': body,
+      'body': parsedBody,
       'date': date,
       'author': author
     }

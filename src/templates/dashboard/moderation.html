@@ -26,8 +26,8 @@
     <hr>
     <p>{{{summary}}}</p>
     <p style="margin-bottom: -10px;">
-      <button onclick="interactPrompt('wrapper-mod'); approveReject('{{university}}', '{{date}}', true)"><span class="icon">&#xE73E; </span> Aprovar</button>
-      <button onclick="interactPrompt('wrapper-mod'); approveReject('{{university}}', '{{date}}', false)" id="reject-btn"><span class="icon">&#xE711; </span> Rechazar</button>
+      <button onclick="interactPrompt('wrapper-mod'); approveReject('{{university}}', '{{date}}', true, this)"><span class="icon">&#xE73E; </span> Aprovar</button>
+      <button onclick="interactPrompt('wrapper-mod'); approveReject('{{university}}', '{{date}}', false, this)" id="reject-btn"><span class="icon">&#xE711; </span> Rechazar</button>
     </p>
   </div>
   {{/reviews}}

@@ -1,5 +1,5 @@
 <div class="content">
-  <button><span class="icon">&#xED63; </span> Nuevo articulo</button>
+  <button onclick="interactModal('editor-modal');"><span class="icon">&#xED63; </span> Nuevo articulo</button>
   <button><span class="icon">&#xE713; </span> Configuración</button>
   {{#articles}}
   <div class="card">
@@ -8,7 +8,8 @@
     <hr>
     <p>{{{subhead}}}</p>
     <p style="margin-bottom: -10px;">
-      <span class="icon">&#xE8EC;</span> {{category}} | <span class="icon">👁️</span> {{views}} | <button><span class="icon">&#xED63; </span> Editar</button>
+      <span class="icon">&#xE8EC;</span> {{category}} | <span class="icon">👁️</span> {{views}} | 
+      <button onclick="interactModal('editor-modal');"><span class="icon">&#xED63; </span> Editar</button>
     </p>
   </div>
   {{/articles}}
