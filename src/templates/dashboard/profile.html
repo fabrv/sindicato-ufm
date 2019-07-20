@@ -1,5 +1,5 @@
 <div class="content">
-  <button onclick="interactModal('editor-modal');"><span class="icon">&#xED63; </span> Nuevo articulo</button>
+  <button onclick="openEditor('','','', false);"><span class="icon">&#xED63; </span> Nuevo articulo</button>
   <button><span class="icon">&#xE713; </span> Configuración</button>
   {{#articles}}
   <div class="card">
@@ -9,7 +9,7 @@
     <p>{{{subhead}}}</p>
     <p style="margin-bottom: -10px;">
       <span class="icon">&#xE8EC;</span> {{category}} | <span class="icon">👁️</span> {{views}} | 
-      <button onclick="interactModal('editor-modal');"><span class="icon">&#xED63; </span> Editar</button>
+      <button onclick="var x = `{{body}}`; x = x.replace(/&96;/g, '`'); openEditor('{{headline}}','{{subhead}}',x, true);"><span class="icon">&#xED63; </span> Editar</button>
     </p>
   </div>
   {{/articles}}

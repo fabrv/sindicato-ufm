@@ -167,10 +167,11 @@ function approveReject(university, date, approve, element) {
     document.getElementById('reject-accept-btn').addEventListener('click', f);
   }
 }
-var simplemde = new SimpleMDE({ element: document.getElementById('editor-textarea'), spellChecker: false })
 
-function openEditor(headline, subhead, body) {
+function openEditor(headline, subhead, body, editing) {
   document.getElementById('headline').value = headline
   document.getElementById('subhead').value = subhead
+  document.getElementById('category').value = 'opinion'
   simplemde.value(body);
+  interactModal('editor-modal');
 }

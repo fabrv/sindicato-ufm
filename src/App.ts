@@ -428,11 +428,14 @@ class App{
 
     router.get('/dashboard/articles',(req: express.Request, res: express.Response)=>{
       if (req.session.name) {
-        pgClient.query(`SELECT views, subhead, headline, author, category, date FROM "ARTICLE" WHERE created_by = '${req.session.name}' ORDER BY created DESC`, (pgerror, pgresult) => {
+        pgClient.query(`SELECT views, subhead, body, headline, author, category, date FROM "ARTICLE" WHERE created_by = '${req.session.name}' ORDER BY created DESC`, (pgerror, pgresult) => {
           if (pgerror) {
             return res.status(500).send({error:pgerror})
           }
           const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/profile.html'), 'utf8')
+          for (let i = 0; i < pgresult.rowCount; i++) {
+            pgresult.rows[i].body = pgresult.rows[i].body.replace(/`/g, '&96;')
+          }
           const view = {'articles': pgresult.rows}
           const site = mustache.render(template, view)
           return res.send(site)
