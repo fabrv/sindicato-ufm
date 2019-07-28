@@ -1,5 +1,7 @@
 const Http = new XMLHttpRequest();
 let params = ''
+let edit = false
+let lastEditHeadline = ''
 
 params = `/dashboard/session`
 Http.open("GET", params)
@@ -168,10 +170,38 @@ function approveReject(university, date, approve, element) {
   }
 }
 
-function openEditor(headline, subhead, body, editing) {
+function openEditor(headline, subhead, body, author, editing, category = 'opinion') {
   document.getElementById('headline').value = headline
   document.getElementById('subhead').value = subhead
-  document.getElementById('category').value = 'opinion'
-  simplemde.value(body);
-  interactModal('editor-modal');
+  document.getElementById('author').value = author
+  document.getElementById('category').value = category
+  simplemde.value(body)
+  interactModal('editor-modal')
+  edit = editing
+
+  lastEditHeadline = headline
 }
+
+document.getElementById('save-btn').addEventListener('click', ()=> {
+  if (edit) {
+    // ${data.subhead}', '${data.headline}', '${data.body}', '${data.author}', '${data.category}
+    const articleData = {
+      subhead: document.getElementById('subhead').value,
+      headline: document.getElementById('headline').value,
+      body: simplemde.value(),
+      author: document.getElementById('author').value,
+      category: document.getElementById('category').value,
+      pkHeadline: lastEditHeadline
+    }
+    params = '../articulo'
+    Http.open("PATCH", params);
+    Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    Http.send(JSON.stringify(articleData));
+    Http.onreadystatechange=(e)=>{
+      if (Http.readyState == 4 && Http.status == 200) {
+        const post = JSON.parse(Http.response)
+        console.log(post.success)
+      }
+    }
+  }
+})
