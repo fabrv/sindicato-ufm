@@ -12,9 +12,23 @@
     <button onclick="interactPrompt('wrapper-delete');">Cancelar</button>
   </div>
 </div>
+
+<div id="config-modal" class="modal hidden">
+  <div class="content">
+    <span class="icon close-btn" onclick="interactModal('config-modal');"></span>
+    <h1>Configuración</h1>
+    <hr>
+    <h3>Cambiar contraseña</h3>
+    <input type="password" id="password" placeholder="Contraseña actual">
+    <input type="password" id="new-password" placeholder="Nueva contraseña">
+    <input type="password" id="confirm-password" placeholder="Confirmar nueva contraseña">
+    <button><span class="icon">&#xE74E; </span> Cambiar contraseña</button>
+  </div>
+</div>
+
 <div class="content">
   <button onclick="openEditor('','','', '', false);"><span class="icon">&#xED63; </span> Nuevo articulo</button>
-  <button><span class="icon">&#xE713; </span> Configuración</button>
+  <button onclick="interactModal('config-modal');"><span class="icon">&#xE713; </span> Configuración</button>
   {{#articles}}
   <div class="card">
     <label class="title">{{{headline}}}</label>
