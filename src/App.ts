@@ -134,7 +134,51 @@ class App{
     router.patch('/articulo', (req: express.Request, res: express.Response) => {
       if (req.session.name) {
         const data: any = req.body
-        const query = `CALL public.update_article('${data.subhead}', '${data.headline}', '${data.body}', '${data.author}', '${data.category}', '${data.pkHeadline}')`
+        const query = `CALL public.update_article('${data.subhead.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.headline.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.body.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.author.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.category.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.pkHeadline}')`
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              res.json({
+                'success': false,
+                'data': pgerror
+              })
+            } else {
+              res.json({
+                'success': true,
+                'data': pgresult
+              })
+            }
+          })
+      } else {
+        return res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
+    })
+
+    router.post('/articulo', (req: express.Request, res: express.Response) => {
+      if (req.session.name) {
+        const data: any = req.body
+        const query = `CALL public.insert_article('${data.subhead.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.headline.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.body.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.author.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.category.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.date.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.user.replace(/`/g, '\x60').replace(/'/g, '&#39;')}')`
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              res.json({
+                'success': false,
+                'data': pgerror
+              })
+            } else {
+              res.json({
+                'success': true,
+                'data': pgresult
+              })
+            }
+          })
+      } else {
+        return res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
+    })
+
+    router.delete('/articulo', (req: express.Request, res: express.Response) => {
+      if (req.session.name) {
+        const data: any = req.body
+        const query = `CALL public.delete_article('${data.headline.replace(/`/g, '\x60').replace(/'/g, '&#39;')}')`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               res.json({

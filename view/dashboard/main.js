@@ -2,6 +2,7 @@ const Http = new XMLHttpRequest();
 let params = ''
 let edit = false
 let lastEditHeadline = ''
+let articleToDelete = ''
 
 params = `/dashboard/session`
 Http.open("GET", params)
@@ -183,8 +184,8 @@ function openEditor(headline, subhead, body, author, editing, category = 'opinio
 }
 
 document.getElementById('save-btn').addEventListener('click', ()=> {
+  interactToast('login-toast', 'Guardando articulo...', 2000)
   if (edit) {
-    // ${data.subhead}', '${data.headline}', '${data.body}', '${data.author}', '${data.category}
     const articleData = {
       subhead: document.getElementById('subhead').value,
       headline: document.getElementById('headline').value,
@@ -200,8 +201,76 @@ document.getElementById('save-btn').addEventListener('click', ()=> {
     Http.onreadystatechange=(e)=>{
       if (Http.readyState == 4 && Http.status == 200) {
         const post = JSON.parse(Http.response)
-        console.log(post.success)
+        if (post.success) {
+          interactToast('login-toast', 'Articulo exitosamente guardado.', 2000)
+          interactToast('login-toast', 'Articulo exitosamente guardado.', 2000)
+          init()
+        } else {
+          console.error(post)
+          interactToast('login-toast', 'Error: Problemas con el servidor al guardar articulo.', 4000)
+          interactToast('login-toast', 'Error: Problemas con el servidor al guardar articulo.', 4000)
+        }
+      }
+    }
+  } else {
+    const articleData = {
+      subhead: document.getElementById('subhead').value,
+      headline: document.getElementById('headline').value,
+      body: simplemde.value(),
+      author: document.getElementById('author').value,
+      category: document.getElementById('category').value,
+      date: new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+      user: localStorage.session
+    }
+    params = '../articulo'
+    Http.open("POST", params);
+    Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    Http.send(JSON.stringify(articleData));
+    Http.onreadystatechange=(e)=>{
+      if (Http.readyState == 4 && Http.status == 200) {
+        const post = JSON.parse(Http.response)
+        if (post.success) {
+          interactToast('login-toast', 'Articulo exitosamente guardado.', 2000)
+          interactToast('login-toast', 'Articulo exitosamente guardado.', 2000)
+          init()
+          edit = true
+          lastEditHeadline = articleData.headline
+        } else {
+          console.error(post)
+          interactToast('login-toast', 'Error: Problemas con el servidor al guardar articulo.', 4000)
+          interactToast('login-toast', 'Error: Problemas con el servidor al guardar articulo.', 4000)
+        }
       }
     }
   }
 })
+
+function deleteArticle() {
+  if (document.getElementById('delete-confirmation').value == articleToDelete) {
+    interactPrompt('wrapper-delete')
+    interactToast('login-toast', 'Borrando articulo...', 2000)  
+    const articleData = {
+      headline: articleToDelete
+    }
+    params = '../articulo'
+    Http.open("DELETE", params);
+    Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    Http.send(JSON.stringify(articleData));
+    Http.onreadystatechange=(e)=>{
+      if (Http.readyState == 4 && Http.status == 200) {
+        const post = JSON.parse(Http.response)
+        if (post.success) {
+          interactToast('login-toast', 'Articulo exitosamente borrado.', 2000)
+          interactToast('login-toast', 'Articulo exitosamente borrado.', 2000)
+          init()
+        } else {
+          console.error(post)
+          interactToast('login-toast', 'Error: Problemas con el servidor al borrar articulo.', 4000)
+          interactToast('login-toast', 'Error: Problemas con el servidor al borrar articulo.', 4000)
+        }
+      }
+    }
+  } else {
+    document.getElementById('delete-error-span').style.display = 'inherit'
+  }
+}

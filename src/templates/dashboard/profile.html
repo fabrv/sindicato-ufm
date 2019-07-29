@@ -1,3 +1,17 @@
+<div id="wrapper-delete" class="wrapper hidden" style="display: inherit">
+  <div id="prompt-delete" class="prompt">
+    <p class="title">
+      Borrar articulos
+    </p>
+    <p>
+      Esta acción no se puede revertir. Ingresar el titular del articulo para continuar.
+      <input id="delete-confirmation" style="width: 90%" type="text" placeholder="Titular">
+      <span id="delete-error-span" style="font-size: small; color:red; display: none;">Titular ingresado incorrecto</span>
+    </p>
+    <button onclick="deleteArticle()" style="background-color: rgba(255, 0, 0, 0.329);" id="delete-btn">Continuar</button>
+    <button onclick="interactPrompt('wrapper-delete');">Cancelar</button>
+  </div>
+</div>
 <div class="content">
   <button onclick="openEditor('','','', '', false);"><span class="icon">&#xED63; </span> Nuevo articulo</button>
   <button><span class="icon">&#xE713; </span> Configuración</button>
@@ -10,6 +24,7 @@
     <p style="margin-bottom: -10px;">
       <span class="icon">&#xE8EC;</span> {{category}} | <span class="icon">👁️</span> {{views}} | 
       <button onclick="var x = `{{body}}`; x = x.replace(/&96;/g, '`'); openEditor('{{headline}}','{{subhead}}', x, '{{author}}', true, '{{category}}');"><span class="icon">&#xED63; </span> Editar</button>
+      <button onclick="articleToDelete = '{{headline}}'; document.getElementById('delete-error-span').style.display = 'none'; interactPrompt('wrapper-delete')" style="color: rgba(248, 69, 69, 0.836);" id="delete-btn"><span class="icon">&#xE74D; </span>Borrar</button>
     </p>
   </div>
   {{/articles}}

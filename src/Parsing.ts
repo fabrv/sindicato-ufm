@@ -17,7 +17,7 @@ export class Parsing {
    */
   parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
     const template = fs.readFileSync(path.resolve(__dirname, 'templates/article.html'), 'utf8')
-    const converter = new showdown.Converter()
+    const converter = new showdown.Converter({tables: true, strikethrough: true})
     const parsedBody = converter.makeHtml(body)
     const view = {
       'headlineLink': encodeURIComponent(replaceAll(headline, ' ', '_')),
