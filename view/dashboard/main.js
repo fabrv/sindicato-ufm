@@ -276,7 +276,6 @@ function deleteArticle() {
 }
 
 function updateCredentials(username, password) {
-  interactToast('login-toast', 'Cambiando contraseña...', 2000)
   if (document.getElementById('new-password').value == document.getElementById('confirm-password').value){
     params = `../dashboard/user?username=${username}&password=${password}`
     Http.open("PATCH", params)
@@ -294,7 +293,13 @@ function updateCredentials(username, password) {
 
 async function changePassword() {
   if (document.getElementById('new-password').value == document.getElementById('confirm-password').value){
+    interactToast('login-toast', 'Cambiando contraseña...', 2000)
     const verify = await updateCredentials(localStorage.session, document.getElementById('new-password').value)
-    console.log(verify)
+    interactModal('config-modal')
+    if (verify.success == true) {
+      interactToast('update-toast', 'Contraseña cambiada', 2000)
+    } else {
+      interactToast('update-toast', 'Contraseña no pudo ser cambiada', 2000)
+    }
   }
 }

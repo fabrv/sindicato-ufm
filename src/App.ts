@@ -542,7 +542,7 @@ class App{
               console.log(pgerror)
               return res.status(500).send({error: pgerror})
             } else {
-              return res.status(200).send({sucess: true, data: pgresult.rows})
+              return res.status(200).send({success: true, data: pgresult.rows})
             }
           })
         } else {
