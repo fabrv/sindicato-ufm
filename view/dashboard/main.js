@@ -274,3 +274,27 @@ function deleteArticle() {
     document.getElementById('delete-error-span').style.display = 'inherit'
   }
 }
+
+function updateCredentials(username, password) {
+  interactToast('login-toast', 'Cambiando contraseña...', 2000)
+  if (document.getElementById('new-password').value == document.getElementById('confirm-password').value){
+    params = `../dashboard/user?username=${username}&password=${password}`
+    Http.open("PATCH", params)
+    Http.send()
+    return new Promise(resolve => {
+      Http.onreadystatechange = (e) => {
+        if (Http.readyState == 4 && Http.status == 200) {
+          const response = JSON.parse(Http.response)
+          resolve(response)
+        }
+      }
+    })
+  }
+}
+
+async function changePassword() {
+  if (document.getElementById('new-password').value == document.getElementById('confirm-password').value){
+    const verify = await updateCredentials(localStorage.session, document.getElementById('new-password').value)
+    console.log(verify)
+  }
+}

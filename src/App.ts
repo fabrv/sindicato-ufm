@@ -450,7 +450,7 @@ class App{
 
   dashboardRoutes(router: express.Router = express.Router()) {
     router.get('/dashboard/login', (req: express.Request, res: express.Response)=>{
-      if (req.query.username && req.query.password) {        
+      if (req.query.username && req.query.password) {
         const query = `SELECT * FROM validate_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
         pgClient.query(query, (pgerror, pgresult) => {
           if (pgerror) {
@@ -533,6 +533,25 @@ class App{
       }
     })
     
+    router.patch('/dashboard/user', (req: express.Request, res: express.Response)=>{
+      if (req.session.name) {
+        if (req.query.username && req.query.password) {
+          const query = `CALL update_credential('${req.query.username.replace(/[&()'"*]/g, '')}', '${req.query.password.replace(/[&()'"*]/g, '')}')`
+          pgClient.query(query, (pgerror, pgresult) => {
+            if (pgerror) {
+              console.log(pgerror)
+              return res.status(500).send({error: pgerror})
+            } else {
+              return res.status(200).send({sucess: true, data: pgresult.rows})
+            }
+          })
+        } else {
+          return res.status(400).send({error: 'Invalid request, missing query parameters'})
+        }
+      } else {
+        res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
+    })
     this.app.use('/', router)
   }
 }

@@ -16,13 +16,12 @@
 <div id="config-modal" class="modal hidden">
   <div class="content">
     <span class="icon close-btn" onclick="interactModal('config-modal');"></span>
-    <h1>Configuración</h1>
+    <h2>Configuración</h2>
     <hr>
     <h3>Cambiar contraseña</h3>
-    <input type="password" id="password" placeholder="Contraseña actual">
     <input type="password" id="new-password" placeholder="Nueva contraseña">
     <input type="password" id="confirm-password" placeholder="Confirmar nueva contraseña">
-    <button><span class="icon">&#xE74E; </span> Cambiar contraseña</button>
+    <button onclick="changePassword()"><span class="icon">&#xE74E; </span> Cambiar contraseña</button>
   </div>
 </div>
 
