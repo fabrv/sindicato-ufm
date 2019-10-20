@@ -1,18 +1,18 @@
-const urlParams = new URLSearchParams(window.location.search);
-let pageParam = urlParams.get('page');
+const urlParams = new URLSearchParams(window.location.search)
+let pageParam = urlParams.get('page')
 
 let page = 0
 
-if (!isNaN(pageParam)){
+if (!isNaN(pageParam)) {
   console.log(pageParam)
   if (pageParam == null) pageParam = 0
   page = parseInt(pageParam)
 }
 
-function addPage(){
+function addPage () {
   window.location.href = `${window.location.href.split('?')[0]}?page=${page + 1}`
 }
 
-function lessPage(){
+function lessPage () {
   window.location.href = `${window.location.href.split('?')[0]}?page=${page - 1}`
 }

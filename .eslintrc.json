@@ -1,3 +1,7 @@
 {
-    "extends": "standard"
+    "extends": "standard",
+    "rules": {
+        "no-unused-vars": "off",
+        "no-useless-escape": "off"
+    }
 }

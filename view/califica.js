@@ -1,26 +1,28 @@
-const Http = new XMLHttpRequest();
+// eslint-disable-next-line no-undef
+const Http = new XMLHttpRequest()
 let params = ''
 
-
-function initUniReviews() {
+function initUniReviews () {
   document.getElementById('wrapper').innerHTML = ''
   document.getElementById('uni-select').innerHTML = ''
-  params =  '../json/califica/universidades'
-  Http.open("GET", params);
-  Http.send();
-  Http.onreadystatechange=(e)=> {
-    if (Http.readyState == 4 && Http.status == 200) {
+  params = '../json/califica/universidades'
+  Http.open('GET', params)
+  Http.send()
+  Http.onreadystatechange = (e) => {
+    if (Http.readyState === 4 && Http.status === 200) {
       const unis = JSON.parse(Http.response)
-      for (let uni in unis){
+      // eslint-disable-next-line prefer-const
+      for (let uni in unis) {
         document.getElementById('wrapper').innerHTML += uniParser(unis[uni])
       }
       params = '../json/universidades'
-      Http.open("GET", params);
-      Http.send();
-      Http.onreadystatechange=(e)=> {
-        if (Http.readyState == 4 && Http.status == 200) {
+      Http.open('GET', params)
+      Http.send()
+      Http.onreadystatechange = (e) => {
+        if (Http.readyState === 4 && Http.status === 200) {
           const unis = JSON.parse(Http.response)
-          for (let uni in unis){
+          // eslint-disable-next-line prefer-const
+          for (let uni in unis) {
             document.getElementById('uni-select').innerHTML += `<option value="${unis[uni].name}">${unis[uni].name}</option>`
           }
         }
@@ -29,43 +31,44 @@ function initUniReviews() {
   }
 }
 
-function uniParser(uniJSON) {
+function uniParser (uniJSON) {
   let card = `<div class="card university" onclick="cardNavigate(this, '${uniJSON.acronym}')">`
 
   let general = 0
   let categories = 0
 
+  // eslint-disable-next-line prefer-const
   for (let item in uniJSON) {
     if (item === 'imagelink') {
       card += `<div class="image" style="background-image: url('${uniJSON[item]}')"></div><br>`
     } else if (item === 'university') {
       card += `<label class="title">${uniJSON[item]}</label>`
-    } else if (item === 'acronym') { }
-    else {
+    } else if (item === 'acronym') {
+    } else {
       general += parseFloat(uniJSON[item])
       categories += 1
     }
   }
   card += `
-  <div class="rating">${starRatingParser(general/categories, 5)}</div>  
+  <div class="rating">${starRatingParser(general / categories, 5)}</div>  
   <button>Ver cursos y catedraticos</button>`
   return card
 }
 
-function starRatingParser(value, max) {
+function starRatingParser (value, max) {
   if (value > max) value = max
-  let stars = Math.round((value / max) * 5)
+  const stars = Math.round((value / max) * 5)
   let html = ''
-  for (let i = 0; i < stars; i++){
+  for (let i = 0; i < stars; i++) {
     html += '<span class="checked">&#x2605;</span>'
   }
-  for (let i = 0; i < (max - stars); i++){
+  for (let i = 0; i < (max - stars); i++) {
     html += '<span>&#x2605;</span>'
   }
   return html
 }
 
-function createStars(id, description, label) {
+function createStars (id, description, label) {
   return `
   <h4>2) ${description}</h4>
   <label for="location">${label}:</label>
@@ -83,59 +86,69 @@ function createStars(id, description, label) {
   </div>`
 }
 
-function clearUniForm() {
+function clearUniForm () {
   const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
-  for (let category in categories){
+  // eslint-disable-next-line prefer-const
+  for (let category in categories) {
     document.getElementById(`${categories[category]}1`).checked = true
   }
   document.getElementById('summary').value = ''
-  document.getElementById('summary-empty').style.display = 'none';
-  document.getElementById('captcha-empty').style.display = 'none';
-  grecaptcha.reset();
+  document.getElementById('summary-empty').style.display = 'none'
+  document.getElementById('captcha-empty').style.display = 'none'
+  // eslint-disable-next-line no-undef
+  grecaptcha.reset()
 }
 
-document.getElementById('submit-review').addEventListener('click', ()=> {
+document.getElementById('submit-review').addEventListener('click', () => {
+  // eslint-disable-next-line no-undef
   const captcha = grecaptcha.getResponse()
-  if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') != '' && captcha != ''){
+
+  if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '' && captcha !== '') {
     const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
     const uniReview = {
-      'university': document.getElementById('uni-select').value,
-      'captcha': captcha,
-      'summary': document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '')
+      university: document.getElementById('uni-select').value,
+      captcha: captcha,
+      summary: document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '')
     }
-    for (let category in categories){
-      uniReview[categories[category]] = parseInt(document.querySelector(`input[name="${categories[category]}"]:checked`).value);
-    }  
+    // eslint-disable-next-line prefer-const
+    for (let category in categories) {
+      uniReview[categories[category]] = parseInt(document.querySelector(`input[name="${categories[category]}"]:checked`).value)
+    }
+
     params = '../califica/universidades'
-    Http.open("POST", params);
-    Http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    Http.send(JSON.stringify(uniReview));
-    Http.onreadystatechange=(e)=>{
-      if (Http.readyState == 4 && Http.status == 200) {
+    Http.open('POST', params)
+    Http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+    Http.send(JSON.stringify(uniReview))
+    Http.onreadystatechange = (e) => {
+      if (Http.readyState === 4 && Http.status === 200) {
         const post = JSON.parse(Http.response)
         if (post.success === true) {
           clearUniForm()
+          // eslint-disable-next-line no-undef
           interactModal('calificar-modal')
+          // eslint-disable-next-line no-undef
           interactModal('uploaded-modal')
           initUniReviews()
         } else {
+          // eslint-disable-next-line no-undef
           interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
-          grecaptcha.reset();
+          // eslint-disable-next-line no-undef
+          grecaptcha.reset()
           console.error(post)
         }
       }
     }
   } else {
-    if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') != '') {
-      document.getElementById('summary-empty').style.display = 'none';
+    if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '') {
+      document.getElementById('summary-empty').style.display = 'none'
     } else {
-      document.getElementById('summary-empty').style.display = 'initial';
+      document.getElementById('summary-empty').style.display = 'initial'
     }
 
-    if (captcha != '') {
-      document.getElementById('captcha-empty').style.display = 'none';
+    if (captcha !== '') {
+      document.getElementById('captcha-empty').style.display = 'none'
     } else {
-      document.getElementById('captcha-empty').style.display = 'initial';
+      document.getElementById('captcha-empty').style.display = 'initial'
     }
   }
-});
+})
