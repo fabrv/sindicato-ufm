@@ -235,6 +235,21 @@ class App{
       })
     })
 
+    /*router.get('/json/califica/catedraticos/:name', (req: express.Request, res: express.Response) => {
+
+    })*/
+
+    router.get('/json/califica/universidades/:university/catedraticos', (req: express.Request, res: express.Response) => {
+      let limit = parseInt(req.query.limit) || 20
+      pgClient.query(`SELECT * FROM university_teachers('${req.params.university}') LIMIT ${limit}`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          res.status(200).send(result.rows)
+        }
+      })
+    })
+
     router.get('/califica/universidades/:university', (req: express.Request, res: express.Response) => {
       //res.status(200).send(req.params.university)
       pgClient.query(`SELECT * FROM university_summary('${req.params.university}')`, (error, result) => {
