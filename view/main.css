@@ -495,3 +495,7 @@ input[type=text]:focus, [type=password]:focus {
   font-size: 20px;
   font-weight: bold;
 }
+
+.hidden {
+  display: none;
+}

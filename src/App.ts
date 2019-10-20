@@ -282,6 +282,24 @@ class App{
       })
     })
 
+    router.get('/califica/universidades/:university/reviews', (req: express.Request, res: express.Response) => {
+      const page = parseInt(req.params.page) || 0
+      pgClient.query(`SELECT * FROM university_reviews_paging('${req.params.university}', ${page})`, (error, result) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          for (let i: number = 0; i < result.rowCount; i++) {
+            result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 10)
+          }
+          const view = {reviews: result.rows}
+          const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/reviews.html'), 'utf8')
+
+          const site = mustache.render(template, view)
+          res.send(site)
+        }
+      })
+    })
+
     router.get('/califica/universidades', (req: express.Request, res: express.Response) => {
       res.sendFile(path.resolve(__dirname, '../view/califica.html'))
     })

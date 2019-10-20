@@ -31,31 +31,16 @@
         <input type="text" placeholder="Buscar catedratico o clase">
       </div>
 
-      <table id="teachers-summary" style="text-align: center;">
-          <tr>
-            <td><b>Catedratico</b></td>
-            <td><b>Calificación</b></td>
-            <td><b>Volvería a tomar</b></td>
-          </tr>
-      </table>
+      <table id="teachers-summary" style="text-align: center;"></table>
     </div>
-    <button>Cargar más catedraticos</button>
+    <button class="hidden" id="load-more">Cargar más catedraticos</button>
     <button>Agregar catedratico</button>
 
     <h2>Calificaciones</h2>
-    <div class="review">
-      <hr>
-      <ul>
-        <li><b>Reputación: </b> 3.2</li>
-        <li><b>Limpieza: </b> 5</li>
-      </ul>
-      <p>Critica mas votada aquí, lorem ipsum sit dolor amet.</p>
-      <a href="javascript:void(0);"><span class="icon">&#xF0AD;</span> Útil</a> 5
-      <a href="javascript:void(0);"><span class="icon">&#xF0AE;</span></a>
-      <hr><hr>
-    </div>
-    <button>Agregar califcación</button><button>Cargar más calificaciones</button>
+    <div id="reviews"></div>
+    <button>Agregar califcación</button><button class="hidden">Cargar más calificaciones</button>
   </div>
 </div>
 
-<script src="js/uni-reviews.js"></script>
+<script type="text/javascript" src="js/mustache.min.js"></script>
+<script type="text/javascript" src="js/uni-reviews.js"></script>
