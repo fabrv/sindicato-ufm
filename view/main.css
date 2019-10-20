@@ -496,6 +496,6 @@ input[type=text]:focus, [type=password]:focus {
   font-weight: bold;
 }
 
-.hidden {
+.no-show {
   display: none;
 }

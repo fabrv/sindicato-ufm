@@ -295,7 +295,7 @@ class App{
           const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/reviews.html'), 'utf8')
 
           const site = mustache.render(template, view)
-          res.send(site)
+          res.status(200).send({length: result.rowCount, html: site})
         }
       })
     })

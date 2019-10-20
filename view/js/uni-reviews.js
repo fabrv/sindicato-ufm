@@ -34,7 +34,7 @@ function loadTeachers (limit = 20) {
   Http.onreadystatechange = (e) => {
     if (Http.readyState === 4 && Http.status === 200) {
       renderTeachers({ teachers: JSON.parse(Http.response) })
-      showLoadButton(JSON.parse(Http.response).length)
+      showMoreTeachersButton(JSON.parse(Http.response).length)
     }
   }
 }
@@ -48,17 +48,25 @@ function loadReviews (page = 0) {
   Http.send()
   Http.onreadystatechange = (e) => {
     if (Http.readyState === 4 && Http.status === 200) {
-      document.getElementById('reviews').innerHTML = Http.response
+      document.getElementById('reviews').innerHTML += JSON.parse(Http.response).html
+      showMoreReviewsButton(JSON.parse(Http.response).length)
     }
   }
 }
 
-function showLoadButton (returnLength) {
-  console.log(returnLength)
+function showMoreTeachersButton (returnLength) {
   if (returnLength < teachersLimit) {
-    document.getElementById('load-more').classList.add('hidden')
+    document.getElementById('load-more-teachers').classList.add('no-show')
   } else {
-    document.getElementById('load-more').classList.remove('hidden')
+    document.getElementById('load-more-teachers').classList.remove('no-show')
+  }
+}
+
+function showMoreReviewsButton (returnLength) {
+  if (returnLength < 10) {
+    document.getElementById('load-more-reviews').classList.add('no-show')
+  } else {
+    document.getElementById('load-more-reviews').classList.remove('no-show')
   }
 }
 
@@ -68,7 +76,12 @@ function renderTeachers (view) {
   teacherSummary.innerHTML = rendered
 }
 
-document.getElementById('load-more').addEventListener('click', () => {
+document.getElementById('load-more-teachers').addEventListener('click', () => {
   teachersLimit += 20
   loadTeachers(teachersLimit)
+})
+
+document.getElementById('load-more-reviews').addEventListener('click', () => {
+  reviewsPage += 1
+  loadTeachers(reviewsPage)
 })
