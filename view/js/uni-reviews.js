@@ -1,3 +1,4 @@
+const dir = { 1: 'Up', '-1': 'Down' }
 const teacherSummary = document.getElementById('teachers-summary')
 const teachersTemplate = `
 {{#teachers}}
@@ -86,42 +87,55 @@ document.getElementById('load-more-reviews').addEventListener('click', () => {
   loadTeachers(reviewsPage)
 })
 
-/*
-function vote (university, date) {
-  // eslint-disable-next-line no-undef
-  grecaptcha.execute('6LdfkL4UAAAAAFw_yCmYUBjHeHsH38J9Yz7nb5D7', { action: 'vote' }).then((token) => {
-    const captcha = token
+function vote (university, date, vote) {
+  const voteSpan = document.getElementById(`votes${date}`)
+  const button = document.getElementById(`vote${dir[(vote / Math.abs(vote)).toString()]}${date}`)
 
-      params = '../califica/universidades'
-      Http.open('POST', params)
+  if (!button.classList.contains('voted')) {
+    voteSpan.innerHTML = parseInt(voteSpan.innerHTML) + (vote / Math.abs(vote))
+    button.classList.add('voted')
+    // eslint-disable-next-line no-undef
+    grecaptcha.execute('6LdfkL4UAAAAAFw_yCmYUBjHeHsH38J9Yz7nb5D7', { action: 'vote' }).then((token) => {
+      const captcha = token
+      // eslint-disable-next-line no-undef
+      const Http = new XMLHttpRequest()
+      const params = '../califica/universidades/vote'
+      Http.open('PATCH', params)
       Http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
-      Http.send(JSON.stringify(uniReview))
+      Http.send(JSON.stringify({ university: university, date: new Date(date), vote: vote, captcha: captcha }))
       Http.onreadystatechange = (e) => {
         if (Http.readyState === 4 && Http.status === 200) {
           const post = JSON.parse(Http.response)
           if (post.success === true) {
-            clearUniForm()
-            // eslint-disable-next-line no-undef
-            interactModal('calificar-modal')
-            // eslint-disable-next-line no-undef
-            interactModal('uploaded-modal')
-            // initUniReviews()
+            console.log('Vote cast successful')
           } else {
+            voteSpan.innerHTML = parseInt(voteSpan.innerHTML) - (vote / Math.abs(vote))
+            button.classList.remove('voted')
+
+            let msg = ''
+            switch (post.data[0]) {
+              case 0:
+                msg = 'Error de servidor interno :(, probá votar más tarde.'
+                break
+              case 1:
+                msg = 'Esta calificación ya fue votada en esta sesión. :/'
+                break
+            }
+
             // eslint-disable-next-line no-undef
-            interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
+            interactToast('error-toast', msg, 2000)
             // eslint-disable-next-line no-undef
-            // grecaptcha.reset()
             console.error(post)
           }
+        } else if (Http.readyState === 4 && Http.status !== 200) {
+          voteSpan.innerHTML = parseInt(voteSpan.innerHTML) - (vote / Math.abs(vote))
+          button.classList.remove('voted')
+          // eslint-disable-next-line no-undef
+          interactToast('error-toast', 'Error de servidor interno, probar más tarde', 2000)
+          // eslint-disable-next-line no-undef
+          console.error(post)
         }
       }
-    } else {
-      if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '') {
-        document.getElementById('summary-empty').style.display = 'none'
-      } else {
-        document.getElementById('summary-empty').style.display = 'initial'
-      }
-    }
-  })
+    })
+  }
 }
-*/

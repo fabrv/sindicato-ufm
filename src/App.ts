@@ -289,7 +289,8 @@ class App{
           res.status(500).send(error)
         } else {
           for (let i: number = 0; i < result.rowCount; i++) {
-            result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 10)
+            result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 24)
+            result.rows[i].dateText = result.rows[i].date.substr(0, 10)
           }
           const view = {reviews: result.rows}
           const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/reviews.html'), 'utf8')
@@ -360,29 +361,42 @@ class App{
       }
     })
 
+    router.get('/califica/universidades/destroy/destroy', (req: express.Request, res: express.Response) => {
+      req.session.destroy(()=>{})
+      res.send(';)')      
+    })
+
     router.patch('/califica/universidades/vote', (req: express.Request, res: express.Response) => {
       const captchaSK = process.env.CAPTCHA
-      if (req.body.vote && req.body.university && req.body.date) {
-        axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
-        .then((axres: AxiosResponse) => {
-          const success: boolean = axres.data.success
-          let result: Array<any>
-
-          if (success === true && axres.data.score > 0.5) {
-            const query = `CALL vote_uni_review('${req.body.university}', '${req.body.date}', ${req.body.vote})`
-            pgClient.query(query, (pgerror, pgresult) => {
-              if (pgerror) {
-                return res.status(500).send({'success': false, 'error': pgerror})
-              } else {
-                return res.status(200).send({'success': true, 'data': pgresult})
-              }
-            })
-          } else {
-            return res.status(200).send({'success': true, 'data': []})
-          }
-        })
+      let sessionVotes = req.session.votes || []
+      console.log(sessionVotes)
+      if (sessionVotes.includes(req.body.date)) {
+        return res.status(200).send({'success': false, 'data': [1, 'Session already voted for this review.']})
       } else {
-        return res.status(400).send('Insufficient parameters sent.')
+        if (req.body.vote && req.body.university && req.body.date && req.body.captcha) {
+          axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
+          .then((axres: AxiosResponse) => {
+            const success: boolean = axres.data.success
+            let result: Array<any>
+  
+            if (success === true && axres.data.score > 0.5) {
+              const query = `CALL vote_uni_review('${req.body.university}', '${req.body.date}', ${req.body.vote})`
+              pgClient.query(query, (pgerror, pgresult) => {
+                if (pgerror) {
+                  return res.status(500).send({'success': false, 'error': pgerror})
+                } else {
+                  sessionVotes.push(req.body.date)
+                  req.session.votes = sessionVotes
+                  return res.status(200).send({'success': true, 'data': pgresult})
+                }
+              })
+            } else {
+              return res.status(200).send({'success': false, 'data': [0, 'Possible bot detected']})
+            }
+          })
+        } else {
+          return res.status(400).send('Insufficient parameters sent.')
+        }
       }
     })
 

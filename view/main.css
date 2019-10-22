@@ -503,3 +503,14 @@ input[type=text]:focus, [type=password]:focus {
 .grecaptcha-badge {
   display: none !important;
 }
+
+.vote-btn {
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.voted {
+  background-color: rgba(255, 166, 0, 0.4);
+  border-bottom: solid 4px orange;
+  cursor: default;
+}
