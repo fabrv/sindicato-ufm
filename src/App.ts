@@ -312,7 +312,7 @@ class App{
         const data: any = req.body
         let result: Array<any>
 
-        if (success === true) {
+        if (success === true && axres.data.score > 0.5) {
           const query = `CALL public.insert_university_review('${data.university.replace(/[&()'"*]/g, '')}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
@@ -357,6 +357,32 @@ class App{
         }
       } else {
         return res.status(401).send('Unathorized access, credentials expired or invalid.')
+      }
+    })
+
+    router.patch('/califica/universidades/vote', (req: express.Request, res: express.Response) => {
+      const captchaSK = process.env.CAPTCHA
+      if (req.body.vote && req.body.university && req.body.date) {
+        axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
+        .then((axres: AxiosResponse) => {
+          const success: boolean = axres.data.success
+          let result: Array<any>
+
+          if (success === true && axres.data.score > 0.5) {
+            const query = `CALL vote_uni_review('${req.body.university}', '${req.body.date}', ${req.body.vote})`
+            pgClient.query(query, (pgerror, pgresult) => {
+              if (pgerror) {
+                return res.status(500).send({'success': false, 'error': pgerror})
+              } else {
+                return res.status(200).send({'success': true, 'data': pgresult})
+              }
+            })
+          } else {
+            return res.status(200).send({'success': true, 'data': []})
+          }
+        })
+      } else {
+        return res.status(400).send('Insufficient parameters sent.')
       }
     })
 

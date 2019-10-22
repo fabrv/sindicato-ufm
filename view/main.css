@@ -499,3 +499,7 @@ input[type=text]:focus, [type=password]:focus {
 .no-show {
   display: none;
 }
+
+.grecaptcha-badge {
+  display: none !important;
+}

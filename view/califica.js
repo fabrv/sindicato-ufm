@@ -94,61 +94,56 @@ function clearUniForm () {
   }
   document.getElementById('summary').value = ''
   document.getElementById('summary-empty').style.display = 'none'
-  document.getElementById('captcha-empty').style.display = 'none'
   // eslint-disable-next-line no-undef
-  grecaptcha.reset()
+  // grecaptcha.reset()
 }
 
 document.getElementById('submit-review').addEventListener('click', () => {
   // eslint-disable-next-line no-undef
-  const captcha = grecaptcha.getResponse()
+  grecaptcha.execute('6LdfkL4UAAAAAFw_yCmYUBjHeHsH38J9Yz7nb5D7', { action: 'submit' }).then((token) => {
+    const captcha = token
 
-  if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '' && captcha !== '') {
-    const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
-    const uniReview = {
-      university: document.getElementById('uni-select').value,
-      captcha: captcha,
-      summary: document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '')
-    }
-    // eslint-disable-next-line prefer-const
-    for (let category in categories) {
-      uniReview[categories[category]] = parseInt(document.querySelector(`input[name="${categories[category]}"]:checked`).value)
-    }
+    if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '' && captcha !== '') {
+      const categories = ['reputation', 'location', 'events', 'security', 'services', 'cleanliness', 'happiness', 'social', 'extracurricular']
+      const uniReview = {
+        university: document.getElementById('uni-select').value,
+        captcha: captcha,
+        summary: document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '')
+      }
+      // eslint-disable-next-line prefer-const
+      for (let category in categories) {
+        uniReview[categories[category]] = parseInt(document.querySelector(`input[name="${categories[category]}"]:checked`).value)
+      }
 
-    params = '../califica/universidades'
-    Http.open('POST', params)
-    Http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
-    Http.send(JSON.stringify(uniReview))
-    Http.onreadystatechange = (e) => {
-      if (Http.readyState === 4 && Http.status === 200) {
-        const post = JSON.parse(Http.response)
-        if (post.success === true) {
-          clearUniForm()
-          // eslint-disable-next-line no-undef
-          interactModal('calificar-modal')
-          // eslint-disable-next-line no-undef
-          interactModal('uploaded-modal')
-          initUniReviews()
-        } else {
-          // eslint-disable-next-line no-undef
-          interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
-          // eslint-disable-next-line no-undef
-          grecaptcha.reset()
-          console.error(post)
+      params = '../califica/universidades'
+      Http.open('POST', params)
+      Http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+      Http.send(JSON.stringify(uniReview))
+      Http.onreadystatechange = (e) => {
+        if (Http.readyState === 4 && Http.status === 200) {
+          const post = JSON.parse(Http.response)
+          if (post.success === true) {
+            clearUniForm()
+            // eslint-disable-next-line no-undef
+            interactModal('calificar-modal')
+            // eslint-disable-next-line no-undef
+            interactModal('uploaded-modal')
+            // initUniReviews()
+          } else {
+            // eslint-disable-next-line no-undef
+            interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
+            // eslint-disable-next-line no-undef
+            // grecaptcha.reset()
+            console.error(post)
+          }
         }
       }
-    }
-  } else {
-    if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '') {
-      document.getElementById('summary-empty').style.display = 'none'
     } else {
-      document.getElementById('summary-empty').style.display = 'initial'
+      if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '') {
+        document.getElementById('summary-empty').style.display = 'none'
+      } else {
+        document.getElementById('summary-empty').style.display = 'initial'
+      }
     }
-
-    if (captcha !== '') {
-      document.getElementById('captcha-empty').style.display = 'none'
-    } else {
-      document.getElementById('captcha-empty').style.display = 'initial'
-    }
-  }
+  })
 })

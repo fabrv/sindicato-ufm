@@ -8,7 +8,7 @@ const teachersTemplate = `
 </tr>
 <tr>
   <td>{{teacher}}</td>
-  <td>{{rate_avg}}</td>
+  <td>{{rate_avg}} / 5</td>
   <td>{{repeat_avg}}%</td>
 </tr>
 {{/teachers}}
@@ -85,3 +85,43 @@ document.getElementById('load-more-reviews').addEventListener('click', () => {
   reviewsPage += 1
   loadTeachers(reviewsPage)
 })
+
+/*
+function vote (university, date) {
+  // eslint-disable-next-line no-undef
+  grecaptcha.execute('6LdfkL4UAAAAAFw_yCmYUBjHeHsH38J9Yz7nb5D7', { action: 'vote' }).then((token) => {
+    const captcha = token
+
+      params = '../califica/universidades'
+      Http.open('POST', params)
+      Http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+      Http.send(JSON.stringify(uniReview))
+      Http.onreadystatechange = (e) => {
+        if (Http.readyState === 4 && Http.status === 200) {
+          const post = JSON.parse(Http.response)
+          if (post.success === true) {
+            clearUniForm()
+            // eslint-disable-next-line no-undef
+            interactModal('calificar-modal')
+            // eslint-disable-next-line no-undef
+            interactModal('uploaded-modal')
+            // initUniReviews()
+          } else {
+            // eslint-disable-next-line no-undef
+            interactToast('error-toast', 'Error al subir calificación, probar más tarde', 2000)
+            // eslint-disable-next-line no-undef
+            // grecaptcha.reset()
+            console.error(post)
+          }
+        }
+      }
+    } else {
+      if (document.getElementById('summary').value.replace(/[&\/\\#+()$~%'"*?<>{}]/g, '') !== '') {
+        document.getElementById('summary-empty').style.display = 'none'
+      } else {
+        document.getElementById('summary-empty').style.display = 'initial'
+      }
+    }
+  })
+}
+*/
