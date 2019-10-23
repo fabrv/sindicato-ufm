@@ -288,7 +288,9 @@ class App{
         if (error) {
           res.status(500).send(error)
         } else {
+          const starTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/stars.html'), 'utf8')
           for (let i: number = 0; i < result.rowCount; i++) {
+            result.rows[i].stars = mustache.render(starTemplate, { fill: Array(Math.round(result.rows[i].rate)).fill(''), empty: Array(5 - Math.round(result.rows[i].rate)).fill('')})
             result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 24)
             result.rows[i].dateText = result.rows[i].date.substr(0, 10)
           }
