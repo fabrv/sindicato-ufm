@@ -391,6 +391,7 @@ class App{
                 }
               })
             } else {
+              console.log('bot:', axres.data.score)
               return res.status(200).send({'success': false, 'data': [0, 'Possible bot detected']})
             }
           })
