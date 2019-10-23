@@ -53,7 +53,7 @@ function uniParser (uniJSON) {
   }
   card += `
   <div class="rating">${starRatingParser(general / categories, 5)}</div>  
-  <button>Ver cursos y catedraticos</button>`
+  <button>Ver detalles y catedraticos</button>`
   return card
 }
 
