@@ -361,15 +361,9 @@ class App{
       }
     })
 
-    router.get('/califica/universidades/destroy/destroy', (req: express.Request, res: express.Response) => {
-      req.session.destroy(()=>{})
-      res.send(';)')      
-    })
-
     router.patch('/califica/universidades/vote', (req: express.Request, res: express.Response) => {
       const captchaSK = process.env.CAPTCHA
       let sessionVotes = req.session.votes || []
-      console.log(sessionVotes)
       if (sessionVotes.includes(req.body.date)) {
         return res.status(200).send({'success': false, 'data': [1, 'Session already voted for this review.']})
       } else {
@@ -377,7 +371,6 @@ class App{
           axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
           .then((axres: AxiosResponse) => {
             const success: boolean = axres.data.success
-            console.log(axres.data)
             let result: Array<any>
   
             if (success === true && axres.data.score > 0.5) {
