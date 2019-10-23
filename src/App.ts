@@ -293,7 +293,7 @@ class App{
             result.rows[i].dateText = result.rows[i].date.substr(0, 10)
           }
           const view = {reviews: result.rows}
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/reviews.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/uni-reviews.html'), 'utf8')
 
           const site = mustache.render(template, view)
           res.status(200).send({length: result.rowCount, html: site})
