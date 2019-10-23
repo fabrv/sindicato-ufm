@@ -235,6 +235,28 @@ class App{
       })
     })
 
+    router.get('/json/califica/catedraticos/filter', (req: express.Request, res: express.Response) => {
+      if (req.query.search) {
+        let query = `SELECT * FROM filter_teachers('${req.query.search}')`
+
+        if (req.query.university) {
+          query += ` WHERE university = '${req.query.university}'`
+        }
+
+        console.log(query)
+
+        pgClient.query(query, (error, result: any) => {
+          if (error) {
+            return res.status(500).send(error)
+          } else {
+            return res.status(200).send(result.rows)
+          }
+        })
+      } else {
+        return res.status(400).send('Insufficient parameters sent.')
+      }
+    })
+
     /*router.get('/json/califica/catedraticos/:name', (req: express.Request, res: express.Response) => {
 
     })*/

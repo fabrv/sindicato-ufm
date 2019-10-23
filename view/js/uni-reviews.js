@@ -1,12 +1,12 @@
 const dir = { 1: 'Up', '-1': 'Down' }
 const teacherSummary = document.getElementById('teachers-summary')
 const teachersTemplate = `
-{{#teachers}}
 <tr>
   <td><b>Catedratico</b></td>
   <td><b>Calificación</b></td>
   <td><b>Volvería a tomar</b></td>
 </tr>
+{{#teachers}}
 <tr>
   <td>{{teacher}}</td>
   <td>{{rate_avg}} / 5</td>
