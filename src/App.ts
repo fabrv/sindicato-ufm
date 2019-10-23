@@ -76,7 +76,7 @@ class App{
   articleRoutes(router: express.Router = express.Router()) {
     router.get('/json/articulo/:article', (req: express.Request, res: express.Response) => {
       const article = replaceAll(req.params.article, '_', ' ')
-      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE "headline" = '${article}'`, (error, result) => {
+      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE "headline" = '${article.replace(/[&()'"*]/g, '')}'`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {
@@ -237,10 +237,10 @@ class App{
 
     router.get('/json/califica/catedraticos/filter', (req: express.Request, res: express.Response) => {
       if (req.query.search) {
-        let query = `SELECT * FROM filter_teachers('${req.query.search}')`
+        let query = `SELECT * FROM filter_teachers('${req.query.search.replace(/[&()'"*]/g, '')}')`
 
         if (req.query.university) {
-          query += ` WHERE university = '${req.query.university}'`
+          query += ` WHERE university = '${req.query.university.replace(/[&()'"*]/g, '')}'`
         }
 
         console.log(query)
@@ -263,7 +263,7 @@ class App{
 
     router.get('/json/califica/universidades/:university/catedraticos', (req: express.Request, res: express.Response) => {
       let limit = parseInt(req.query.limit) || 20
-      pgClient.query(`SELECT * FROM university_teachers('${req.params.university}') LIMIT ${limit}`, (error, result) => {
+      pgClient.query(`SELECT * FROM university_teachers('${req.params.university.replace(/[&()'"*]/g, '')}') LIMIT ${limit}`, (error, result) => {
         if (error) {
           res.status(500).send(error)
         } else {
@@ -338,7 +338,7 @@ class App{
         let result: Array<any>
 
         if (success === true && axres.data.score > 0.5) {
-          const query = `CALL public.insert_university_review('${data.university.replace(/[&()'"*]/g, '')}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary}', ${data.social}, ${data.extracurricular})`
+          const query = `CALL public.insert_university_review('${data.university.replace(/[&()'"*]/g, '')}', ${data.reputation}, ${data.location}, ${data.events}, ${data.security}, ${data.services}, ${data.cleanliness}, ${data.happiness}, '${data.summary.replace(/[&'"*]/g, '')}', ${data.social}, ${data.extracurricular})`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               res.json({
@@ -369,7 +369,7 @@ class App{
     router.patch('/califica/universidades', (req: express.Request, res: express.Response) => {
       if (req.session.name) {
         if (req.query.university && req.query.date) {
-          const query = `CALL validate_review('${req.query.university}', '${req.query.date}')`
+          const query = `CALL validate_review('${req.query.university.replace(/[&()'"*]/g, '')}', '${req.query.date.replace(/[&()'"*]/g, '')}')`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               return res.status(500).send({'success': false, 'error': pgerror})
@@ -422,7 +422,7 @@ class App{
     router.delete('/califica/universidades', (req: express.Request, res: express.Response) => {
       if (req.session.name){
         if (req.query.university && req.query.date) {
-          const query = `CALL delete_university_review('${req.query.university}', '${req.query.date}')`
+          const query = `CALL delete_university_review('${req.query.university.replace(/[&()'"*]/g, '')}', '${req.query.date.replace(/[&()'"*]/g, '')}')`
           pgClient.query(query, (pgerror, pgresult) => {
             if (pgerror) {
               return res.status(500).send({'success': false, 'error': pgerror})
@@ -500,7 +500,7 @@ class App{
         page = parseInt(req.query.page)
       }
 
-      pgClient.query(`SELECT * FROM category_articles_paging('${req.params.category}', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
+      pgClient.query(`SELECT * FROM category_articles_paging('${req.params.category.replace(/[&()'";*]/g, '')}', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
         
         if (error) {
           res.status(500).send(error)
