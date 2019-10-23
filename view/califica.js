@@ -1,5 +1,7 @@
 // eslint-disable-next-line no-undef
 const Http = new XMLHttpRequest()
+
+const teachersTemplate = '{{#teachers}}<li class="{{class}}">{{teacher}} - {{university}}</li>{{/teachers}}'
 let params = ''
 
 function initUniReviews () {
@@ -147,3 +149,59 @@ document.getElementById('submit-review').addEventListener('click', () => {
     }
   })
 })
+
+let searchRes
+let selected = -1
+
+document.getElementById('search-bar').addEventListener('keyup', (event) => {
+  if (event.srcElement.value === '') {
+    selected = -1
+    searchRes = { teachers: [] }
+    renderSearch(searchRes)
+  } else {
+    if (event.keyCode === 40) {
+      selected = (((selected + 1) % searchRes.teachers.length) + searchRes.teachers.length) % searchRes.teachers.length
+      // eslint-disable-next-line prefer-const
+      for (let teacher in searchRes.teachers) {
+        // eslint-disable-next-line eqeqeq
+        if (teacher == selected) {
+          searchRes.teachers[teacher].class = 'search-selected'
+        } else {
+          searchRes.teachers[teacher].class = ''
+        }
+      }
+      renderSearch(searchRes)
+    } else if (event.keyCode === 38) {
+      selected = (((selected - 1) % searchRes.teachers.length) + searchRes.teachers.length) % searchRes.teachers.length
+      // eslint-disable-next-line prefer-const
+      for (let teacher in searchRes.teachers) {
+        // eslint-disable-next-line eqeqeq
+        if (teacher == selected) {
+          searchRes.teachers[teacher].class = 'search-selected'
+        } else {
+          searchRes.teachers[teacher].class = ''
+        }
+      }
+      renderSearch(searchRes)
+    } else {
+      // eslint-disable-next-line no-undef
+      const Http = new XMLHttpRequest()
+      // eslint-disable-next-line no-undef
+      const params = `../json/califica/catedraticos/filter?search=${event.srcElement.value}`
+      Http.open('GET', params)
+      Http.send(null)
+      Http.onreadystatechange = (e) => {
+        if (Http.readyState === 4 && Http.status === 200) {
+          searchRes = { teachers: JSON.parse(Http.response) }
+          renderSearch(searchRes)
+        }
+      }
+    }
+  }
+})
+
+function renderSearch (view) {
+  // eslint-disable-next-line no-undef
+  const rendered = Mustache.render(teachersTemplate, view)
+  document.getElementsByClassName('search-suggestions')[0].innerHTML = rendered
+}

@@ -8,7 +8,7 @@ const teachersTemplate = `
 </tr>
 {{#teachers}}
 <tr>
-  <td>{{teacher}}</td>
+  <td><a href="#">{{teacher}}</a></td>
   <td>{{rate_avg}} / 5</td>
   <td>{{repeat_avg}}%</td>
 </tr>

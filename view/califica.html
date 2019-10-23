@@ -200,7 +200,8 @@
     </div>
     <div style="margin-top: 30px; margin-bottom: 0; position: relative" class="content">
       <div class="search">
-        <input type="text" placeholder="Buscar catedratico, clase o universidad">
+        <input type="text" id="search-bar" placeholder="Buscar catedratico, clase o universidad">
+        <ul class="search-suggestions"></ul>
       </div>
     </div>
     <button onclick="interactModal('calificar-modal')">Agregar calificación</button>
@@ -216,6 +217,7 @@
       </ul>
     </footer>
 
+    <script type="text/javascript" src="js/mustache.min.js"></script>
     <script src="../califica.js"></script>
     <script>initUniReviews();</script>
     <script src="../components/modal.js"></script>
