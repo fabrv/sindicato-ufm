@@ -377,6 +377,7 @@ class App{
           axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${captchaSK}&response=${req.body.captcha}`)
           .then((axres: AxiosResponse) => {
             const success: boolean = axres.data.success
+            console.log(axres.data)
             let result: Array<any>
   
             if (success === true && axres.data.score > 0.5) {
