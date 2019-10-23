@@ -242,9 +242,6 @@ class App{
         if (req.query.university) {
           query += ` WHERE university = '${req.query.university.replace(/[&()\-'"*]/g, '')}'`
         }
-
-        console.log(query)
-
         pgClient.query(query, (error, result: any) => {
           if (error) {
             return res.status(500).send(error)

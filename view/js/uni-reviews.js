@@ -87,6 +87,27 @@ document.getElementById('load-more-reviews').addEventListener('click', () => {
   loadTeachers(reviewsPage)
 })
 
+document.getElementById('teacher-filter').addEventListener('change', (evemt) => {
+  teacherSummary.innerHTML = 'Cargando...'
+  document.getElementById('load-more-teachers').classList.remove('no-show')
+  // eslint-disable-next-line no-undef
+  if (event.srcElement.value !== '') {
+    // eslint-disable-next-line no-undef
+    const Http = new XMLHttpRequest()
+    // eslint-disable-next-line no-undef
+    const params = `../json/califica/catedraticos/filter?search=${event.srcElement.value}&university${uniName}`
+    Http.open('GET', params)
+    Http.send(null)
+    Http.onreadystatechange = (e) => {
+      if (Http.readyState === 4 && Http.status === 200) {
+        renderTeachers({ teachers: JSON.parse(Http.response) })
+      }
+    }
+  } else {
+    loadTeachers()
+  }
+})
+
 function vote (university, date, vote) {
   const voteSpan = document.getElementById(`votes${date}`)
   const button = document.getElementById(`vote${dir[(vote / Math.abs(vote)).toString()]}${date}`)
