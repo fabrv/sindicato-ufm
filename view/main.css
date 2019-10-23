@@ -549,7 +549,7 @@ input[type=text]:focus, [type=password]:focus {
   display: none;
 }
 
-input[type=text]:focus ~ .search-suggestions{
+input[type=text]:focus ~ .search-suggestions, .search-suggestions:focus, .search-suggestions:hover{
   display: block;
 }
 
