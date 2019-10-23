@@ -509,8 +509,10 @@ input[type=text]:focus, [type=password]:focus {
 }
 
 .vote-btn {
-  padding: 5px;
+  padding: 8px;
   border-radius: 4px;
+  background-color: rgba(235, 235, 235, 0.2);
+  border-bottom: solid 1px #f2f2f2;
 }
 
 .voted {
@@ -531,5 +533,6 @@ input[type=text]:focus, [type=password]:focus {
 
 .uni-review p {
   font-size: 1.2em;
-  margin-bottom: 0 !important;
+  line-height: 1.5em;
+  margin-bottom: 10px !important;
 }

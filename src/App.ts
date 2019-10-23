@@ -429,6 +429,16 @@ class App{
    * @param {express.Router} router - Router, new instance of expres.Router() by default.
    */
   generalRoutes(router: express.Router = express.Router()) {
+    router.get('/session/destroy', (req: express.Request, res: express.Response) => {
+      if (req.session.name) {
+        req.session.destroy(() => {
+          res.send(';)')
+        })
+      } else {
+        res.send(':(')
+      }
+    })
+
     router.get('/json/categories', (req: express.Request, res: express.Response) => {
       pgClient.query(`SELECT "CATEGORY", "LABEL" FROM public."CATEGORY"`, (error, result) => {
         if (error) {
