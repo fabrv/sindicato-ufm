@@ -5,6 +5,8 @@ import express from 'express'
 import session from 'express-session'
 import connectReddis from 'connect-redis'
 
+import compression from 'compression'
+
 import * as path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
@@ -35,6 +37,10 @@ class App{
   constructor () {
     // App Express
     this.app = express()
+
+    // Use compression
+    this.app.use(compression())
+
     // Use bodyparser
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
@@ -95,7 +101,6 @@ class App{
           res.status(500).send(error)
         } else {
           if (result[1].rowCount > 0) {
-            console.log(`Articulo visitado: ${pArticle}`)
             
             const article = result[1].rows[0]
             wrapper = this.parsing.parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
