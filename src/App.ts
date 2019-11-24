@@ -492,7 +492,7 @@ class App{
 
     router.get('/:category', (req: express.Request, res: express.Response) => {
       let page: number = 0
-      const pageBoundary: number = 10
+      const pageBoundary: number = 6
       if (!isNaN(req.query.page)){
         page = parseInt(req.query.page)
       }
@@ -541,7 +541,53 @@ class App{
     })
 
     router.get('/', (req: express.Request, res: express.Response)=>{
-      res.redirect('/opinion')
+      let page: number = 0
+      const pageBoundary: number = 6
+      if (!isNaN(req.query.page)){
+        page = parseInt(req.query.page)
+      }
+
+      pgClient.query(`SELECT * FROM category_articles_paging('opinion', ${page * (pageBoundary)}, ${pageBoundary + 1});`, (error, result) => {
+        
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          let data = []
+          for (let i = 0; i < result.rowCount && i < pageBoundary; i++) {
+            data.push(result.rows[i])
+          }
+
+          if (result.rowCount === 0){
+            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
+            const view = {'metaTags': metaTags, 'wrapper': wrapper}
+            const site: string = mustache.render(MasterTemplate, view)
+            res.send(site)
+
+          } else {
+            let paging: string = ''
+            if (page > 0){
+              paging += '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
+            }
+            if (result.rowCount === pageBoundary + 1) {
+              paging += '<button class="pager" id="more" onClick="addPage()">Más articulos</button>'
+            }            
+
+            let wrapper: string = ''
+            for (let i = 0; i < data.length; i++){
+              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+            }
+            const metaTags: string = this.parsing.parseMetaTags('', '', '')
+            const view = {
+              'metaTags': metaTags, 
+              'wrapper': wrapper, 
+              'paging': paging
+            }
+            const site: string = mustache.render(MasterTemplate, view)
+            res.send(site)
+          }
+        }
+      })
     })
 
     this.app.use('/', router)
