@@ -20,7 +20,7 @@ export class Parsing {
     const converter = new showdown.Converter({tables: true, strikethrough: true})
     const parsedBody = converter.makeHtml(body)
     const view = {
-      'headlineLink': encodeURIComponent(replaceAll(headline, ' ', '_')),
+      'headlineLink': encodeURIComponent(replaceAll(headline, ' ', '-')),
       'headline': headline,
       'subhead': subhead,
       'body': parsedBody,

@@ -81,7 +81,7 @@ class App{
    */
   articleRoutes(router: express.Router = express.Router()) {
     router.get('/json/articulo/:article', (req: express.Request, res: express.Response) => {
-      const article = replaceAll(req.params.article, '_', ' ')
+      const article = req.params.article.replace(/[_-]/g, ' ')
       pgClient.query(`SELECT * FROM public."ARTICLE" WHERE "headline" = '${article.replace(/[&()\-'"*]/g, '')}'`, (error, result) => {
         if (error) {
           res.status(500).send(error)
@@ -94,7 +94,7 @@ class App{
     router.get('/articulo/:article', (req: express.Request, res: express.Response) => {
       let wrapper: string
       let metaTags: string
-      const pArticle = replaceAll(req.params.article, '_', ' ')
+      const pArticle = req.params.article.replace(/[_-]/g, ' ')
 
       pgClient.query(`UPDATE public."ARTICLE" SET "views" = "views" + 1 WHERE "headline" = '${pArticle}'; SELECT * FROM public."ARTICLE" WHERE "headline" = '${pArticle}';`, (error, result: any) => {
         if (error) {
@@ -532,7 +532,7 @@ class App{
             for (let i = 0; i < data.length; i++){
               wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
-            const metaTags: string = this.parsing.parseMetaTags('', '', '')
+            const metaTags: string = this.parsing.parseMetaTags(capitalize(req.params.category), '', '')
             const view = {
               'metaTags': metaTags, 
               'wrapper': wrapper, 
@@ -582,7 +582,7 @@ class App{
             for (let i = 0; i < data.length; i++){
               wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
-            const metaTags: string = this.parsing.parseMetaTags('', '', '')
+            const metaTags: string = this.parsing.parseMetaTags('Opinión', 'El Sindicato es una plataforma para poder exponer opiniones libres sin adoctrinamiento forzada.', '')
             const view = {
               'metaTags': metaTags, 
               'wrapper': wrapper, 
@@ -706,14 +706,9 @@ class App{
   }
 }
 
-/**
- * Replaces all instances of a substring with another string.
- * @param {string} str - Initial complete string
- * @param {sting} find - Substring to find all instances of
- * @param {string} replace - Substring to replace with
- */
-function replaceAll(str: string, find: string, replace: string) {
-  return str.replace(new RegExp(find, 'g'), replace);
+function capitalize(s: string) {
+  if (typeof s !== 'string') return ''
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 //Export app
