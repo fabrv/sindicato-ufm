@@ -582,7 +582,7 @@ class App{
             for (let i = 0; i < data.length; i++){
               wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
-            const metaTags: string = this.parsing.parseMetaTags('Opinión', 'El Sindicato es una plataforma para poder exponer opiniones libres sin adoctrinamiento forzada.', '')
+            const metaTags: string = this.parsing.parseMetaTags('', '', '')
             const view = {
               'metaTags': metaTags, 
               'wrapper': wrapper, 
