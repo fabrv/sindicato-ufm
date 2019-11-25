@@ -582,7 +582,7 @@ class App{
             for (let i = 0; i < data.length; i++){
               wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
             }
-            const metaTags: string = this.parsing.parseMetaTags('', '', '')
+            const metaTags: string = this.parsing.parseMetaTags('', 'Somos es una plataforma independiente de estudiantes para poder exponer opiniones libres sin adoctrinamiento forzada.', '')
             const view = {
               'metaTags': metaTags, 
               'wrapper': wrapper, 
