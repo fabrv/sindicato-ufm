@@ -51,6 +51,17 @@ body{
     width: calc(100% - 80px) !important;
     margin: none;
   }
+
+  .review-filter .filters {
+    width: calc(100% - 80px) !important;
+    margin: none;
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+
+  .review-filter .teachers {
+    width: 100% !important;
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
 }
 
 a{
@@ -563,4 +574,44 @@ input[type=text]:focus ~ .search-suggestions, .search-suggestions:focus, .search
 .search-suggestions li:hover, .search-selected {
   background-color: #326891;
   color: white;
+}
+
+/* REVIEW FILTER */
+
+.review-filter .filters {
+  width: 600px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.review-filter .filters input {
+  margin: 5px;
+}
+
+.review-filter .filters input[type=text]{
+  display: inline-block;
+  width: auto;
+}
+
+.review-filter .teachers {
+  width: 600px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.review-filter .card {
+  display: inline-block;
+  width: calc(100% - 20px);
+  margin-top: 0;
+}
+
+.review-filter .card p{
+  text-align: justify;
+  padding: 20px;
+}
+
+.review-filter .card .title {
+  padding: 5px;
 }

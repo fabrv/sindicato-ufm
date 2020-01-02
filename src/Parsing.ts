@@ -56,6 +56,17 @@ export class Parsing {
     return rendered
   }
 
+  parseGeneric(template: string, title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string {
+    const master = fs.readFileSync(path.resolve(__dirname, 'templates/Master.html'), 'utf8')
+    const masterView = {
+      metaTags: this.parseMetaTags(title, description, location, img, true),
+      paging: '',
+      wrapper: template
+    }
+
+    return mustache.render(master, masterView)
+  }
+
   /**
    * Returns an HTML star for different ratios.
    * @param value dividend for star percentage.
@@ -81,10 +92,10 @@ export class Parsing {
    * @param location 
    * @param img 
    */
-  parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string{
+  parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png', generic: boolean = false): string{
     const template = fs.readFileSync(path.resolve(__dirname, 'templates/metaTags.html'), 'utf8')
     const view = {
-      'titleLink': replaceAll(title, ' ', '_'),
+      'titleLink': generic ? '' : replaceAll(title, ' ', '_'),
       'title': title,
       'description': description,
       'img': img,

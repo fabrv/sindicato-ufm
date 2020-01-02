@@ -327,6 +327,16 @@ class App{
       })
     })
 
+    router.get('/califica/filtro', (req: express.Request, res: express.Response) => {
+      const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/review-filter.html'), 'utf8')
+      const filterInfo = req.query
+      const wrapper = mustache.render(reviewFilter, filterInfo)
+
+      const site = this.parsing.parseGeneric(wrapper, 'Calificá y compará tu U, cursos y catedraticos', '', 'califica/catedratico')
+
+      res.status(200).send(site)
+    })
+
     router.get('/califica/universidades', (req: express.Request, res: express.Response) => {
       res.sendFile(path.resolve(__dirname, '../view/califica.html'))
     })

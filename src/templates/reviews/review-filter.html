@@ -1,0 +1,28 @@
+<div class="review-filter">
+  <form>
+  <div class="filters">
+    <input type="text" name="nombre" placeholder="Nombre" value="{{name}}"/>
+    <input type="text" name="clase" placeholder="Clase" value="{{class}}"/>
+    <select name="universidad">
+      <option>Todas</option>
+      {{universities}}
+    </select>
+    <select name="orden">
+      <option value="asc">Ascendente</option>
+      <option value="desc">Descendente</option>
+    </select>
+  </div>
+  <button type="submit">Filtrar</button>
+  </form>
+
+  <div class="teachers">
+    {{#teachers}}
+    <div class="card">
+      <p>{{summary}}</p>
+      {{rating}}
+      <hr>
+      <label class="title">{{name}}</label>
+    </div>
+    {{/teachers}}
+  </div>
+</div>
