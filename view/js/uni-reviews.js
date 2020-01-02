@@ -1,6 +1,6 @@
 const dir = { 1: 'Up', '-1': 'Down' }
 const teacherSummary = document.getElementById('teachers-summary')
-const teachersTemplate = `
+const teachersListTemplate = `
 <tr>
   <td><b>Catedratico</b></td>
   <td><b>Calificación</b></td>
@@ -73,7 +73,7 @@ function showMoreReviewsButton (returnLength) {
 
 function renderTeachers (view) {
   // eslint-disable-next-line no-undef
-  const rendered = Mustache.render(teachersTemplate, view)
+  const rendered = Mustache.render(teachersListTemplate, view)
   teacherSummary.innerHTML = rendered
 }
 
@@ -87,7 +87,7 @@ document.getElementById('load-more-reviews').addEventListener('click', () => {
   loadTeachers(reviewsPage)
 })
 
-document.getElementById('teacher-filter').addEventListener('change', (evemt) => {
+document.getElementById('teacher-filter').addEventListener('keyup', (evemt) => {
   teacherSummary.innerHTML = 'Cargando...'
   document.getElementById('load-more-teachers').classList.remove('no-show')
   // eslint-disable-next-line no-undef
