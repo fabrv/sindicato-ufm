@@ -42,7 +42,7 @@ body{
   color: black;
 }
 
-@media screen and (max-width: 600px){
+@media screen and (max-width: 800px){
   .content{
     width: calc(100% - 30px) !important;
   }
@@ -52,14 +52,14 @@ body{
     margin: none;
   }
 
-  .review-filter .filters {
-    width: calc(100% - 80px) !important;
-    margin: none;
+  .review-filter .teachers {
+    width: 100% !important;
     grid-template-columns: repeat(1, 1fr) !important;
   }
 
-  .review-filter .teachers {
-    width: 100% !important;
+  .review-filter .filters {
+    width: calc(100% - 80px) !important;
+    margin: none;
     grid-template-columns: repeat(1, 1fr) !important;
   }
 }
