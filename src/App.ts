@@ -1,11 +1,11 @@
 import { createServer, Server } from 'http'
-import { Client } from 'pg'
+import { Client, QueryResult } from 'pg'
 
 import express from 'express'
 import session from 'express-session'
 import connectReddis from 'connect-redis'
 
-import compression from 'compression'
+import compression, { filter } from 'compression'
 
 import * as path from 'path'
 import bodyParser from 'body-parser'
@@ -30,10 +30,15 @@ const pgClient = new Client({
 
 const MasterTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/Master.html'), 'utf8')
 
+interface select {
+  val: string, caption: string, selected: string
+}
+
 class App{
   public server: Server
   public app: express.Application
   public parsing: Parsing = new Parsing()
+
   constructor () {
     // App Express
     this.app = express()
@@ -328,13 +333,73 @@ class App{
     })
 
     router.get('/califica/filtro', (req: express.Request, res: express.Response) => {
+      const possibleOrders = ['asc', 'desc']
+      
+      req.query.nombre = req.query.nombre == null ? '' : req.query.nombre
+      req.query.clase = req.query.clase == null ? '' : req.query.clase
+      req.query.universidad = req.query.universidad == null ? '' : req.query.universidad
+      req.query.orden = req.query.orden == null || !possibleOrders.includes(req.query.orden) ? 'asc' : req.query.orden
+
+      for (const query in req.query) {
+        req.query[query] = req.query[query].replace(/[&()\-;'"*]/g, '')
+      }
+
+      console.log(req.query)
+
       const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/review-filter.html'), 'utf8')
-      const filterInfo = req.query
-      const wrapper = mustache.render(reviewFilter, filterInfo)
+      const filterInfo: {name: string, class: string, universities: Array<select>, orders: Array<select>, teachers: any} = {
+        name: req.query.nombre,
+        class: req.query.clase,
+        universities: [],
+        orders: [],
+        teachers: []
+      }
 
-      const site = this.parsing.parseGeneric(wrapper, 'Calificá y compará tu U, cursos y catedraticos', '', 'califica/catedratico')
+      const orders = [
+        {val: 'asc', caption: 'Ascendente', selected: ''},
+        {val: 'desc', caption: 'Descendente', selected: ''}
+      ]
+      for (let i = 0; i < 2; i++) {
+        if (req.query.orden === orders[i].val) {
+          orders[i].selected = 'selected'
+        }
+        filterInfo.orders.push(orders[i])
+      }
+      
+      pgClient.query(`SELECT * FROM filter_teacher_reviews('${req.query.universidad}', '${req.query.nombre}', '${req.query.clase}', 0) ORDER BY rate_avg ${req.query.orden}; SELECT name as caption, acronym as val FROM universities;`, (error, result: any) => {
+        if (error) {
+          res.status(500).send(error)
+        } else {
+          console.log(result[0].rows, '---\n', result[1].rows)
 
-      res.status(200).send(site)
+          const teachersView = []
+          for (let i = 0; i < result[0].rows.length; i++) {
+            const teacher = {
+              name: result[0].rows[i].teacher,
+              rating: this.parsing.starRatingParser(result[0].rows[i].rate_avg, 5),
+              summary: result[0].rows[i].review
+            }
+
+            teachersView.push(teacher)
+          }
+
+          filterInfo.teachers = teachersView
+
+          for (let i = 0; i < result[1].rowCount; i++) {
+            if (req.query.universidad === result[1].rows[i].val) {
+              result[1].rows[i].selected = 'selected'
+            }
+          }
+
+          filterInfo.universities = result[1].rows
+
+          const wrapper = mustache.render(reviewFilter, filterInfo)
+
+          const site = this.parsing.parseGeneric(wrapper, 'Calificá y compará tu U, cursos y catedraticos', '', 'califica/catedratico')
+
+          res.status(200).send(site)
+        }
+      })
     })
 
     router.get('/califica/universidades', (req: express.Request, res: express.Response) => {

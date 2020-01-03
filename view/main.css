@@ -104,7 +104,7 @@ hr{
   margin-top: -15px;
 }
 
-button, .new-article input, select{
+button, .new-article input, select, .btn{
   font-family: Georgia, 'Times New Roman', Times, serif;
   padding: 10px;
   border-radius: 4px;
@@ -113,18 +113,20 @@ button, .new-article input, select{
   transition: box-shadow .2s;
   text-align: center;
   margin: 10px;
+  font-size: 16px;
+  color: #333;
 }
 
-button:hover, .new-article input:focus, textarea:focus{
+button:hover, .new-article input:focus, textarea:focus, .btn:hover{
   box-shadow: 0 2px 4px 1px rgba(0,0,0,.1);
 }
 
-button:focus, .new-article input:focus, textarea:focus{
+button:focus, .new-article input:focus, textarea:focus, .btn:focus{
   outline: none;
   box-shadow: 0 2px 4px 1px rgba(0,0,0,.1)
 }
 
-button:active, .new-article input[type=submit]:active{
+button:active, .new-article input[type=submit]:active, .btn:active{
   box-shadow: 0 1px 2px 1px rgba(0,0,0,.1)
 }
 
@@ -579,7 +581,7 @@ input[type=text]:focus ~ .search-suggestions, .search-suggestions:focus, .search
 /* REVIEW FILTER */
 
 .review-filter .filters {
-  width: 600px;
+  width: 800px;
   margin: auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -609,7 +611,7 @@ input[type=text]:focus ~ .search-suggestions, .search-suggestions:focus, .search
 
 .review-filter .card p{
   text-align: justify;
-  padding: 20px;
+  padding: 22px;
 }
 
 .review-filter .card .title {

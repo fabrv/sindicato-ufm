@@ -1,28 +1,40 @@
 <div class="review-filter">
+  <div class="tab-pill">
+    <span>Universidades</span>
+    <span class="selected">catedráticos</span>
+  </div>
   <form>
-  <div class="filters">
+  <div class="filters">    
     <input type="text" name="nombre" placeholder="Nombre" value="{{name}}"/>
     <input type="text" name="clase" placeholder="Clase" value="{{class}}"/>
     <select name="universidad">
-      <option>Todas</option>
-      {{universities}}
+      <option value="">Todas</option>
+      {{#universities}}
+        <option value="{{val}}" {{selected}}>{{caption}}</option>
+      {{/universities}}
     </select>
     <select name="orden">
-      <option value="asc">Ascendente</option>
-      <option value="desc">Descendente</option>
+      {{#orders}}
+        <option value="{{val}}" {{selected}}>{{caption}}</option>
+      {{/orders}}
     </select>
   </div>
   <button type="submit">Filtrar</button>
+  <span class="btn">Agregar calificación</span>
   </form>
 
   <div class="teachers">
     {{#teachers}}
     <div class="card">
       <p>{{summary}}</p>
-      {{rating}}
-      <hr>
       <label class="title">{{name}}</label>
+      <div class="rating">{{{rating}}}</div>
+      <button>Ver detalle</button>
     </div>
+    {{/teachers}}
+
+    {{^teachers}}
+      <p>No hay catedraticos para esa busqueda :(</p>
     {{/teachers}}
   </div>
 </div>
