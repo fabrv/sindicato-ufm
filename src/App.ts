@@ -38,6 +38,27 @@ class App{
   public server: Server
   public app: express.Application
   public parsing: Parsing = new Parsing()
+  
+  private rateTeacherQs = [
+    {
+      index: 1,
+      question: 'Calificación general del catédratico',
+      val: 'rate',
+      caption: 'Calificación'
+    },
+    {
+      index: 2,
+      question: '¿Cuál es la dificultad de ganar con el catédratico?',
+      val: 'difficulty',
+      caption: 'Dificultad'
+    },
+    {
+      index: 3,
+      question: '¿Qué tan accesible es el catedratico?',
+      val: 'accessibility',
+      caption: 'Accesibilidad'
+    }
+  ]
 
   constructor () {
     // App Express
@@ -344,15 +365,14 @@ class App{
         req.query[query] = req.query[query].replace(/[&()\-;'"*]/g, '')
       }
 
-      console.log(req.query)
-
       const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/review-filter.html'), 'utf8')
-      const filterInfo: {name: string, class: string, universities: Array<select>, orders: Array<select>, teachers: any} = {
+      const filterInfo: {name: string, class: string, universities: Array<select>, orders: Array<select>, teachers: any, reviewModal: string} = {
         name: req.query.nombre,
         class: req.query.clase,
         universities: [],
         orders: [],
-        teachers: []
+        teachers: [],
+        reviewModal: fs.readFileSync(path.resolve(__dirname, 'templates/reviews/new-treview.html'), 'utf8')
       }
 
       const orders = [
@@ -370,8 +390,6 @@ class App{
         if (error) {
           res.status(500).send(error)
         } else {
-          console.log(result[0].rows, '---\n', result[1].rows)
-
           const teachersView = []
           for (let i = 0; i < result[0].rows.length; i++) {
             const teacher = {
@@ -392,6 +410,13 @@ class App{
           }
 
           filterInfo.universities = result[1].rows
+
+          const modalView = {
+            questions: this.rateTeacherQs,
+            universities: result[1].rows
+          }
+
+          filterInfo.reviewModal = mustache.render(filterInfo.reviewModal, modalView)
 
           const wrapper = mustache.render(reviewFilter, filterInfo)
 

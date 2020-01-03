@@ -108,6 +108,13 @@ hr{
   margin-top: -15px;
 }
 
+.btn {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 button, .new-article input, select, .btn{
   font-family: Georgia, 'Times New Roman', Times, serif;
   padding: 10px;
@@ -645,7 +652,7 @@ input[type=text]:focus ~ .search-suggestions, .search-suggestions:focus, .search
   color: #333;
 }
 
-.tab-pill a:hover, .tab-pill:focus {
+.tab-pill a:hover, .tab-pill a:focus {
   box-shadow: none;
   border: none;
   background-color: rgba(0, 0, 0, .07);
