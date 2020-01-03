@@ -617,3 +617,37 @@ input[type=text]:focus ~ .search-suggestions, .search-suggestions:focus, .search
 .review-filter .card .title {
   padding: 5px;
 }
+
+.tab-pill {
+  padding: 3px;
+  background-color: #eee;
+  border-radius: 30px;
+  display: inline-block;
+  text-align: center;
+  margin: 15px;
+}
+
+.tab-pill a {
+  display: inline-block;
+  padding: 13px;
+  border-radius: 30px;
+  cursor: pointer;
+  border: none;
+  transition: background-color .2s;
+  color: #333;
+}
+
+.tab-pill a:hover, .tab-pill:focus {
+  box-shadow: none;
+  border: none;
+  background-color: rgba(0, 0, 0, .07);
+}
+
+.tab-pill .selected {
+  background-color: #326891;
+  color: white;
+}
+
+.tab-pill .selected:hover, .tab-pill .selected:focus {
+  background-color: #235174;  
+}
