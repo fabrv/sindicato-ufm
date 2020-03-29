@@ -17,6 +17,9 @@ import mustache from 'mustache'
 
 // All main parsing imports
 import { Parsing } from './Parsing'
+import { ArticleComponent } from './components/article/Article'
+import { MetaTagsComponent } from './components/metaTags/MetaTags'
+import { MasterComponent } from './components/master/Master'
 
 const client = redis.createClient(process.env.REDIS_URL)
 const RedisStore = connectReddis(session)
@@ -27,8 +30,6 @@ const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: true,
 })
-
-const MasterTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/Master.html'), 'utf8')
 
 interface select {
   val: string, caption: string, selected: string
@@ -119,7 +120,7 @@ class App{
 
     router.get('/articulo/:article', (req: express.Request, res: express.Response) => {
       let wrapper: string
-      let metaTags: string
+      let metaTags: MetaTagsComponent
       const pArticle = req.params.article.replace(/[_-]/g, ' ')
 
       pgClient.query(`UPDATE public."ARTICLE" SET "views" = "views" + 1 WHERE "headline" = '${pArticle}'; SELECT * FROM public."ARTICLE" WHERE "headline" = '${pArticle}';`, (error, result: any) => {
@@ -129,7 +130,16 @@ class App{
           if (result[1].rowCount > 0) {
             
             const article = result[1].rows[0]
-            wrapper = this.parsing.parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
+            //wrapper = this.parsing.parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
+            wrapper = new ArticleComponent({
+              headline: article.headline,
+              headlineLink: encodeURIComponent(article.headline.replace(/ /g, '-')),
+              author: article.author,
+              date: article.date,
+              subhead: article.subhead,
+              body: article.body
+            }).parse()
+
             if (article.body.includes('src="')){
               for (let i = 0; i < article.body.length; i++){
                 if (article.body[i] == '"'){
@@ -142,21 +152,39 @@ class App{
                       o++
                     }
                     const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
-                    metaTags = this.parsing.parseMetaTags(`${article.headline}`, article.subhead, 'articulo/', imgString)
+                    metaTags = 
+                    new MetaTagsComponent({
+                      title: article.headline,
+                      description: article.subhead,
+                      titleLink: 'articulo/',
+                      img: imgString
+                    })
                     i = article.body.length
                   }
                 }
               }
             }else{
-              metaTags = this.parsing.parseMetaTags(`${article.headline}`, article.subhead, 'articulo/')
+              metaTags = new MetaTagsComponent({
+                title: article.headline,
+                description: article.subhead,
+                titleLink: 'articulo/'
+              })
             }
           } else {
             wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            metaTags = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-          }
-
-          const view = {'metaTags': metaTags, 'wrapper': wrapper}
-          const site = mustache.render(MasterTemplate, view)
+            metaTags = new MetaTagsComponent({
+              title: '404 😥',
+              description: 'No encontramos ese articulo',
+              titleLink: 'articulo/'
+            })
+          }          
+          
+          const site = new MasterComponent({
+            metaTagsComponent: metaTags,
+            paging: '',
+            wrapper: wrapper
+          }).parse()
+          
           res.send(site)
         }
       })
@@ -307,16 +335,36 @@ class App{
           res.status(200).send(error)
         } 
         if (result.rows.length > 0) {
-          const metaTags = this.parsing.parseMetaTags(req.params.university, `${result.rows[0].university} | ${result.rows[0].summary}`, 'califica/universidades/')
+          const metaTags = new MetaTagsComponent({
+            title: req.params.university,
+            description: `${result.rows[0].university} | ${result.rows[0].summary}`,
+            titleLink: 'califica/universidades/'
+          })
+
           const wrapper = this.parsing.parseUniversity(result.rows[0])
-          const view = {'metaTags': metaTags, 'wrapper': wrapper}
-          const site = mustache.render(MasterTemplate, view)
+
+          const site = new MasterComponent({
+            metaTagsComponent: metaTags,
+            paging: '',
+            wrapper: wrapper
+          }).parse()
+
           res.send(site)
         } else {
           const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-          const metaTags = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-          const view = {'metaTags': metaTags, 'wrapper': wrapper}
-          const site = mustache.render(MasterTemplate, view)
+          
+          const metaTags = new MetaTagsComponent({
+            title: '404 😥',
+            description: 'No encontramos ese articulo',
+            titleLink: 'articulo/'
+          })
+
+          const site = new MasterComponent({
+            metaTagsComponent: metaTags,
+            paging: '',
+            wrapper: wrapper
+          }).parse()
+
           res.send(site)
         }
       })
@@ -338,14 +386,14 @@ class App{
         if (error) {
           res.status(500).send(error)
         } else {
-          const starTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/stars.html'), 'utf8')
+          const starTemplate = fs.readFileSync(path.resolve(__dirname, 'components/reviews/stars.html'), 'utf8')
           for (let i: number = 0; i < result.rowCount; i++) {
             result.rows[i].stars = mustache.render(starTemplate, { fill: Array(Math.round(result.rows[i].rate)).fill(''), empty: Array(5 - Math.round(result.rows[i].rate)).fill('')})
             result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 24)
             result.rows[i].dateText = result.rows[i].date.substr(0, 10)
           }
           const view = {reviews: result.rows}
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/uni-reviews.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'components/reviews/uni-reviews.html'), 'utf8')
 
           const site = mustache.render(template, view)
           res.status(200).send({length: result.rowCount, html: site})
@@ -365,14 +413,14 @@ class App{
         req.query[query] = req.query[query].replace(/[&()\-;'"*]/g, '')
       }
 
-      const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/review-filter.html'), 'utf8')
+      const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'components/reviews/review-filter.html'), 'utf8')
       const filterInfo: {name: string, class: string, universities: Array<select>, orders: Array<select>, teachers: any, reviewModal: string} = {
         name: req.query.nombre,
         class: req.query.clase,
         universities: [],
         orders: [],
         teachers: [],
-        reviewModal: fs.readFileSync(path.resolve(__dirname, 'templates/reviews/new-treview.html'), 'utf8')
+        reviewModal: fs.readFileSync(path.resolve(__dirname, 'components/reviews/new-treview.html'), 'utf8')
       }
 
       const orders = [
@@ -613,10 +661,20 @@ class App{
           }
 
           if (result.rowCount === 0){
-            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-            const view = {'metaTags': metaTags, 'wrapper': wrapper}
-            const site: string = mustache.render(MasterTemplate, view)
+            const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+          
+            const metaTags = new MetaTagsComponent({
+              title: '404 😥',
+              description: 'No encontramos ese articulo',
+              titleLink: 'articulo/'
+            })
+
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: '',
+              wrapper: wrapper
+            }).parse()
+
             res.send(site)
 
           } else {
@@ -630,15 +688,30 @@ class App{
 
             let wrapper: string = ''
             for (let i = 0; i < data.length; i++){
-              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+              //wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+
+              wrapper += new ArticleComponent({
+                headline: data[i].headline,
+                headlineLink: encodeURIComponent(data[i].headline.replace(/ /g, '-')),
+                author: data[i].author,
+                date: data[i].date,
+                subhead: data[i].subhead,
+                body: data[i].body
+              }).parse()
             }
-            const metaTags: string = this.parsing.parseMetaTags(capitalize(req.params.category), '', '')
-            const view = {
-              'metaTags': metaTags, 
-              'wrapper': wrapper, 
-              'paging': paging
-            }
-            const site: string = mustache.render(MasterTemplate, view)
+
+            const metaTags = new MetaTagsComponent({
+              title: capitalize(req.params.category),
+              description: '',
+              titleLink: ''
+            })
+  
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: paging,
+              wrapper: wrapper
+            }).parse()
+  
             res.send(site)
           }
         }
@@ -663,12 +736,21 @@ class App{
           }
 
           if (result.rowCount === 0){
-            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-            const view = {'metaTags': metaTags, 'wrapper': wrapper}
-            const site: string = mustache.render(MasterTemplate, view)
-            res.send(site)
+            const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+          
+            const metaTags = new MetaTagsComponent({
+              title: '404 😥',
+              description: 'No encontramos ese articulo',
+              titleLink: 'articulo/'
+            })
 
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: '',
+              wrapper: wrapper
+            }).parse()
+
+            res.send(site)
           } else {
             let paging: string = ''
             if (page > 0){
@@ -680,15 +762,30 @@ class App{
 
             let wrapper: string = ''
             for (let i = 0; i < data.length; i++){
-              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+              //wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+
+              wrapper += new ArticleComponent({
+                headline: data[i].headline,
+                headlineLink: encodeURIComponent(data[i].headline.replace(/ /g, '-')),
+                author: data[i].author,
+                date: data[i].date,
+                subhead: data[i].subhead,
+                body: data[i].body
+              }).parse()
             }
-            const metaTags: string = this.parsing.parseMetaTags('', 'Somos es una plataforma independiente de estudiantes para poder exponer opiniones libres sin adoctrinamiento forzada.', '')
-            const view = {
-              'metaTags': metaTags, 
-              'wrapper': wrapper, 
-              'paging': paging
-            }
-            const site: string = mustache.render(MasterTemplate, view)
+
+            const metaTags = new MetaTagsComponent({
+              title: '',
+              description: 'Somos es una plataforma independiente de estudiantes para poder exponer opiniones libres sin adoctrinamiento forzada.',
+              titleLink: ''
+            })
+            
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: paging,
+              wrapper: wrapper
+            }).parse()
+
             res.send(site)
           }
         }
@@ -748,7 +845,7 @@ class App{
           if (pgerror) {
             return res.status(500).send({error:pgerror})
           }
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/profile.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'components/dashboard/profile.html'), 'utf8')
           for (let i = 0; i < pgresult.rowCount; i++) {
             pgresult.rows[i].body = pgresult.rows[i].body.replace(/`/g, '&96;')
           }
@@ -767,7 +864,7 @@ class App{
           if (pgerror) {
             return res.status(500).send({error:pgerror})
           }
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/moderation.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'components/dashboard/moderation.html'), 'utf8')
           for (let i = 0; i < pgresult.rowCount; i ++) {
             const jsDate = new Date(pgresult.rows[i].date)
             //const sqlDate = `${jsDate.getUTCFullYear()}-${jsDate.getUTCMonth()}-${jsDate.getUTCDate()} ${jsDate.getUTCHours()}:${jsDate.getUTCMinutes()}:${jsDate.getUTCSeconds()}.${jsDate.getUTCMilliseconds()}+00`

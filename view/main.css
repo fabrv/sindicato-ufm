@@ -94,6 +94,16 @@ h1, h2, h3, p, ol, ul, blockquote {
   }
 }
 
+@media screen and (max-width: 380px){
+  .content h1 {
+    margin-top: 40px;
+  }
+  
+  .header h1{
+    font-size: 32px;
+  }
+}
+
 a{
   text-decoration: none;
   border: solid 2px rgba(255, 165, 0, 0);
