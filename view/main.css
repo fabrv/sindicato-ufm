@@ -3,17 +3,38 @@
   src: url('SegMDL2.ttf');
   font-display: swap;
 }
+
+@font-face {
+	font-family: 'Computer Modern Serif';
+	src: url('fonts/cmunrm.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+@font-face {
+	font-family: 'Computer Modern Serif';
+	src: url('cmunbx.eot');
+	src: url('fonts/cmunbx.woff') format('woff');
+	font-weight: bold;
+	font-style: normal;
+}
+
 body{
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font: normal 1.2em/150% 'Computer Modern Serif', Times, serif;
   margin: 0;
   padding: 0;
   text-align: center;
   color: #333;
+  background-color: #FFFEFC;
+}
+
+h1, h2, h3, p, ol, ul, blockquote {
+  margin: 1.5em 0;
 }
 
 .header{
   text-align: center;
-  border-bottom: 1px solid #E2E2E2;
   padding: 20px;
 }
 .header h1{
@@ -36,6 +57,11 @@ body{
   margin: auto;
   text-align: left;
   margin-bottom: 60px;
+}
+
+.content h1 {
+  margin-top: 100px;
+  line-height: 1.2em;
 }
 
 .content h1 a{
@@ -99,8 +125,8 @@ hr{
 
 .body, .body p{
   color: #333;
-  font-size: 18px;
-  line-height: 1.5em;
+  font-size: 20px;
+  line-height: 150%;
 }
 
 .content .info{
