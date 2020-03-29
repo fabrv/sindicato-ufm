@@ -18,6 +18,8 @@ import mustache from 'mustache'
 // All main parsing imports
 import { Parsing } from './Parsing'
 import { ArticleComponent } from './components/article/Article'
+import { MetaTagsComponent } from './components/metaTags/MetaTags'
+import { MasterComponent } from './components/master/Master'
 
 const client = redis.createClient(process.env.REDIS_URL)
 const RedisStore = connectReddis(session)
@@ -28,8 +30,6 @@ const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: true,
 })
-
-const MasterTemplate = fs.readFileSync(path.resolve(__dirname, 'components/Master.html'), 'utf8')
 
 interface select {
   val: string, caption: string, selected: string
@@ -120,7 +120,7 @@ class App{
 
     router.get('/articulo/:article', (req: express.Request, res: express.Response) => {
       let wrapper: string
-      let metaTags: string
+      let metaTags: MetaTagsComponent
       const pArticle = req.params.article.replace(/[_-]/g, ' ')
 
       pgClient.query(`UPDATE public."ARTICLE" SET "views" = "views" + 1 WHERE "headline" = '${pArticle}'; SELECT * FROM public."ARTICLE" WHERE "headline" = '${pArticle}';`, (error, result: any) => {
@@ -152,21 +152,39 @@ class App{
                       o++
                     }
                     const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
-                    metaTags = this.parsing.parseMetaTags(`${article.headline}`, article.subhead, 'articulo/', imgString)
+                    metaTags = 
+                    new MetaTagsComponent({
+                      title: article.headline,
+                      description: article.subhead,
+                      titleLink: 'articulo/',
+                      img: imgString
+                    })
                     i = article.body.length
                   }
                 }
               }
             }else{
-              metaTags = this.parsing.parseMetaTags(`${article.headline}`, article.subhead, 'articulo/')
+              metaTags = new MetaTagsComponent({
+                title: article.headline,
+                description: article.subhead,
+                titleLink: 'articulo/'
+              })
             }
           } else {
             wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            metaTags = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-          }
-
-          const view = {'metaTags': metaTags, 'wrapper': wrapper}
-          const site = mustache.render(MasterTemplate, view)
+            metaTags = new MetaTagsComponent({
+              title: '404 😥',
+              description: 'No encontramos ese articulo',
+              titleLink: 'articulo/'
+            })
+          }          
+          
+          const site = new MasterComponent({
+            metaTagsComponent: metaTags,
+            paging: '',
+            wrapper: wrapper
+          }).parse()
+          
           res.send(site)
         }
       })
@@ -317,16 +335,36 @@ class App{
           res.status(200).send(error)
         } 
         if (result.rows.length > 0) {
-          const metaTags = this.parsing.parseMetaTags(req.params.university, `${result.rows[0].university} | ${result.rows[0].summary}`, 'califica/universidades/')
+          const metaTags = new MetaTagsComponent({
+            title: req.params.university,
+            description: `${result.rows[0].university} | ${result.rows[0].summary}`,
+            titleLink: 'califica/universidades/'
+          })
+
           const wrapper = this.parsing.parseUniversity(result.rows[0])
-          const view = {'metaTags': metaTags, 'wrapper': wrapper}
-          const site = mustache.render(MasterTemplate, view)
+
+          const site = new MasterComponent({
+            metaTagsComponent: metaTags,
+            paging: '',
+            wrapper: wrapper
+          }).parse()
+
           res.send(site)
         } else {
           const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-          const metaTags = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-          const view = {'metaTags': metaTags, 'wrapper': wrapper}
-          const site = mustache.render(MasterTemplate, view)
+          
+          const metaTags = new MetaTagsComponent({
+            title: '404 😥',
+            description: 'No encontramos ese articulo',
+            titleLink: 'articulo/'
+          })
+
+          const site = new MasterComponent({
+            metaTagsComponent: metaTags,
+            paging: '',
+            wrapper: wrapper
+          }).parse()
+
           res.send(site)
         }
       })
@@ -623,10 +661,20 @@ class App{
           }
 
           if (result.rowCount === 0){
-            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-            const view = {'metaTags': metaTags, 'wrapper': wrapper}
-            const site: string = mustache.render(MasterTemplate, view)
+            const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+          
+            const metaTags = new MetaTagsComponent({
+              title: '404 😥',
+              description: 'No encontramos ese articulo',
+              titleLink: 'articulo/'
+            })
+
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: '',
+              wrapper: wrapper
+            }).parse()
+
             res.send(site)
 
           } else {
@@ -651,13 +699,19 @@ class App{
                 body: data[i].body
               }).parse()
             }
-            const metaTags: string = this.parsing.parseMetaTags(capitalize(req.params.category), '', '')
-            const view = {
-              'metaTags': metaTags, 
-              'wrapper': wrapper, 
-              'paging': paging
-            }
-            const site: string = mustache.render(MasterTemplate, view)
+
+            const metaTags = new MetaTagsComponent({
+              title: capitalize(req.params.category),
+              description: '',
+              titleLink: ''
+            })
+  
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: paging,
+              wrapper: wrapper
+            }).parse()
+  
             res.send(site)
           }
         }
@@ -682,12 +736,21 @@ class App{
           }
 
           if (result.rowCount === 0){
-            const wrapper: string = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            const metaTags: string = this.parsing.parseMetaTags('404 😥', 'No encontramos ese articulo', 'articulo/')
-            const view = {'metaTags': metaTags, 'wrapper': wrapper}
-            const site: string = mustache.render(MasterTemplate, view)
-            res.send(site)
+            const wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
+          
+            const metaTags = new MetaTagsComponent({
+              title: '404 😥',
+              description: 'No encontramos ese articulo',
+              titleLink: 'articulo/'
+            })
 
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: '',
+              wrapper: wrapper
+            }).parse()
+
+            res.send(site)
           } else {
             let paging: string = ''
             if (page > 0){
@@ -710,13 +773,19 @@ class App{
                 body: data[i].body
               }).parse()
             }
-            const metaTags: string = this.parsing.parseMetaTags('', 'Somos es una plataforma independiente de estudiantes para poder exponer opiniones libres sin adoctrinamiento forzada.', '')
-            const view = {
-              'metaTags': metaTags, 
-              'wrapper': wrapper, 
-              'paging': paging
-            }
-            const site: string = mustache.render(MasterTemplate, view)
+
+            const metaTags = new MetaTagsComponent({
+              title: '',
+              description: 'Somos es una plataforma independiente de estudiantes para poder exponer opiniones libres sin adoctrinamiento forzada.',
+              titleLink: ''
+            })
+            
+            const site = new MasterComponent({
+              metaTagsComponent: metaTags,
+              paging: paging,
+              wrapper: wrapper
+            }).parse()
+
             res.send(site)
           }
         }
