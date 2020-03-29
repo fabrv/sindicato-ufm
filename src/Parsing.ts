@@ -16,7 +16,7 @@ export class Parsing {
    * @param author 
    */
   parseArticle(headline: string, subhead: string, body: string, date: string, author:string): string{
-    const template = fs.readFileSync(path.resolve(__dirname, 'templates/article.html'), 'utf8')
+    const template = fs.readFileSync(path.resolve(__dirname, 'components/article.html'), 'utf8')
     const converter = new showdown.Converter({tables: true, strikethrough: true})
     const parsedBody = converter.makeHtml(body)
     const view = {
@@ -36,7 +36,7 @@ export class Parsing {
    * @param {object} uniSummary - Postgres return from a unisummary request
    */
   parseUniversity(uniSummary: any) {
-    let template = fs.readFileSync(path.resolve(__dirname, 'templates/university.html'), 'utf8')
+    let template = fs.readFileSync(path.resolve(__dirname, 'components/university.html'), 'utf8')
     let ratings: Array<{description: string, value: string}> = []
     for (let item in uniSummary) {
       if (item !== 'university' && item !== 'summary' && item !== 'imagelink' && item !== 'reviews' && item !== 'rating') {
@@ -57,7 +57,7 @@ export class Parsing {
   }
 
   parseGeneric(template: string, title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string {
-    const master = fs.readFileSync(path.resolve(__dirname, 'templates/Master.html'), 'utf8')
+    const master = fs.readFileSync(path.resolve(__dirname, 'components/Master.html'), 'utf8')
     const masterView = {
       metaTags: this.parseMetaTags(title, description, location, img, true),
       paging: '',
@@ -93,7 +93,7 @@ export class Parsing {
    * @param img 
    */
   parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png', generic: boolean = false): string{
-    const template = fs.readFileSync(path.resolve(__dirname, 'templates/metaTags.html'), 'utf8')
+    const template = fs.readFileSync(path.resolve(__dirname, 'components/metaTags.html'), 'utf8')
     const view = {
       'titleLink': generic ? '' : replaceAll(title, ' ', '_'),
       'title': title,

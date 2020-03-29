@@ -28,7 +28,7 @@ const pgClient = new Client({
   ssl: true,
 })
 
-const MasterTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/Master.html'), 'utf8')
+const MasterTemplate = fs.readFileSync(path.resolve(__dirname, 'components/Master.html'), 'utf8')
 
 interface select {
   val: string, caption: string, selected: string
@@ -338,14 +338,14 @@ class App{
         if (error) {
           res.status(500).send(error)
         } else {
-          const starTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/stars.html'), 'utf8')
+          const starTemplate = fs.readFileSync(path.resolve(__dirname, 'components/reviews/stars.html'), 'utf8')
           for (let i: number = 0; i < result.rowCount; i++) {
             result.rows[i].stars = mustache.render(starTemplate, { fill: Array(Math.round(result.rows[i].rate)).fill(''), empty: Array(5 - Math.round(result.rows[i].rate)).fill('')})
             result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 24)
             result.rows[i].dateText = result.rows[i].date.substr(0, 10)
           }
           const view = {reviews: result.rows}
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/uni-reviews.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'components/reviews/uni-reviews.html'), 'utf8')
 
           const site = mustache.render(template, view)
           res.status(200).send({length: result.rowCount, html: site})
@@ -365,14 +365,14 @@ class App{
         req.query[query] = req.query[query].replace(/[&()\-;'"*]/g, '')
       }
 
-      const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'templates/reviews/review-filter.html'), 'utf8')
+      const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'components/reviews/review-filter.html'), 'utf8')
       const filterInfo: {name: string, class: string, universities: Array<select>, orders: Array<select>, teachers: any, reviewModal: string} = {
         name: req.query.nombre,
         class: req.query.clase,
         universities: [],
         orders: [],
         teachers: [],
-        reviewModal: fs.readFileSync(path.resolve(__dirname, 'templates/reviews/new-treview.html'), 'utf8')
+        reviewModal: fs.readFileSync(path.resolve(__dirname, 'components/reviews/new-treview.html'), 'utf8')
       }
 
       const orders = [
@@ -748,7 +748,7 @@ class App{
           if (pgerror) {
             return res.status(500).send({error:pgerror})
           }
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/profile.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'components/dashboard/profile.html'), 'utf8')
           for (let i = 0; i < pgresult.rowCount; i++) {
             pgresult.rows[i].body = pgresult.rows[i].body.replace(/`/g, '&96;')
           }
@@ -767,7 +767,7 @@ class App{
           if (pgerror) {
             return res.status(500).send({error:pgerror})
           }
-          const template = fs.readFileSync(path.resolve(__dirname, 'templates/dashboard/moderation.html'), 'utf8')
+          const template = fs.readFileSync(path.resolve(__dirname, 'components/dashboard/moderation.html'), 'utf8')
           for (let i = 0; i < pgresult.rowCount; i ++) {
             const jsDate = new Date(pgresult.rows[i].date)
             //const sqlDate = `${jsDate.getUTCFullYear()}-${jsDate.getUTCMonth()}-${jsDate.getUTCDate()} ${jsDate.getUTCHours()}:${jsDate.getUTCMinutes()}:${jsDate.getUTCSeconds()}.${jsDate.getUTCMilliseconds()}+00`
