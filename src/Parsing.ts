@@ -93,7 +93,7 @@ export class Parsing {
    * @param img 
    */
   parseMetaTags(title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png', generic: boolean = false): string{
-    const template = fs.readFileSync(path.resolve(__dirname, 'components/metaTags.html'), 'utf8')
+    const template = fs.readFileSync(path.resolve(__dirname, 'components/shared/metaTags.html'), 'utf8')
     const view = {
       'titleLink': generic ? '' : replaceAll(title, ' ', '_'),
       'title': title,

@@ -17,6 +17,7 @@ import mustache from 'mustache'
 
 // All main parsing imports
 import { Parsing } from './Parsing'
+import { ArticleComponent } from './components/article/Article'
 
 const client = redis.createClient(process.env.REDIS_URL)
 const RedisStore = connectReddis(session)
@@ -129,7 +130,16 @@ class App{
           if (result[1].rowCount > 0) {
             
             const article = result[1].rows[0]
-            wrapper = this.parsing.parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
+            //wrapper = this.parsing.parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
+            wrapper = new ArticleComponent({
+              headline: article.headline,
+              headlineLink: encodeURIComponent(article.headline.replace(/ /g, '-')),
+              author: article.author,
+              date: article.date,
+              subhead: article.subhead,
+              body: article.body
+            }).parse()
+
             if (article.body.includes('src="')){
               for (let i = 0; i < article.body.length; i++){
                 if (article.body[i] == '"'){
@@ -630,7 +640,16 @@ class App{
 
             let wrapper: string = ''
             for (let i = 0; i < data.length; i++){
-              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+              //wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+
+              wrapper += new ArticleComponent({
+                headline: data[i].headline,
+                headlineLink: encodeURIComponent(data[i].headline.replace(/ /g, '-')),
+                author: data[i].author,
+                date: data[i].date,
+                subhead: data[i].subhead,
+                body: data[i].body
+              }).parse()
             }
             const metaTags: string = this.parsing.parseMetaTags(capitalize(req.params.category), '', '')
             const view = {
@@ -680,7 +699,16 @@ class App{
 
             let wrapper: string = ''
             for (let i = 0; i < data.length; i++){
-              wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+              //wrapper += this.parsing.parseArticle(data[i].headline, data[i].subhead, data[i].body, data[i].date, data[i].author);
+
+              wrapper += new ArticleComponent({
+                headline: data[i].headline,
+                headlineLink: encodeURIComponent(data[i].headline.replace(/ /g, '-')),
+                author: data[i].author,
+                date: data[i].date,
+                subhead: data[i].subhead,
+                body: data[i].body
+              }).parse()
             }
             const metaTags: string = this.parsing.parseMetaTags('', 'Somos es una plataforma independiente de estudiantes para poder exponer opiniones libres sin adoctrinamiento forzada.', '')
             const view = {
