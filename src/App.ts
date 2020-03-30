@@ -7,7 +7,7 @@ import connectReddis from 'connect-redis'
 
 import compression, { filter } from 'compression'
 
-import * as path from 'path'
+import path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
 import redis from 'redis'
@@ -21,6 +21,7 @@ import { ArticleComponent } from './components/article/Article'
 import { MetaTagsComponent } from './components/metaTags/MetaTags'
 import { MasterComponent } from './components/master/Master'
 import { ArticleController } from './controller/articles/article.controller'
+import { CalificaController } from './controller/reviews/califica.controller'
 
 const client = redis.createClient(process.env.REDIS_URL)
 const RedisStore = connectReddis(session)
@@ -83,8 +84,11 @@ class App{
 
     // Load static files
     this.app.use(express.static(path.resolve(__dirname, '../view')))
+    
     // Review routes
-    this.reviewRoutes()
+    const reviewController = new CalificaController(this.app, pgClient)
+    reviewController.reviewRoutes()
+
     // Article routes
     const articleController = new ArticleController(this.app, pgClient)
     articleController.articleRoutes()

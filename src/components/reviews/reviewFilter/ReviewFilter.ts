@@ -1,21 +1,17 @@
 import { Component } from "../../../RenderEngine/Component";
 import fs from 'fs'
 import path from 'path'
+import { SelectInterface } from "../../../components/select.interface";
 
-interface SelectInterface {
-  val: string
-  selected: string
-  caption: string
-}
-
-interface TeachersInterface {
+export interface TeachersInterface {
   summary: string
   name: string
   rating: string
 }
 
-interface ReviewFilterInterface {
+export interface ReviewFilterInterface {
   name: string
+  class: string
   universities: Array<SelectInterface>
   orders: Array<SelectInterface>
   teachers: Array<TeachersInterface>

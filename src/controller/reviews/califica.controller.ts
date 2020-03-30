@@ -1,6 +1,8 @@
-import { Client, QueryResult } from 'pg'
+import { Client } from 'pg'
 
 import express from 'express'
+import path from 'path'
+import axios, { AxiosResponse, AxiosError } from 'axios'
 
 // All main parsing imports
 import { ArticleComponent } from '../../components/article/Article'
@@ -9,10 +11,33 @@ import { MasterComponent } from '../../components/master/Master'
 import { UniversityComponent } from '../../components/reviews/university/University'
 import { StarsComponent } from '../../components/reviews/stars/Stars'
 import { UniReviewsComponent } from '../../components/reviews/uni-reviews/UniReviews'
+import { ReviewFilterComponent, ReviewFilterInterface, TeachersInterface } from '../../components/reviews/reviewFilter/ReviewFilter'
+import { TeacherReviewComponent, TeacherReviewInterface, QuestionInterface } from '../../components/reviews/teacherReview/TeacherReview'
 
 export class CalificaController {
   private app: express.Application
   private pgClient: Client
+
+  private rateTeacherQs: Array<QuestionInterface> = [
+    {
+      index: 1,
+      question: 'Calificación general del catédratico',
+      val: 'rate',
+      caption: 'Calificación'
+    },
+    {
+      index: 2,
+      question: '¿Cuál es la dificultad de ganar con el catédratico?',
+      val: 'difficulty',
+      caption: 'Dificultad'
+    },
+    {
+      index: 3,
+      question: '¿Qué tan accesible es el catedratico?',
+      val: 'accessibility',
+      caption: 'Accesibilidad'
+    }
+  ]
 
   constructor(app: express.Application, pgClient: Client) {
     this.app = app
@@ -178,21 +203,21 @@ export class CalificaController {
       for (const query in req.query) {
         req.query[query] = req.query[query].replace(/[&()\-;'"*]/g, '')
       }
-
-      const reviewFilter = fs.readFileSync(path.resolve(__dirname, 'components/reviews/review-filter.html'), 'utf8')
-      const filterInfo: {name: string, class: string, universities: Array<select>, orders: Array<select>, teachers: any, reviewModal: string} = {
+      
+      const filterInfo: ReviewFilterInterface = {
         name: req.query.nombre,
         class: req.query.clase,
         universities: [],
         orders: [],
         teachers: [],
-        reviewModal: fs.readFileSync(path.resolve(__dirname, 'components/reviews/new-treview.html'), 'utf8')
+        reviewModal: ''
       }
 
       const orders = [
         {val: 'asc', caption: 'Ascendente', selected: ''},
         {val: 'desc', caption: 'Descendente', selected: ''}
       ]
+      
       for (let i = 0; i < 2; i++) {
         if (req.query.orden === orders[i].val) {
           orders[i].selected = 'selected'
@@ -206,9 +231,9 @@ export class CalificaController {
         } else {
           const teachersView = []
           for (let i = 0; i < result[0].rows.length; i++) {
-            const teacher = {
+            const teacher: TeachersInterface = {
               name: result[0].rows[i].teacher,
-              rating: this.parsing.starRatingParser(result[0].rows[i].rate_avg, 5),
+              rating: new StarsComponent(result[0].rows[i].rate_avg, 5).render(),
               summary: result[0].rows[i].review
             }
 
@@ -225,16 +250,29 @@ export class CalificaController {
 
           filterInfo.universities = result[1].rows
 
-          const modalView = {
+          const modalView: TeacherReviewInterface = {
             questions: this.rateTeacherQs,
             universities: result[1].rows
           }
 
-          filterInfo.reviewModal = mustache.render(filterInfo.reviewModal, modalView)
+          const wrapper = new ReviewFilterComponent({
+            name: filterInfo.name,
+            class: filterInfo.class,
+            orders: filterInfo.orders,
+            teachers: filterInfo.teachers,
+            universities: filterInfo.universities,
+            reviewModal: new TeacherReviewComponent(modalView).render()
+          }).render()
 
-          const wrapper = mustache.render(reviewFilter, filterInfo)
-
-          const site = this.parsing.parseGeneric(wrapper, 'Calificá y compará tu U, cursos y catedraticos', '', 'califica/catedratico')
+          const site = new MasterComponent({
+            wrapper: wrapper,
+            paging: '',
+            metaTagsComponent: new MetaTagsComponent({
+              title: 'Calificá y compará tu U, cursos y catedraticos',
+              description: '',
+              titleLink: '/califica/filtro'
+            })
+          }).render()
 
           res.status(200).send(site)
         }
@@ -242,7 +280,7 @@ export class CalificaController {
     })
 
     router.get('/califica/universidades', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.resolve(__dirname, '../view/califica.html'))
+      res.sendFile(path.resolve(__dirname, '../../../view/califica.html'))
     })
 
     router.post('/califica/universidades', (req: express.Request, res: express.Response) => {
