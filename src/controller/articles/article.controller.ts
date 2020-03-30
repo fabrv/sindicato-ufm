@@ -52,7 +52,7 @@ export class ArticleController {
               date: article.date,
               subhead: article.subhead,
               body: article.body
-            }).parse()
+            }).render()
 
             if (article.body.includes('src="')){
               for (let i = 0; i < article.body.length; i++){
@@ -97,7 +97,7 @@ export class ArticleController {
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
           
           res.send(site)
         }

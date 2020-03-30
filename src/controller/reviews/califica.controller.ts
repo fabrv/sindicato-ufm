@@ -7,6 +7,8 @@ import { ArticleComponent } from '../../components/article/Article'
 import { MetaTagsComponent } from '../../components/metaTags/MetaTags'
 import { MasterComponent } from '../../components/master/Master'
 import { UniversityComponent } from '../../components/reviews/university/University'
+import { StarsComponent } from '../../components/reviews/stars/Stars'
+import { UniReviewsComponent } from '../../components/reviews/uni-reviews/UniReviews'
 
 export class CalificaController {
   private app: express.Application
@@ -109,13 +111,13 @@ export class CalificaController {
             reviews: result.rows[0].reviews,
             imagelink: result.rows[0].imagelink,
             ratings: ratings
-          }).parse()
+          }).render()
 
           const site = new MasterComponent({
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
 
           res.send(site)
         } else {
@@ -131,7 +133,7 @@ export class CalificaController {
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
 
           res.send(site)
         }
@@ -153,16 +155,13 @@ export class CalificaController {
         if (error) {
           res.status(500).send(error)
         } else {
-          const starTemplate = fs.readFileSync(path.resolve(__dirname, 'components/reviews/stars.html'), 'utf8')
           for (let i: number = 0; i < result.rowCount; i++) {
-            result.rows[i].stars = mustache.render(starTemplate, { fill: Array(Math.round(result.rows[i].rate)).fill(''), empty: Array(5 - Math.round(result.rows[i].rate)).fill('')})
+            result.rows[i].stars = new StarsComponent(result.rows[i].rate, 5).render()
             result.rows[i].date = JSON.stringify(result.rows[i].date).substr(1, 24)
             result.rows[i].dateText = result.rows[i].date.substr(0, 10)
           }
-          const view = {reviews: result.rows}
-          const template = fs.readFileSync(path.resolve(__dirname, 'components/reviews/uni-reviews.html'), 'utf8')
+          const site = new UniReviewsComponent({reviews: result.rows}).render()
 
-          const site = mustache.render(template, view)
           res.status(200).send({length: result.rowCount, html: site})
         }
       })

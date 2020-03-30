@@ -189,7 +189,7 @@ class App{
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
 
           res.send(site)
         } else {
@@ -205,7 +205,7 @@ class App{
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
 
           res.send(site)
         }
@@ -515,7 +515,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: '',
               wrapper: wrapper
-            }).parse()
+            }).render()
 
             res.send(site)
 
@@ -539,7 +539,7 @@ class App{
                 date: data[i].date,
                 subhead: data[i].subhead,
                 body: data[i].body
-              }).parse()
+              }).render()
             }
 
             const metaTags = new MetaTagsComponent({
@@ -552,7 +552,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: paging,
               wrapper: wrapper
-            }).parse()
+            }).render()
   
             res.send(site)
           }
@@ -590,7 +590,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: '',
               wrapper: wrapper
-            }).parse()
+            }).render()
 
             res.send(site)
           } else {
@@ -613,7 +613,7 @@ class App{
                 date: data[i].date,
                 subhead: data[i].subhead,
                 body: data[i].body
-              }).parse()
+              }).render()
             }
 
             const metaTags = new MetaTagsComponent({
@@ -626,7 +626,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: paging,
               wrapper: wrapper
-            }).parse()
+            }).render()
 
             res.send(site)
           }
