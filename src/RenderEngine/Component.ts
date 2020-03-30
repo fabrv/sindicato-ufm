@@ -21,7 +21,7 @@ export class Component<T> {
    * Get the parsed page in plain HTML text
    * @returns {string} Parsed HTML text
    */
-  parse(): string {
+  render(): string {
     return mustache.render(this._template, this._viewData)
   }
 }

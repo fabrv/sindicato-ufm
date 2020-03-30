@@ -7,7 +7,7 @@ import connectReddis from 'connect-redis'
 
 import compression, { filter } from 'compression'
 
-import * as path from 'path'
+import path from 'path'
 import bodyParser from 'body-parser'
 import axios, { AxiosResponse, AxiosError } from 'axios'
 import redis from 'redis'
@@ -20,6 +20,8 @@ import { Parsing } from './Parsing'
 import { ArticleComponent } from './components/article/Article'
 import { MetaTagsComponent } from './components/metaTags/MetaTags'
 import { MasterComponent } from './components/master/Master'
+import { ArticleController } from './controller/articles/article.controller'
+import { CalificaController } from './controller/reviews/califica.controller'
 
 const client = redis.createClient(process.env.REDIS_URL)
 const RedisStore = connectReddis(session)
@@ -82,10 +84,15 @@ class App{
 
     // Load static files
     this.app.use(express.static(path.resolve(__dirname, '../view')))
+    
     // Review routes
-    this.reviewRoutes()
+    const reviewController = new CalificaController(this.app, pgClient)
+    reviewController.reviewRoutes()
+
     // Article routes
-    this.articleRoutes()
+    const articleController = new ArticleController(this.app, pgClient)
+    articleController.articleRoutes()
+
     // Dashboard routes
     this.dashboardRoutes()
     // General routes. THIS SHOULD ALWAYS BE THE LAST ROUTES MOUNTED
@@ -100,163 +107,6 @@ class App{
     /*client.on('error', (err: any)=>{
       console.log('Something went wrong on redis ', err)
     })*/
-  }
-
-  /**
-   * All routes related to articles are defined here.
-   * @param {express.Router} router - Router, new instance of expres.Router() by default.
-   */
-  articleRoutes(router: express.Router = express.Router()) {
-    router.get('/json/articulo/:article', (req: express.Request, res: express.Response) => {
-      const article = req.params.article.replace(/[_-]/g, ' ')
-      pgClient.query(`SELECT * FROM public."ARTICLE" WHERE "headline" = '${article.replace(/[&()\-'"*]/g, '')}'`, (error, result) => {
-        if (error) {
-          res.status(500).send(error)
-        } else {
-          res.status(200).send(result.rows[0])
-        }
-      })
-    })
-
-    router.get('/articulo/:article', (req: express.Request, res: express.Response) => {
-      let wrapper: string
-      let metaTags: MetaTagsComponent
-      const pArticle = req.params.article.replace(/[_-]/g, ' ')
-
-      pgClient.query(`UPDATE public."ARTICLE" SET "views" = "views" + 1 WHERE "headline" = '${pArticle}'; SELECT * FROM public."ARTICLE" WHERE "headline" = '${pArticle}';`, (error, result: any) => {
-        if (error) {
-          res.status(500).send(error)
-        } else {
-          if (result[1].rowCount > 0) {
-            
-            const article = result[1].rows[0]
-            //wrapper = this.parsing.parseArticle(article.headline, article.subhead, article.body, article.date, article.author)
-            wrapper = new ArticleComponent({
-              headline: article.headline,
-              headlineLink: encodeURIComponent(article.headline.replace(/ /g, '-')),
-              author: article.author,
-              date: article.date,
-              subhead: article.subhead,
-              body: article.body
-            }).parse()
-
-            if (article.body.includes('src="')){
-              for (let i = 0; i < article.body.length; i++){
-                if (article.body[i] == '"'){
-                  let string = article.body[i-4] + article.body[i-3] + article.body[i-2] + article.body[i-1] + article.body[i]
-                  if (string == 'src="'){
-                    let char = ''
-                    let o = 1
-                    while (char != '"'){
-                      char = article.body[i+o]
-                      o++
-                    }
-                    const imgString = article.body.substring(i+1, i+o-1).replace('../', '')
-                    metaTags = 
-                    new MetaTagsComponent({
-                      title: article.headline,
-                      description: article.subhead,
-                      titleLink: 'articulo/',
-                      img: imgString
-                    })
-                    i = article.body.length
-                  }
-                }
-              }
-            }else{
-              metaTags = new MetaTagsComponent({
-                title: article.headline,
-                description: article.subhead,
-                titleLink: 'articulo/'
-              })
-            }
-          } else {
-            wrapper = '<h1>404 😥</h1> <p>No encontramos ese articulo, pero quizás encontrés algo interesante <a href="../">aquí</a></p>'
-            metaTags = new MetaTagsComponent({
-              title: '404 😥',
-              description: 'No encontramos ese articulo',
-              titleLink: 'articulo/'
-            })
-          }          
-          
-          const site = new MasterComponent({
-            metaTagsComponent: metaTags,
-            paging: '',
-            wrapper: wrapper
-          }).parse()
-          
-          res.send(site)
-        }
-      })
-    })
-
-    router.patch('/articulo', (req: express.Request, res: express.Response) => {
-      if (req.session.name) {
-        const data: any = req.body
-        const query = `CALL public.update_article('${data.subhead.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.headline.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.body.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.author.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.category.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.pkHeadline}')`
-          pgClient.query(query, (pgerror, pgresult) => {
-            if (pgerror) {
-              res.json({
-                'success': false,
-                'data': pgerror
-              })
-            } else {
-              res.json({
-                'success': true,
-                'data': pgresult
-              })
-            }
-          })
-      } else {
-        return res.status(401).send('Unathorized access, credentials expired or invalid.')
-      }
-    })
-
-    router.post('/articulo', (req: express.Request, res: express.Response) => {
-      if (req.session.name) {
-        const data: any = req.body
-        const query = `CALL public.insert_article('${data.subhead.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.headline.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.body.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.author.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.category.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.date.replace(/`/g, '\x60').replace(/'/g, '&#39;')}', '${data.user.replace(/`/g, '\x60').replace(/'/g, '&#39;')}')`
-          pgClient.query(query, (pgerror, pgresult) => {
-            if (pgerror) {
-              res.json({
-                'success': false,
-                'data': pgerror
-              })
-            } else {
-              res.json({
-                'success': true,
-                'data': pgresult
-              })
-            }
-          })
-      } else {
-        return res.status(401).send('Unathorized access, credentials expired or invalid.')
-      }
-    })
-
-    router.delete('/articulo', (req: express.Request, res: express.Response) => {
-      if (req.session.name) {
-        const data: any = req.body
-        const query = `CALL public.delete_article('${data.headline.replace(/`/g, '\x60').replace(/'/g, '&#39;')}')`
-          pgClient.query(query, (pgerror, pgresult) => {
-            if (pgerror) {
-              res.json({
-                'success': false,
-                'data': pgerror
-              })
-            } else {
-              res.json({
-                'success': true,
-                'data': pgresult
-              })
-            }
-          })
-      } else {
-        return res.status(401).send('Unathorized access, credentials expired or invalid.')
-      }
-    })
-
-    this.app.use('/', router)
   }
 
   /**
@@ -313,10 +163,6 @@ class App{
       }
     })
 
-    /*router.get('/json/califica/catedraticos/:name', (req: express.Request, res: express.Response) => {
-
-    })*/
-
     router.get('/json/califica/universidades/:university/catedraticos', (req: express.Request, res: express.Response) => {
       let limit = parseInt(req.query.limit) || 20
       pgClient.query(`SELECT * FROM university_teachers('${req.params.university.replace(/[&()\-'"*]/g, '')}') LIMIT ${limit}`, (error, result) => {
@@ -347,7 +193,7 @@ class App{
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
 
           res.send(site)
         } else {
@@ -363,7 +209,7 @@ class App{
             metaTagsComponent: metaTags,
             paging: '',
             wrapper: wrapper
-          }).parse()
+          }).render()
 
           res.send(site)
         }
@@ -673,7 +519,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: '',
               wrapper: wrapper
-            }).parse()
+            }).render()
 
             res.send(site)
 
@@ -697,7 +543,7 @@ class App{
                 date: data[i].date,
                 subhead: data[i].subhead,
                 body: data[i].body
-              }).parse()
+              }).render()
             }
 
             const metaTags = new MetaTagsComponent({
@@ -710,7 +556,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: paging,
               wrapper: wrapper
-            }).parse()
+            }).render()
   
             res.send(site)
           }
@@ -748,16 +594,16 @@ class App{
               metaTagsComponent: metaTags,
               paging: '',
               wrapper: wrapper
-            }).parse()
+            }).render()
 
             res.send(site)
           } else {
             let paging: string = ''
             if (page > 0){
-              paging += '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
+              paging += `<a class="pager btn" id="less" href="?page=${page - 1}">Anterior página</a>`
             }
             if (result.rowCount === pageBoundary + 1) {
-              paging += '<button class="pager" id="more" onClick="addPage()">Más articulos</button>'
+              paging += `<a class="pager btn" id="more" href="?page=${page + 1}">Siguiente página</a>`
             }            
 
             let wrapper: string = ''
@@ -771,7 +617,7 @@ class App{
                 date: data[i].date,
                 subhead: data[i].subhead,
                 body: data[i].body
-              }).parse()
+              }).render()
             }
 
             const metaTags = new MetaTagsComponent({
@@ -784,7 +630,7 @@ class App{
               metaTagsComponent: metaTags,
               paging: paging,
               wrapper: wrapper
-            }).parse()
+            }).render()
 
             res.send(site)
           }

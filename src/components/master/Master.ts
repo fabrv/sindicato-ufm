@@ -22,7 +22,7 @@ const footer = fs.readFileSync(path.resolve(__dirname, 'footer.html'), 'utf8')
  */
 export class MasterComponent extends Component<MasterInterface> {
   constructor(viewData: MasterInterface) {
-    viewData.metaTags = viewData.metaTagsComponent.parse()
+    viewData.metaTags = viewData.metaTagsComponent.render()
     viewData.header = header
     viewData.footer = footer
     super(viewData, template)
