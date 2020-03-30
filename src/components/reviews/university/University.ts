@@ -20,7 +20,7 @@ const template = fs.readFileSync(path.resolve(__dirname, 'university.html'), 'ut
  */
 export class UniversityComponent extends Component<UniversityInterface> {
   constructor(viewData: UniversityInterface) {
-    viewData.stars = new StarsComponent(viewData.rating, 5).parse()
+    viewData.stars = new StarsComponent(viewData.rating, 5).render()
     super(viewData, template)
   }
 }

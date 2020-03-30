@@ -600,10 +600,10 @@ class App{
           } else {
             let paging: string = ''
             if (page > 0){
-              paging += '<button class="pager" id="less" onClick="lessPage()">Menos articulos</button>'
+              paging += `<a class="pager btn" id="less" href="?page=${page - 1}">Anterior página</a>`
             }
             if (result.rowCount === pageBoundary + 1) {
-              paging += '<button class="pager" id="more" onClick="addPage()">Más articulos</button>'
+              paging += `<a class="pager btn" id="more" href="?page=${page + 1}">Siguiente página</a>`
             }            
 
             let wrapper: string = ''
