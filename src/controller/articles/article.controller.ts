@@ -70,7 +70,7 @@ export class ArticleController {
                     new MetaTagsComponent({
                       title: article.headline,
                       description: article.subhead,
-                      titleLink: 'articulo/',
+                      titleLink: `articulo/${pArticle}`,
                       img: imgString
                     })
                     i = article.body.length
@@ -81,7 +81,7 @@ export class ArticleController {
               metaTags = new MetaTagsComponent({
                 title: article.headline,
                 description: article.subhead,
-                titleLink: 'articulo/'
+                titleLink: `articulo/${pArticle}`
               })
             }
           } else {
@@ -89,7 +89,7 @@ export class ArticleController {
             metaTags = new MetaTagsComponent({
               title: '404 😥',
               description: 'No encontramos ese articulo',
-              titleLink: 'articulo/'
+              titleLink: `articulo/${pArticle}`              
             })
           }          
           

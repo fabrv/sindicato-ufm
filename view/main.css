@@ -20,13 +20,18 @@
 	font-style: normal;
 }
 
+:root {
+  --main-bg-color: #FFFEFC;
+}
+
+
 body{
   font: normal 1.2em/150% 'Computer Modern Serif', Times, serif;
   margin: 0;
   padding: 0;
   text-align: center;
   color: #333;
-  background-color: #FFFEFC;
+  background-color: var(--main-bg-color);
 }
 
 h1, h2, h3, p, ol, ul, blockquote {
@@ -163,6 +168,10 @@ button, .new-article input, select, .btn{
   font-size: 16px;
   color: #333 !important;
   text-decoration: none;
+}
+
+select {
+  margin: 5px
 }
 
 button:hover, .new-article input:focus, textarea:focus, .btn:hover{
@@ -322,12 +331,15 @@ footer h1 {
 }
 
 input[type=text], [type=password] {
-  padding: 10px;
+  padding: 15px;
   border: none;
+  border-top: 2px solid transparent;
   border-bottom: 1px solid #e2e2e2;
   font-size: 15px;
   transition: all .2s;
   width: 100%;
+  background-color: white;
+  border-radius: 4px;
 }
 
 input[type=text]:hover, [type=password]:hover {
@@ -335,6 +347,7 @@ input[type=text]:hover, [type=password]:hover {
 }
 
 input[type=text]:focus, [type=password]:focus {
+  border-top: 0 solid transparent;
   border-bottom: 3px solid #326891;
   outline: none;
 }
@@ -349,11 +362,12 @@ input[type=text]:focus, [type=password]:focus {
   font-family: 'Segoe-MDL2';
   background-color: 'red';
   position: absolute;
-  top: 0;
+  top: 50%;
   right: 0;
-  height: calc(100% - 3px);
+  transform: translateY(-50%);  
   padding: 0 20px;
   background-color: white;
+  box-shadow: -1px 0 5px 1px white;
 }
 
 .modal {
