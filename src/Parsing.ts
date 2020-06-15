@@ -56,7 +56,7 @@ export class Parsing {
     return rendered
   }
 
-  parseGeneric(template: string, title: string, description: string, location: string, img: string = 'sindicato-icon-240x240.png'): string {
+  parseGeneric(template: string, title: string, description: string, location: string, img: string = '/sindicato-icon-240x240.png'): string {
     const master = fs.readFileSync(path.resolve(__dirname, 'components/Master.html'), 'utf8')
     const masterView = {
       metaTags: this.parseMetaTags(title, description, location, img, true),

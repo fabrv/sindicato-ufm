@@ -17,7 +17,7 @@ const template = fs.readFileSync(path.resolve(__dirname, 'metaTags.html'), 'utf8
  */
 export class MetaTagsComponent extends Component<MetaTagsInterface> {
   constructor(viewData: MetaTagsInterface) {
-    viewData.img = viewData.img ? viewData.img : 'sindicato-icon-240x240.png'
+    viewData.img = viewData.img ? viewData.img : '/sindicato-icon-240x240.png'
     super(viewData, template)
   }
 }
