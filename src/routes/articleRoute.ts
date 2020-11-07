@@ -19,7 +19,7 @@ export function articleRoute(pgClient: Client) {
   })
 
   router.get('/:headline/json', (req: Request, res: Response) => {
-    const headline = req.params.headline.replace(/_/g, ' ')
+    const headline = req.params.headline.replace(/-/g, ' ')
     articleService.getArticle(headline).then(article => {
       res.send(article)
     }).catch(error => {
@@ -28,7 +28,7 @@ export function articleRoute(pgClient: Client) {
   })
 
   router.get('/:headline', (req: Request, res: Response) => {
-    const headline = req.params.headline.replace(/_/g, ' ')
+    const headline = req.params.headline.replace(/-/g, ' ')
     articleService.getArticle(headline).then(article => {
 
       const articleComponent = new ArticleComponent({
@@ -36,7 +36,7 @@ export function articleRoute(pgClient: Client) {
         body: article.body,
         date: article.date,
         headline: article.headline,
-        headlineLink: headline.replace(/ /g, '_'),
+        headlineLink: article.headline.replace(/ /g, '-'),
         subhead: article.subhead
       }).render()
 
