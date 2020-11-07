@@ -9,7 +9,20 @@
     "copy": "copyfiles --up 1 src/components/**/*.html dist/",
     "build": "npm run copy && tsc",
     "live": "npm run build && npm start",
-    "start:live": "nodemon --ignore dist/ --exec npm run live"
+    "watch": "nodemon"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm run live",
+    "ext": ["ts", "html"]
   },
   "repository": {
     "type": "git",
@@ -23,13 +36,15 @@
   "homepage": "https://github.com/nevicad/sindicato-ufm#readme",
   "dependencies": {
     "bigojs": "^1.0.2",
-    "express": "^4.17.1",
     "copyfiles": "^2.3.0",
-    "pg": "^8.4.2"
+    "express": "^4.17.1",
+    "pg": "^8.4.2",
+    "showdown": "^1.9.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.8",
     "@types/pg": "^7.14.6",
+    "@types/showdown": "^1.9.3",
     "nodemon": "^2.0.4"
   }
 }

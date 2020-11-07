@@ -1,3 +1,4 @@
+import { sqlString } from "../utils/sqlString"
 import DbService from "./DbService"
 
 export interface article {
@@ -19,5 +20,9 @@ export class ArticleService extends DbService{
       throw new Error('Incorrect data type for limit or offset')
     }
     return (await this.client.query(`select * from "ARTICLE" limit ${limit} offset ${offset}`)).rows
+  }
+
+  async getArticle (headline: string): Promise<article> {
+    return (await this.client.query(`select * from "ARTICLE" where headline = '${sqlString(headline)}';`)).rows[0]
   }
 }

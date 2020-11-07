@@ -1,6 +1,7 @@
 import express from 'express'
+import path from 'path'
 import { Client } from 'pg'
-import { articleRoute } from './routes/article'
+import { articleRoute } from './routes/articleRoute'
 
 const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -13,7 +14,8 @@ pgClient.connect().catch((err) => {
 })
 
 const app = express()
-
-app.use('/articles', articleRoute(pgClient))
+// Load static files
+app.use(express.static(path.resolve(__dirname, '../public')))
+app.use('/articulo', articleRoute(pgClient))
 
 export default app
