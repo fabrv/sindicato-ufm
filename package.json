@@ -1,0 +1,34 @@
+{
+  "name": "cljs-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "clj -m cljs.main --target node --output-to out/main.js -c web-app.core",
+    "start": "node ./out/main.js",
+    "start:live": "nodemon"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      ".cljs_node_repl",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm run build && npm start",
+    "ext": "cljs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "hbs": "^4.1.1",
+    "morgan": "^1.10.0",
+    "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
