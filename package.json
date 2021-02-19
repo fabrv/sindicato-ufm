@@ -1,10 +1,10 @@
 {
-  "name": "cljs-express",
-  "version": "1.0.0",
+  "name": "sindicato-ufm",
+  "version": "4.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "out/main.js",
   "scripts": {
-    "build": "clj -m cljs.main --target node --output-to out/main.js -c web-app.core",
+    "build": "clj -m cljs.main --target node --output-to out/main.js -c sindicato-ufm.core",
     "start": "node ./out/main.js",
     "start:live": "nodemon"
   },
@@ -21,7 +21,7 @@
     "ext": "cljs"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
     "hbs": "^4.1.1",

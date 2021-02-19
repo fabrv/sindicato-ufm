@@ -1,4 +1,4 @@
-(ns web-app.routes.index)
+(ns sindicato-ufm.routes.index)
 (def express (js/require "express"))
 (def router (.Router express))
 

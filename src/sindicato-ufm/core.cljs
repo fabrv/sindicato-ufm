@@ -1,7 +1,7 @@
-(ns web-app.core
+(ns sindicato-ufm.core
   (:require
-   [web-app.routes.users :as users]
-   [web-app.routes.index :as index]))
+   [sindicato-ufm.routes.users :as users]
+   [sindicato-ufm.routes.index :as index]))
 
 (def express (js/require "express"))
 (def logger (js/require "morgan"))

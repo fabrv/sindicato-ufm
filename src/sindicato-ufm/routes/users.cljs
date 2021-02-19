@@ -1,4 +1,4 @@
-(ns web-app.routes.users)
+(ns sindicato-ufm.routes.users)
 (def express (js/require "express"))
 (def router (.Router express))
 
