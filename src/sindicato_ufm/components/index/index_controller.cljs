@@ -1,4 +1,4 @@
-(ns sindicato-ufm.services.index
+(ns sindicato-ufm.components.index.index-controller
   (:require
    [sindicato-ufm.services.categories :as cats]
    [sindicato-ufm.services.articles :as arts]
@@ -15,8 +15,8 @@
   (arts/get-by-category
    pgclient
    category
-   6
-   (* page 6)
+   100
+   (* page 100)
    (fn [articles err]
      (if err
        (throw err)

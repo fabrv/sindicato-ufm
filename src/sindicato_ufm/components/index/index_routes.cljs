@@ -1,6 +1,6 @@
-(ns sindicato-ufm.routes.index
+(ns sindicato-ufm.components.index.index_routes
   (:require
-   [sindicato-ufm.services.index :as index]))
+   [sindicato-ufm.components.index.index-controller :as controller]))
 
 (def express (js/require "express"))
 (def router (.Router express))
@@ -9,21 +9,21 @@
   (.get router
         "/"
         (fn [_ res]
-          (index/category pgclient "opinion" 0
+          (controller/category pgclient "opinion" 0
                           (fn [data]
                             (.render res "index" data)))))
 
   (.get router
         "/articulo/:article"
         (fn [req res]
-          (index/article pgclient (.. req -params -article)
+          (controller/article pgclient (.. req -params -article)
                          (fn [data]
                            (.render res "index" data)))))
 
   (.get router
         "/:category"
         (fn [req res]
-          (index/category pgclient (.. req -params -category) 0
+          (controller/category pgclient (.. req -params -category) 0
                           (fn [data]
                             (.render res "index" data)))))
 

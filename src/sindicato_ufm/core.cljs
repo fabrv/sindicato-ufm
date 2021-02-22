@@ -1,6 +1,7 @@
 (ns sindicato-ufm.core
   (:require
-   [sindicato-ufm.routes.index :as index]
+   [sindicato-ufm.components.index.index-routes :as index]
+   [sindicato-ufm.components.about.about-routes :as about]
    [sindicato-ufm.utils.sql :as sql]
    [sindicato-ufm.config :as config]))
 
@@ -10,7 +11,6 @@
 (def pg (js/require "pg"))
 
 (def client (new (. pg -Client) (clj->js config/db)))
-
 
 (def exphbs (js/require "express-handlebars"))
 (def app (express))
@@ -33,7 +33,7 @@
   (->
    (.connect client)
    (.then (fn [_]
-            (.log js/console "connected to pg")))
+            (.log js/console "Connected to database")))
    (.catch (fn [e] (.log js/console e))))
 
   (->
@@ -44,6 +44,7 @@
    (.use (logger "dev"))
    (.use (.static express "public"))
    ; Routes
+   (.use "/nosotros" (about/about-routes))
    (.use "/" (index/index-routes client))
    ; Starting the server
    (.listen (port) []
