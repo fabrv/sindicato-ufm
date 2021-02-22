@@ -1,0 +1,21 @@
+{{#each articles}}
+<div class="content">
+  <h1><a href="articulo/{{toLink this.headline}}">{{{this.headline}}}</a></h1>
+  <p class="info"><b>{{this.author}}</b>  -  {{this.date}}</p>
+  <p class="subhead">{{{this.subhead}}}</p>
+  <div class="body">{{{this.body}}}</div>
+  <hr>
+  ¿Te gustó el artículo?
+  Compartílo
+  <a class="twitter-share-button"
+    href="https://twitter.com/intent/tweet?text={{toLink this.headline}}, https://www.sindicato-ufm.com/articulo/{{toLink this.headline}}"
+    data-size="large"
+    target="_blank"
+    rel="noopener">
+  Twitter</a>
+  o síguenos en las
+  <a href="https://twitter.com/ElSindicatoUFM" rel="noopener" target="_blank">redes</a>
+  <hr>
+  <hr>
+</div>
+{{/each}}
