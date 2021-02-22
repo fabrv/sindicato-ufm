@@ -20,7 +20,9 @@
 
 (def hbs-config {:extname ".hbs"
                  :defaultLayout "layout"
-                 :helpers {:toLink sql/str-to-link}})
+                 :helpers {
+                           :toLink sql/str-to-link
+                           :mdToHTML sql/markdown-to-html}})
 
 (def hbs
   (.create exphbs (clj->js hbs-config)))
