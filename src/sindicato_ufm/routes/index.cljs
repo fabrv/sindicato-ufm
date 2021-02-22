@@ -16,7 +16,9 @@
   (.get router
         "/articulo/:article"
         (fn [req res]
-          ))
+          (index/article pgclient (.. req -params -article)
+                         (fn [data]
+                           (.render res "index" data)))))
 
   (.get router
         "/:category"

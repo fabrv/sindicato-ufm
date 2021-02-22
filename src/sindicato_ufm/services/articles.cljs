@@ -6,9 +6,9 @@
    (.then (fn [a] (callback (js->clj (. a -rows)) nil)))
    (.catch (fn [e] (callback nil e)))))
 
-(defn get-row [pgclient id callback]
+(defn get-row [pgclient headline callback]
   (->
-   (.query pgclient "select * from article where id = $1" #js[id])
+   (.query pgclient "select * from article where lower(headline) = $1" #js[headline])
    (.then (fn [a] (callback (js->clj (. a -rows)) nil)))
    (.catch (fn [e] (callback nil e)))))
 

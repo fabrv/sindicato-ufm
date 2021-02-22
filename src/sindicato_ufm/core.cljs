@@ -1,15 +1,15 @@
 (ns sindicato-ufm.core
   (:require
    [sindicato-ufm.routes.index :as index]
-   [clojure.string :as string] path))
+   [sindicato-ufm.utils.sql :as sql]
+   [sindicato-ufm.config :as config]))
 
 (def express (js/require "express"))
 (def logger (js/require "morgan"))
 (def path (js/require "path"))
 (def pg (js/require "pg"))
 
-(def client (new (. pg -Client) #js{:connectionString "postgres://yccfbeasuxbqjy:89298dfa903a83f89fb9e4ba35c25584f0363302379a75b7f028711033828ab2@ec2-184-73-153-64.compute-1.amazonaws.com:5432/dfp3idvcven38h"
-                                    :ssl #js{:rejectUnauthorized false}}))
+(def client (new (. pg -Client) (clj->js config/db)))
 
 
 (def exphbs (js/require "express-handlebars"))
@@ -18,12 +18,9 @@
 (defn port []
   (if (.. js/process -env -PORT) (.. js/process -env -PORT) 3000))
 
-(defn str-to-link [str]
-  (string/lower-case (string/replace str #" " "-")))
-
 (def hbs-config {:extname ".hbs"
                  :defaultLayout "layout"
-                 :helpers {:toLink str-to-link}})
+                 :helpers {:toLink sql/str-to-link}})
 
 (def hbs
   (.create exphbs (clj->js hbs-config)))
