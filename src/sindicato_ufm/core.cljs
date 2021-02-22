@@ -44,7 +44,7 @@
    (.use (logger "dev"))
    (.use (.static express "public"))
    ; Routes
-   (.use "/nosotros" (about/about-routes))
+   (.use "/nosotros" (about/about-routes client))
    (.use "/" (index/index-routes client))
    ; Starting the server
    (.listen (port) []
