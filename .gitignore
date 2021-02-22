@@ -1,7 +1,5 @@
 .vs/
 node_modules/
-.cljs_node_repl/
-out/
 .cpcache
 .lsp/
 *.log

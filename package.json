@@ -4,7 +4,7 @@
   "description": "",
   "main": "out/main.js",
   "scripts": {
-    "build": "clj -m cljs.main --target node --output-to out/main.js -c sindicato-ufm.core",
+    ":build": "clj -m cljs.main --target node --output-to out/main.js -c sindicato-ufm.core",
     "start": "node ./out/main.js",
     "start:live": "nodemon"
   },
@@ -17,7 +17,7 @@
     "watch": [
       "src"
     ],
-    "exec": "npm run build && npm start",
+    "exec": "npm run :build && npm start",
     "ext": "cljs"
   },
   "author": "",
